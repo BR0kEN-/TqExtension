@@ -14,7 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Drupal\\TqExtension": "src/"
+      "Drupal\\TqExtension\\": "src/"
     }
   },
   "config": {
