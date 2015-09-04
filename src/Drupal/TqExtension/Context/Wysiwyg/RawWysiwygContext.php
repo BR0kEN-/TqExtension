@@ -41,13 +41,12 @@ class RawWysiwygContext extends RawTqContext
         $id = $field->getAttribute('id');
 
         $instance = "CKEDITOR.instances['$id']";
-        $session = $this->getSession();
 
-        if (!$session->evaluateScript("return !!$instance")) {
+        if (!$this->executeJs("return !!$instance")) {
             throw new \Exception(sprintf(
                 'The editor "%s" was not found on the page %s',
                 $id,
-                $session->getCurrentUrl()
+                $this->getSession()->getCurrentUrl()
             ));
         }
 
@@ -74,7 +73,8 @@ class RawWysiwygContext extends RawTqContext
             $arguments = "'" . implode("','", $arguments) . "'";
         }
 
-        $editor = $this->getWysiwygInstance($selector);
-        return $this->getSession()->evaluateScript("$editor.$method($arguments);");
+        return $this->executeJs("return !object.$method($arguments);", [
+            '!object' => $this->getWysiwygInstance($selector),
+        ]);
     }
 }

@@ -6,13 +6,14 @@ namespace Drupal\TqExtension\Context\Email;
 
 // Helpers.
 use Behat\Gherkin\Node\TableNode;
-use Behat\Behat\Hook\Scope\BeforeStepScope;
 
 class EmailContext extends RawEmailContext
 {
     const PARSE_STRING = '(.+?)';
 
-    private $originalMailSystem = ['default-system' => 'DefaultMailSystem'];
+    private $originalMailSystem = [
+        'default-system' => 'DefaultMailSystem',
+    ];
 
     /**
      * @param string $to
@@ -25,8 +26,8 @@ class EmailContext extends RawEmailContext
      *
      * @throws \Exception
      *
-     * @Given /^(?:|I )check that email for "([^"]*)" (was sent|contains)$/
-     * @Then /^also check that email contains$/
+     * @Given /^(?:|I )check that email for "([^"]*)" (was sent|contains:)$/
+     * @Then /^also check that email contains:$/
      *
      * @email
      */
@@ -44,6 +45,8 @@ class EmailContext extends RawEmailContext
 
             foreach ($messages as $message) {
                 $failed = [];
+
+                $this->debug([var_export($message, true)]);
 
                 foreach ($rows as $field => $value) {
                     if (empty($message[$field]) || strpos($message[$field], $value) === false) {

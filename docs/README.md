@@ -6,15 +6,27 @@
 
 ## Table of contents
 
-- [Tq context](#tq-context)
-- [Drush context](#drush-context)
-- [Email context](#email-context)
-- [Form context](#form-context)
-- [Redirect context](#redirect-context)
-- [User context](#user-context)
-- [Wysiwyg context](#wysiwyg-context)
+- [TqContext](#tq-context)
+- [DrushContext](#drush-context)
+- [EmailContext](#email-context)
+- [FormContext](#form-context)
+- [RedirectContext](#redirect-context)
+- [UserContext](#user-context)
+- [WysiwygContext](#wysiwyg-context)
 
-### Tq context
+### TqContext
+
+```gherkin
+Given I switch to opened window
+```
+
+```gherkin
+Given I switch back to main window
+```
+
+```gherkin
+Given I switch to CKFinder window
+```
 
 ```gherkin
 Given I switch to an iframe "mediaBrowser"
@@ -42,10 +54,6 @@ Then I wait until AJAX is finished
 ```
 
 ```gherkin
-Then I wait 60 seconds
-```
-
-```gherkin
 ## Region can be found by CSS selector or name from "region_map" parameter of "behat.yml".
 Then I work with elements in "header" region
 ```
@@ -57,11 +65,15 @@ Then I checkout to whole page
 ```
 
 ```gherkin
+Then I wait 60 seconds
+```
+
+```gherkin
 ## In selector role can be: inaccurate text or label, CSS or region name.
 And scroll to "Meta tags" element
 ```
 
-### Drush context
+### DrushContext
 
 All scenarios, used steps from this context, should be tagged with `@drush` tag.
 
@@ -69,20 +81,29 @@ All scenarios, used steps from this context, should be tagged with `@drush` tag.
 Then I login with one time link
 ```
 
-### Email context
+### EmailContext
 
-All scenarios, used steps from this context, should be tagged with `@email` tag.
-
-```gherkin
-Then I check that email for "test@ffwagency.com" was sent
-```
+All scenarios, used steps from this context, should be tagged with `@email` tag. If
+you want to check letters via IMAP then `@imap` tag should be added.
 
 ```gherkin
 ## At least one field should be specified.
-Then I check that email for "test@ffwagency.com" contains
+Then I check that email for "test@ffwagency.com" contains:
   | subject | New email letter   |
   | body    | The body of letter |
+```
+
+```gherkin
+And also check that email contains:
   | from    | admin@example.com  |
+```
+
+```gherkin
+Then I click on link "Test" in email( that was sent on "test@ffwagency.com")
+```
+
+```gherkin
+Then I check that email for "test@ffwagency.com" was sent
 ```
 
 ```gherkin
@@ -90,42 +111,25 @@ Then I check that email for "test@ffwagency.com" contains
 Then I login with credentials that was sent on "test@ffwagency.com"
 ```
 
-### Form context
+### FormContext
 
 All scenarios, used steps from this context, should be tagged with `@form` tag.
 
-
 ```gherkin
-Then I should see the thumbnail
+Given I typed "Joe" in the "name" field and choose 2 option from autocomplete variants
 ```
 
 ```gherkin
-And I should see no errors
+## - The selector of form field can be inaccurate label, ID or name of the HTML element.
+## - The selector of user entity field can be machine name or label of the field.
+Then I fill in "field_company[und][0]" with value of field "user_company" of current user
 ```
 
 ```gherkin
-## - This method works with "Clientside Simple Hierarchical Select",
-##   "Simple Hierarchical Select" and "Hierarchical Select" modules.
-## - The label of field or wrapper ID can be used as selector.
-Then I select the following in "Categories" hierarchical select:
-  | EN                  |
-  | Financial Services  |
-```
-
-```gherkin
-And I attach file "600x400.jpg" to "Logotype"
-```
-
-```gherkin
-## This method must be used instead of 'I fill in "field" with "value"'!
-Then I fill "last_name" with "Bondarenko"
-```
-
-```gherkin
-## This method must be used instead of 'I fill in the following:'!
-Then I fill the following:
-  | first_name | Sergey    |
-  | last_name | Bondarenko |
+Given I (un)check the boxes:
+  | Consumer Products  |
+  | ICT                |
+  | Financial Services |
 ```
 
 ```gherkin
@@ -140,23 +144,56 @@ Given I check the( customized) "Show" radio button
 ```
 
 ```gherkin
-Given I (un)check the boxes:
-  | Consumer Products  |
-  | ICT                |
-  | Financial Services |
+## This method must be used instead of 'I fill in "field" with "value"'!
+## Drupal tokens available.
+Then I fill "last_name" with "Bondarenko"
 ```
 
 ```gherkin
-## - The selector of form field can be inaccurate label, ID or name of the HTML element.
-## - The selector of user entity field can be machine name or label of the field.
-Then I fill in "field_company[und][0]" with value of field "user_company" of current user
+## This method must be used instead of 'I fill in the following:'!
+Then I fill the following:
+  | first_name | Sergey    |
+  | last_name | Bondarenko |
 ```
 
 ```gherkin
-Given I typed "Joe" in the "name" field and choose 2 option from autocomplete variants
+And attach file "600x400.jpg" to "Logotype"
 ```
 
-### Redirect context
+```gherkin
+## - This method works with "Clientside Simple Hierarchical Select",
+##   "Simple Hierarchical Select" and "Hierarchical Select" modules.
+## - The label of field or wrapper ID can be used as selector.
+Then I select the following in "Categories" hierarchical select:
+  | EN                  |
+  | Financial Services  |
+```
+
+```gherkin
+Then should see the thumbnail
+```
+
+```gherkin
+And should see no errors
+```
+
+```gherkin
+And pick "Kiyv" from "City"
+```
+
+```gherkin
+Then I choose "October 13, 2017" in "Date" datepicker
+```
+
+```gherkin
+Then I check that "Date" datepicker contains "October 13, 2017" date
+```
+
+```gherkin
+Then I check that "October 13, 2017" is available for "Date" datepicker$
+```
+
+### RedirectContext
 
 All scenarios, used steps from this context, should be tagged with `@redirect` tag.
 
@@ -188,7 +225,7 @@ And I am on the "admin/config" page
 And (I )visit the "admin/config" page
 ```
 
-### User context
+### UserContext
 
 All scenarios, used steps from this context, should be tagged with `@user` tag.
 
@@ -221,7 +258,7 @@ Then I am logged in with credentials:
 Given I am unauthorized user
 ```
 
-### WYSIWYG context
+### WysiwygContext
 
 All scenarios, used steps from this context, should be tagged with `@wysiwyg`
 tag. Also, any WYSIWYG editor can be found by usual selector of form field.

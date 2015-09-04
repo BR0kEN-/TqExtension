@@ -9,7 +9,7 @@ of the [TinyMCE](http://www.tinymce.com) planed in future.
 @wysiwyg
 Scenario: Testing WYSIWYG
   Given I am logged in as a user with "administrator" role
-  Then I am at "node/add/employer"
+  Then I am on the "node/add/employer" page
   And work with "Career" WYSIWYG editor
   And fill "<strong>Additional</strong>" in WYSIWYG editor
   And type " information" in WYSIWYG editor

@@ -11,21 +11,6 @@ use Behat\Mink as Mink;
 class RedirectContext extends RawRedirectContext
 {
     /**
-     * Initial URL of the page.
-     *
-     * @var string
-     */
-    private $startUrl = '';
-
-    /**
-     * @BeforeStep
-     */
-    public function beforeShouldBeRedirected()
-    {
-        $this->startUrl = $this->unTrailingSlashIt($this->getSession()->getCurrentUrl());
-    }
-
-    /**
      * @param string $page
      *   Expected page URL.
      *
@@ -47,7 +32,7 @@ class RedirectContext extends RawRedirectContext
             $url = $this->unTrailingSlashIt($this->getSession()->getCurrentUrl());
             sleep(1);
 
-            if ($url != $this->startUrl) {
+            if ($url != $this->pageUrl) {
                 if (isset($page)) {
                     $page = $this->unTrailingSlashIt($page);
 
@@ -64,12 +49,16 @@ class RedirectContext extends RawRedirectContext
     }
 
     /**
+     * @example
+     * Given user should have an access to the following pages
+     *   | page/url |
+     *
      * @param string $not
      * @param TableNode $paths
      *
      * @throws \Exception
      *
-     * @Given /^user should(| not) have an access to the following pages$/
+     * @Given /^user should(| not) have an access to the following pages:$/
      *
      * @redirect
      */
@@ -98,10 +87,7 @@ class RedirectContext extends RawRedirectContext
      * for accessibility before visiting.
      *
      * Also, this step can be replaced by:
-     * @example
-     * Given user should have an access to the following pages
-     *   | page/url |
-     * Then I am at "page/url"
+     *   Then I am at "page/url"
      *
      * @param string $path
      *

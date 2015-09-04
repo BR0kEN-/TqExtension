@@ -2,7 +2,7 @@
 /**
  * @author Sergey Bondarenko, <sb@firstvector.org>
  */
-namespace Drupal\TqExtension;
+namespace Drupal\TqExtension\Utils;
 
 final class EntityDrupalWrapper
 {
@@ -62,9 +62,9 @@ final class EntityDrupalWrapper
      * @param mixed $data
      * @param array $info
      *
-     * @return \EntityDrupalWrapper
+     * @return \EntityDrupalWrapper|\EntityMetadataWrapper
      */
-    public function getWrapper($data = null, array $info = [])
+    public function wrapper($data = null, array $info = [])
     {
         return entity_metadata_wrapper($this->entity, $data, $info);
     }

@@ -6,7 +6,6 @@ namespace Drupal\TqExtension\Context\User;
 
 // Helpers.
 use Behat\Gherkin\Node\TableNode;
-use Drupal\TqExtension\EntityDrupalWrapper;
 
 class UserContext extends RawUserContext
 {
@@ -27,62 +26,26 @@ class UserContext extends RawUserContext
      * @throws \Exception
      *   When required fields are not filled.
      *
-     * @Given /^(?:|I am )logged in as a user with "([^"]*)" role(?:|s)(?:| and filled fields)$/
+     * @Given /^(?:|I am )logged in as a user with "([^"]*)" role(?:|s)(?:| and filled fields:)$/
+     *
+     * @user @api
+     */
+    public function loginCreatedUser($roles, TableNode $fields = null)
+    {
+        $this->createDrupalUser($roles, $fields);
+        $this->loginUser();
+    }
+
+    /**
+     * @see loginCreatedUser()
+     *
+     * @Then /^(?:|I )create a user with "([^"]*)" role(?:|s)(?:| and filled fields:)$/
      *
      * @user @api
      */
     public function createDrupalUser($roles, TableNode $fields = null)
     {
-        $user = $this->createUserWithRoles($roles);
-
-        if ($fields !== null) {
-            $entity = new EntityDrupalWrapper('user');
-            $wrapper = $entity->getWrapper(user_load($user->uid));
-            $required = $entity->getRequiredFields();
-
-            // Fill fields. Field can be found by name or label.
-            foreach ($fields->getRowsHash() as $field_name => $value) {
-                $field_info = $entity->getFieldInfo($field_name);
-
-                if (empty($field_info)) {
-                    continue;
-                }
-
-                $field_name = $field_info['field_name'];
-
-                switch ($field_info['type']) {
-                    case 'taxonomy_term_reference':
-                        // Try to find taxonomy term by it name.
-                        $terms = taxonomy_term_load_multiple([], ['name' => $value]);
-
-                        if (empty($terms)) {
-                            throw new \InvalidArgumentException(sprintf('Taxonomy term "%s" does no exist.', $value));
-                        }
-
-                        $value = key($terms);
-                        break;
-                }
-
-                $wrapper->{$field_name}->set($value);
-
-                // Remove field from $required if it was there and filled.
-                if (isset($required[$field_name])) {
-                    unset($required[$field_name]);
-                }
-            }
-
-            // Throw an exception when one of required fields was not filled.
-            if (!empty($required)) {
-                throw new \Exception(sprintf(
-                    'The following fields "%s" are required and has not filled.',
-                    implode('", "', $required)
-                ));
-            }
-
-            $wrapper->save();
-        }
-
-        $this->loginUser();
+        $this->createUserWithRoles($roles, null !== $fields ? $fields->getRowsHash() : []);
     }
 
     /**
