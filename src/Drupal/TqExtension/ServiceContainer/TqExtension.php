@@ -28,7 +28,7 @@ class TqExtension implements Extension
      */
     public function __construct(ServiceProcessor $processor = null)
     {
-        $this->processor = $processor ? : new ServiceProcessor;
+        $this->processor = $processor ?: new ServiceProcessor;
         $this->baseNamespace = implode('\\', array_slice(explode('\\', __NAMESPACE__), 0, -1));
     }
 
@@ -61,8 +61,8 @@ class TqExtension implements Extension
             $config,
             $this->contextNamespace()
         ]);
-        $definition->addTag(ContextExtension::INITIALIZER_TAG, ['priority' => 0]);
 
+        $definition->addTag(ContextExtension::INITIALIZER_TAG, ['priority' => 0]);
         $container->setDefinition(ContextExtension::INITIALIZER_TAG . '.initializer', $definition);
     }
 

@@ -52,6 +52,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      * @var array
      */
     protected static $tags = [];
+    protected $pageUrl = '';
 
     /**
      * @param string $method
@@ -163,6 +164,29 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         return $this->getBaseUrl() . '/sites/default/files';
     }
 
+    protected function processJavaScript(&$text)
+    {
+        $text = str_replace(['$'], ['jQuery'], $text);
+
+        return $this;
+    }
+
+    /**
+     * @return \WebDriver\Session
+     */
+    public function getWebDriverSession()
+    {
+        return $this->getSession()->getDriver()->getWebDriverSession();
+    }
+
+    /**
+     * @todo Remove this when DrupalExtension will be used Mink >=1.6 and use $this->getSession->getWindowNames();
+     */
+    public function getWindowNames()
+    {
+        return $this->getWebDriverSession()->window_handles();
+    }
+
     /**
      * @param NodeElement $element
      * @param string $script
@@ -177,17 +201,41 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function executeJsOnElement(NodeElement $element, $script)
     {
-        /* @var Selenium2Driver $driver */
-        $driver = $this->getSession()->getDriver();
-        $session = $driver->getWebDriverSession();
-
+        $session = $this->getWebDriverSession();
         // We need to trigger something with "withSyn" method, because, otherwise an element won't be found.
         $element->focus();
+
+        $this->processJavaScript($script)->debug([$script]);
 
         return $session->execute([
             'script' => str_replace('{{ELEMENT}}', 'arguments[0]', $script),
             'args' => [['ELEMENT' => $session->element('xpath', $element->getXpath())->getID()]],
         ]);
+    }
+
+    /**
+     * @param array $strings
+     *
+     * @return self
+     */
+    public function debug(array $strings)
+    {
+        if ($this->hasTag('debug')) {
+            $this->consoleOutput('comment', 4, array_merge(['<info>DEBUG:</info>'], $strings));
+        }
+
+        return $this;
+    }
+
+    public function executeJs($javascript, array $args = [])
+    {
+        $javascript = format_string($javascript, $args);
+
+        return $this
+            ->processJavaScript($javascript)
+            ->debug([$javascript])
+            ->getSession()
+            ->evaluateScript($javascript);
     }
 
     /**
@@ -274,6 +322,12 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         return isset($this->parameters[$name]) ? $this->parameters[$name] : false;
     }
 
+    /**
+     * @param string $type
+     *   Could be "comment",
+     * @param int $indent
+     * @param array $strings
+     */
     public function consoleOutput($type, $indent, array $strings)
     {
         $indent = implode(' ', array_fill_keys(range(0, $indent), ''));

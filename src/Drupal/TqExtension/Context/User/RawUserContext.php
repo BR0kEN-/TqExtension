@@ -5,6 +5,7 @@
 namespace Drupal\TqExtension\Context\User;
 
 // Contexts.
+use Drupal\TqExtension\Utils\EntityDrupalWrapper;
 use Drupal\TqExtension\Context\RawTqContext;
 
 class RawUserContext extends RawTqContext
@@ -15,16 +16,13 @@ class RawUserContext extends RawTqContext
      *
      * @return \stdClass
      */
-    public function createUserWithRoles($roles)
+    public function createUserWithRoles($roles, array $fields = [])
     {
-        $user = $this->createTestUser();
+        $user = $this->createTestUser($fields);
         $driver = $this->getDriver();
 
         foreach (array_map('trim', explode(',', $roles)) as $role) {
-            if (!in_array(strtolower($role), ['authenticated', 'authenticated user'])) {
-                // Only add roles other than 'authenticated user'.
-                $driver->userAddRole($user, $role);
-            }
+            $driver->userAddRole($user, $role);
         }
 
         return $user;
@@ -82,6 +80,8 @@ class RawUserContext extends RawTqContext
 
             throw new \Exception($message);
         }
+
+        $GLOBALS['user'] = $this->user;
     }
 
     /**
@@ -97,7 +97,7 @@ class RawUserContext extends RawTqContext
         $cookieName = session_name();
         $cookie = $this->getSession()->getCookie($cookieName);
 
-        if ($cookie !== null) {
+        if (null !== $cookie) {
             $this->getSession('goutte')->setCookie($cookieName, $cookie);
 
             return true;
@@ -114,23 +114,70 @@ class RawUserContext extends RawTqContext
     }
 
     /**
-     * @param array $data
+     * @param array $fields
      *   Additional data for user account.
      *
      * @return \stdClass
      */
-    public function createTestUser(array $data = [])
+    public function createTestUser(array $fields = [])
     {
         $random = $this->getRandom();
         $username = $random->name(8);
-        $user = $data + [
+        $user = [
             'name' => $username,
             'pass' => $random->name(16),
             'mail' => "$username@example.com",
+            'roles' => [
+                DRUPAL_AUTHENTICATED_RID => 'authenticated user',
+            ],
         ];
 
         $user = (object) $user;
+
+        if (!empty($fields)) {
+            $entity = new EntityDrupalWrapper('user');
+            $required = $entity->getRequiredFields();
+
+            // Fill fields. Field can be found by name or label.
+            foreach ($fields as $field_name => $value) {
+                $field_info = $entity->getFieldInfo($field_name);
+
+                if (!empty($field_info)) {
+                    $field_name = $field_info['field_name'];
+                }
+
+                $user->$field_name = $value;
+
+                // Remove field from $required if it was there and filled.
+                unset($required[$field_name]);
+            }
+
+            // Throw an exception when one of required fields was not filled.
+            if (!empty($required)) {
+                throw new \Exception(sprintf(
+                    'The following fields "%s" are required and has not filled.',
+                    implode('", "', $required)
+                ));
+            }
+        }
+
+        if (isset($this->user)) {
+            $tmp = $this->user;
+        }
+
+        if (isset($user->name)) {
+            $existing_user = user_load_by_name($user->name);
+
+            if (!empty($existing_user)) {
+                user_delete($existing_user->uid);
+            }
+        }
+
         $this->userCreate($user);
+
+        if (isset($tmp)) {
+            $this->user;
+        }
 
         return $user;
     }

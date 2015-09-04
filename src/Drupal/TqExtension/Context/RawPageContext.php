@@ -25,7 +25,7 @@ class RawPageContext extends RawDrupalContext
      */
     public function getWorkingElement()
     {
-        if (self::$workingElement === null) {
+        if (null === self::$workingElement) {
             $this->setWorkingElement($this->getBodyElement());
         }
 
@@ -67,14 +67,14 @@ class RawPageContext extends RawDrupalContext
         $element = $this->getWorkingElement();
         $field = $element->findField($selector);
 
-        if ($field === null) {
+        if (null === $field) {
             foreach ($this->findLabels($selector) as $forAttribute => $label) {
                 // We trying to find an ID with "-upload" suffix, because some
                 // image inputs in Drupal are suffixed by it.
                 foreach ([$forAttribute, "$forAttribute-upload"] as $elementID) {
                     $field = $element->findById($elementID);
 
-                    if ($field !== null) {
+                    if (null !== $field) {
                         return $field;
                     }
                 }
@@ -88,7 +88,7 @@ class RawPageContext extends RawDrupalContext
     {
         $button = $this->getWorkingElement()->findButton($selector);
 
-        if ($button === null) {
+        if (null === $button) {
             // @todo Improve button selector.
             return $this->findByInaccurateText('(//button | //input)', $selector);
         }
@@ -148,6 +148,20 @@ class RawPageContext extends RawDrupalContext
     public function getBodyElement($sessionName = null)
     {
         return $this->getSession($sessionName)->getPage()->find('css', 'body');
+    }
+
+    /**
+     * @param NodeElement $element
+     * @param string $attribute
+     * @param string $value
+     *
+     * @return NodeElement|null
+     */
+    public function getParentWithAttribute($element, $attribute, $value = '')
+    {
+        $attribute = empty($value) ? "@$attribute" : "contains(@$attribute, '$value')";
+
+        return $element->find('xpath', "/ancestor::*[$attribute]");
     }
 
     /**

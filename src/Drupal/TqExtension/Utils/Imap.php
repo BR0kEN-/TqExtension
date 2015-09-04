@@ -2,9 +2,9 @@
 /**
  * @author Sergey Bondarenko, <sb@firstvector.org>
  */
-namespace Drupal\TqExtension\Context\Email;
+namespace Drupal\TqExtension\Utils;
 
-trait ImapChecker
+trait Imap
 {
     /**
      * @var resource[]
@@ -71,7 +71,7 @@ trait ImapChecker
         foreach ($arguments as $name => $value) {
             $name = strtoupper($name);
 
-            if ($value === false) {
+            if (false === $value) {
                 $query[] = $name;
             } elseif (!empty($value)) {
                 $query[] = sprintf('%s "%s"', $name, $value);
@@ -103,7 +103,7 @@ trait ImapChecker
             $data = $process(imap_fetchbody($this->connections[$email], $messageId, $option));
 
             if (!empty($data)) {
-                if (strtolower($parameter->attribute) === 'charset' && strtolower($parameter->value) !== 'utf-8') {
+                if ('charset' === strtolower($parameter->attribute) && 'utf-8' !== strtolower($parameter->value)) {
                     $data = iconv($parameter->value, 'utf-8', $data);
                 }
 

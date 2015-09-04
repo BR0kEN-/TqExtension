@@ -13,7 +13,10 @@ use WebDriver\Exception\NoSuchElement;
 use Behat\Gherkin\Node\TableNode;
 use WebDriver\Service\CurlService;
 use Behat\Mink\Element\NodeElement;
-use Drupal\TqExtension\EntityDrupalWrapper;
+
+// Utils.
+use Drupal\TqExtension\Utils\DatePicker;
+use Drupal\TqExtension\Utils\EntityDrupalWrapper;
 
 class FormContext extends RawFormContext
 {
@@ -53,7 +56,7 @@ class FormContext extends RawFormContext
         $this->throwNoSuchElementException($selector, $field);
 
         // Syn - a Standalone Synthetic Event Library, provided by Selenium.
-        $this->executeJsOnElement($field, "Syn.type({{ELEMENT}}, '$value')");
+        $this->executeJsOnElement($field, sprintf("Syn.type({{ELEMENT}}, '%s')", token_replace($value)));
         $this->waitAjaxAndAnimations();
 
         $autocomplete = $field->getParent()->findById('autocomplete');
@@ -79,7 +82,7 @@ class FormContext extends RawFormContext
             $field->keyUp(40);
         }
 
-        // 13 - enter
+        // 13 - return
         $field->keyDown(13);
         $field->keyUp(13);
 
@@ -117,7 +120,7 @@ class FormContext extends RawFormContext
         }
 
         $entity = new EntityDrupalWrapper('user');
-        $wrapper = $entity->getWrapper(user_load($this->user->uid));
+        $wrapper = $entity->wrapper($this->user->uid);
         $user_field = $entity->getFieldNameByLocator($user_field);
 
         if (empty($wrapper->$user_field)) {
@@ -221,7 +224,7 @@ class FormContext extends RawFormContext
         $field = $this->findField($selector);
 
         $this->throwNoSuchElementException($selector, $field);
-        $field->setValue($value);
+        $field->setValue(token_replace($value));
     }
 
     /**
@@ -292,7 +295,7 @@ class FormContext extends RawFormContext
         // Try to selects by wrapper ID.
         $wrapper = $element->findById($selector);
 
-        if ($wrapper !== null) {
+        if (null !== $wrapper) {
             $labels = $wrapper->findAll('xpath', '//label[@for]');
         } else {
             $labels = $this->findLabels($selector);
@@ -392,7 +395,7 @@ class FormContext extends RawFormContext
 
         // Some modules are inserted an empty container for errors before
         // they are arise. The "Clientside Validation" - one of them.
-        if ($errors) {
+        if (null !== $errors) {
             $text = $errors->getText();
 
             if (!empty($text)) {
@@ -410,5 +413,60 @@ class FormContext extends RawFormContext
                 throw new \Exception(sprintf('Element "#%s" has an error class.', $formElement->getAttribute('id')));
             }
         }
+    }
+
+    /**
+     * @param string $option
+     * @param string $selector
+     *
+     * @Then /^(?:|I )pick "([^"]*)" from "([^"]*)"$/
+     *
+     * @form
+     */
+    public function selectFrom($option, $selector)
+    {
+        $element = $this->findElement($selector);
+        $this->throwNoSuchElementException($selector, $element);
+        $element->selectOption($option);
+    }
+
+    /**
+     * @param string $date
+     * @param string $selector
+     *
+     * @And /^(?:|I )choose "([^"]*)" in "([^"]*)" datepicker$/
+     * @Then /^(?:|I )set the "([^"]*)" for "([^"]*)" datepicker$/
+     *
+     * @form @datepicker @javascript
+     */
+    public function setDate($date, $selector)
+    {
+        (new DatePicker($this, $selector, $date))->isDateAvailable()->setDate()->isDateSelected();
+    }
+
+    /**
+     * @param string $selector
+     * @param string $date
+     *
+     * @Then /^(?:|I )check that "([^"]*)" datepicker contains "([^"]*)" date$/
+     *
+     * @form @datepicker @javascript
+     */
+    public function isDateSelected($selector, $date)
+    {
+        (new DatePicker($this, $selector, $date))->isDateSelected();
+    }
+
+    /**
+     * @param string $date
+     * @param string $selector
+     *
+     * @Then /^(?:|I )check that "([^"]*)" is available for "([^"]*)" datepicker$/
+     *
+     * @form @datepicker @javascript
+     */
+    public function isDateAvailable($date, $selector)
+    {
+        (new DatePicker($this, $selector, $date))->isDateAvailable();
     }
 }

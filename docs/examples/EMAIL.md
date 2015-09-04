@@ -1,6 +1,7 @@
 ### Testing sending letters
 
-Scenarios, which will use steps for testing emails, should be tagged with `@email` tag.
+Scenarios, which will use steps for testing emails, should be tagged
+with `@email` tag. If you want to use IMAP, then `@imap` tag should be added.
 
 ```gherkin
 @email

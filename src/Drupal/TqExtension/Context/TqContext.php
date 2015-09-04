@@ -24,8 +24,7 @@ class TqContext extends RawTqContext
      */
     public function iSwitchToWindow()
     {
-        $session = $this->getSession();
-        $windows = $session->getWindowNames();
+        $windows = $this->getWindowNames();
 
         // If the window was not switched yet, then store it name and working element for future switching back.
         if (empty($this->mainWindow)) {
@@ -40,7 +39,7 @@ class TqContext extends RawTqContext
             $this->mainWindow = [];
         }
 
-        $session->switchToWindow($window);
+        $this->getSession()->switchToWindow($window);
         $this->setWorkingElement(isset($element) ? $element : $this->getBodyElement());
     }
 
@@ -104,6 +103,7 @@ class TqContext extends RawTqContext
     {
         $element = $this->findElement($selector);
         $this->throwNoSuchElementException($selector, $element);
+        $this->beforeStep();
 
         // 1. Get the action, divide string by spaces and put it parts into an array.
         // 2. Apply the "ucfirst" function for each array element.
@@ -225,10 +225,22 @@ class TqContext extends RawTqContext
         $javascript = '';
 
         foreach (['Start' => 'true', 'Complete' => 'false'] as $name => $state) {
-            $javascript .= "jQuery(document).bind('ajax$name',function(){window.__behatAjax=$state});";
+            $javascript .= "jQuery(document).bind('ajax$name', function() {window.__behatAjax=$state;});";
         }
 
         $this->getSession()->executeScript($javascript);
+    }
+
+    /**
+     * IMPORTANT! The "BeforeStep" hook should not be tagged, because steps has no tags!
+     *
+     * @BeforeStep
+     */
+    public function beforeStep(Scope\BeforeStepScope $step = null)
+    {
+        if (null !== $step) {
+            $this->pageUrl = $this->unTrailingSlashIt($this->getSession()->getCurrentUrl());
+        }
     }
 
     /**
@@ -238,13 +250,13 @@ class TqContext extends RawTqContext
      *
      * @AfterStep
      */
-    public function afterStepWaitUntilAjaxIsFinished(Scope\AfterStepScope $step)
+    public function afterStep(Scope\AfterStepScope $step)
     {
         // If "mainWindow" variable is not empty that means that additional window has been opened.
         // Then, if number of opened windows equals to one, we need to switch back to original window,
         // otherwise an error will occur: "Window not found. The browser window may have been closed".
         // This happens due to auto closing window by JavaScript (CKFinder does this after choosing a file).
-        if (!empty($this->mainWindow) && count($this->getSession()->getWindowNames()) == 1) {
+        if (!empty($this->mainWindow) && count($this->getWindowNames()) == 1) {
             $this->iSwitchToWindow();
         }
 
