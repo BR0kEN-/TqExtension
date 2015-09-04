@@ -3,12 +3,12 @@
 The **TqExtension** provide a flexible methods and API for testing websites running on Drupal 7. All
 code in this repository extends an integration layer provided by [DrupalExtension](https://github.com/jhedstrom/drupalextension).
 
-[![Build Status](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/badges/build.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/build-status/master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/?branch=master)
-[![Latest Stable Version](https://poser.pugx.org/behat/TqExtension/v/stable.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
-[![Total Downloads](https://poser.pugx.org/behat/TqExtension/downloads.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
-[![Latest Unstable Version](https://poser.pugx.org/behat/drupal-propeople-context/v/unstable.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
-[![License](https://poser.pugx.org/behat/drupal-propeople-context/license.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
+[![Build Status](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/badges/build.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/behat/TqExtension/v/stable.svg)](https://packagist.org/packages/drupal/tqextension)
+[![Total Downloads](https://poser.pugx.org/drupal/tqextension/downloads.svg)](https://packagist.org/packages/drupal/tqextension)
+[![Latest Unstable Version](https://poser.pugx.org/drupal/tqextension/v/unstable.svg)](https://packagist.org/packages/drupal/tqextension)
+[![License](https://poser.pugx.org/drupal/tqextension/license.svg)](https://packagist.org/packages/drupal/tqextension)
 
 ## Installation
 
