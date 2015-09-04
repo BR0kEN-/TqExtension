@@ -5,7 +5,7 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 
 [![Build Status](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/badges/build.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/?branch=master)
-[![Latest Stable Version](https://poser.pugx.org/behat/TqExtension/v/stable.svg)](https://packagist.org/packages/drupal/tqextension)
+[![Latest Stable Version](https://poser.pugx.org/drupal/tqextension/v/stable.svg)](https://packagist.org/packages/drupal/tqextension)
 [![Total Downloads](https://poser.pugx.org/drupal/tqextension/downloads.svg)](https://packagist.org/packages/drupal/tqextension)
 [![Latest Unstable Version](https://poser.pugx.org/drupal/tqextension/v/unstable.svg)](https://packagist.org/packages/drupal/tqextension)
 [![License](https://poser.pugx.org/drupal/tqextension/license.svg)](https://packagist.org/packages/drupal/tqextension)
