@@ -6,13 +6,13 @@
 
 ## Table of contents
 
-- [TqContext](#tq-context)
-- [DrushContext](#drush-context)
-- [EmailContext](#email-context)
-- [FormContext](#form-context)
-- [RedirectContext](#redirect-context)
-- [UserContext](#user-context)
-- [WysiwygContext](#wysiwyg-context)
+- [TqContext](#tqcontext)
+- [DrushContext](#drushcontext)
+- [EmailContext](#emailcontext)
+- [FormContext](#formcontext)
+- [RedirectContext](#redirectcontext)
+- [UserContext](#usercontext)
+- [WysiwygContext](#wysiwygcontext)
 
 ### TqContext
 
@@ -75,16 +75,11 @@ And scroll to "Meta tags" element
 
 ### DrushContext
 
-All scenarios, used steps from this context, should be tagged with `@drush` tag.
-
 ```gherkin
 Then I login with one time link
 ```
 
-### EmailContext
-
-All scenarios, used steps from this context, should be tagged with `@email` tag. If
-you want to check letters via IMAP then `@imap` tag should be added.
+### [EmailContext](examples/EMAIL.md)
 
 ```gherkin
 ## At least one field should be specified.
@@ -112,8 +107,6 @@ Then I login with credentials that was sent on "test@ffwagency.com"
 ```
 
 ### FormContext
-
-All scenarios, used steps from this context, should be tagged with `@form` tag.
 
 ```gherkin
 Given I typed "Joe" in the "name" field and choose 2 option from autocomplete variants
@@ -195,8 +188,6 @@ Then I check that "October 13, 2017" is available for "Date" datepicker$
 
 ### RedirectContext
 
-All scenarios, used steps from this context, should be tagged with `@redirect` tag.
-
 ```gherkin
 ## Waits for only one redirect and goes to the next step.
 Then I should be redirected
@@ -227,8 +218,6 @@ And (I )visit the "admin/config" page
 
 ### UserContext
 
-All scenarios, used steps from this context, should be tagged with `@user` tag.
-
 ```gherkin
 ## - This method must be used instead of 'I am logged in as a user with the "administrator" role'!
 ## - Multiple roles can be listed by comma: 'And logged in as a user with "administrator, editor" roles'.
@@ -258,13 +247,7 @@ Then I am logged in with credentials:
 Given I am unauthorized user
 ```
 
-### WysiwygContext
-
-All scenarios, used steps from this context, should be tagged with `@wysiwyg`
-tag. Also, any WYSIWYG editor can be found by usual selector of form field.
-
-**Note**: only CKEditor supported for now, but, in future we're planing to provide TinyMCE
-support.
+### [WysiwygContext](examples/WYSIWYG.md)
 
 ```gherkin
 ## If this step was used, then you no need to specify selector for next steps

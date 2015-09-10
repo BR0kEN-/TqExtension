@@ -28,12 +28,9 @@ class EmailContext extends RawEmailContext
      *
      * @Given /^(?:|I )check that email for "([^"]*)" (was sent|contains:)$/
      * @Then /^also check that email contains:$/
-     *
-     * @email
      */
     public function checkEmail($to = '', $type = '', TableNode $values = null)
     {
-        $messages = $this->getEmailMessages($to);
         $emptyData = null === $values;
 
         if ('contains' === $type && $emptyData) {
@@ -43,7 +40,7 @@ class EmailContext extends RawEmailContext
         if (!$emptyData) {
             $rows = $values->getRowsHash();
 
-            foreach ($messages as $message) {
+            foreach ($this->getEmailMessages($to) as $message) {
                 $failed = [];
 
                 $this->debug([var_export($message, true)]);
@@ -54,24 +51,23 @@ class EmailContext extends RawEmailContext
                     }
                 }
 
-                if (empty($failed)) {
-                    return;
+                if (!empty($failed)) {
+                    $exception = [];
+
+                    foreach ($failed as $field => $value) {
+                        $exception[] = sprintf('The "%s" field has not contain the "%s" value.', $field, $value);
+                    }
+
+                    throw new \Exception(implode(PHP_EOL, $exception));
                 }
-            }
-
-            if (!empty($failed)) {
-                $exception = [];
-
-                foreach ($failed as $field => $value) {
-                    $exception[] = sprintf('The "%s" field has not contain the "%s" value.', $field, $value);
-                }
-
-                throw new \Exception(implode(PHP_EOL, $exception));
             }
         }
     }
 
     /**
+     * @param string $link
+     * @param string $to
+     *
      * @Given /^(?:|I )click on link "([^"]*)" in email(?:| that was sent on "([^"]*)")$/
      */
     public function clickLink($link, $to = '')
@@ -100,8 +96,6 @@ class EmailContext extends RawEmailContext
      *   When credentials cannot be parsed or does not exist.
      *
      * @Given /^(?:|I )login with credentials that was sent on (?:"([^"]*)"|email)$/
-     *
-     * @email @api
      */
     public function loginWithCredentialsThatWasSentByEmail($to = '')
     {
@@ -120,6 +114,7 @@ class EmailContext extends RawEmailContext
          *     );
          * }
          *
+         * // Drupal module.
          * function hook_mail($key, &$message, $params) {
          *     switch ($key) {
          *         case 'account':
@@ -129,6 +124,9 @@ class EmailContext extends RawEmailContext
          *         break;
          *     }
          * }
+         *
+         * // Behat usage.
+         * mail_account_strings('(.+?)', '(.+?)');
          * @endcode
          *
          * @var callable $callback
@@ -155,9 +153,9 @@ class EmailContext extends RawEmailContext
             if (!empty($message['body'])) {
                 $matches = [];
 
-                foreach (explode(PHP_EOL, $message['body']) as $string) {
+                foreach (explode("\n", $message['body']) as $string) {
                     foreach ($regexps as $name => $regexp) {
-                        if ($regexp && preg_match("/^$regexp$/i", $string, $match)) {
+                        if (!empty($regexp) && preg_match("/^$regexp$/i", $string, $match)) {
                             $matches[$name] = $match[1];
                         }
                     }

@@ -41,8 +41,7 @@ class DatePicker
             throw new \RuntimeException('jQuery DatePicker is not available on the page.');
         }
 
-        $this->element = $this->context->findElement($selector);
-        $this->context->throwNoSuchElementException($selector, $this->element);
+        $this->element = $this->context->element('*', $selector);
         $this->date = sprintf("new Date('%s')", date('c', strtotime($date)));
     }
 

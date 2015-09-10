@@ -5,8 +5,8 @@
 namespace Drupal\TqExtension\Context\Email;
 
 // Contexts.
-use Drupal\TqExtension\Context\RawTqContext;
 use Drupal\TqExtension\Utils\Imap;
+use Drupal\TqExtension\Context\RawTqContext;
 
 class RawEmailContext extends RawTqContext
 {

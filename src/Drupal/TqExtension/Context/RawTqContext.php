@@ -5,20 +5,23 @@
 namespace Drupal\TqExtension\Context;
 
 // Contexts.
+use Behat\Behat\Context\SnippetAcceptingContext;
 use Drupal\DrupalExtension\Context as DrupalContexts;
 
 // Exceptions.
-use WebDriver\Exception\NoSuchElement;
 use Behat\Behat\Context\Exception\ContextNotFoundException;
 
 // Helpers.
+use WebDriver\Session;
 use Behat\Mink\Element\NodeElement;
 use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Mink\Driver\Selenium2Driver;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Behat\Behat\Context\Environment\InitializedContextEnvironment;
+use Drupal\TqExtension\Utils as TqUtils;
 
 /**
- * @see __call()
+ * @see RawTqContext::__call()
  *
  * @method User\UserContext getUserContext()
  * @method Form\FormContext getFormContext()
@@ -52,6 +55,9 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      * @var array
      */
     protected static $tags = [];
+    /**
+     * @var string
+     */
     protected $pageUrl = '';
 
     /**
@@ -62,23 +68,26 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      * @throws ContextNotFoundException
      *   When context class cannot be loaded.
      *
-     * @return mixed
+     * @return SnippetAcceptingContext
      */
     public function __call($method, array $arguments)
     {
-        $context = explode('get', $method);
-        $context = end($context);
-        $namespace = explode('Context', $context);
-        $namespace = reset($namespace);
         $environment = $this->getEnvironment();
+        // @example
+        // The "getFormContext" method is not declared and his name will be split by capital
+        // letters, creating an array with three items: "get", "Form" and "Context".
+        list(, $base, $context) = preg_split('/(?=[A-Z])/', $method);
 
         foreach ([
-            [$this->getTqParameter('context_namespace'), $namespace],
+            [$this->getTqParameter('context_namespace'), $base],
             ['Drupal', 'DrupalExtension', 'Context'],
         ] as $class) {
-            $class[] = $context;
+            $class[] = "$base$context";
+            $class = implode('\\', $class);
 
-            return $environment->getContext(implode('\\', $class));
+            if ($environment->hasContextClass($class)) {
+                return $environment->getContext($class);
+            }
         }
 
         throw new \Exception(sprintf('Method %s does not exist', $method));
@@ -93,29 +102,6 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         foreach ($variables as $name => $value) {
             variable_set($name, $value);
         }
-    }
-
-    /**
-     * @param string $selector
-     *   Element selector.
-     * @param mixed $element
-     *   Existing element or null.
-     *
-     * @throws NoSuchElement
-     */
-    public function throwNoSuchElementException($selector, $element)
-    {
-        if (!$element) {
-            throw new NoSuchElement(sprintf('Cannot find an element by "%s" selector.', $selector));
-        }
-    }
-
-    /**
-     * @return \Behat\Behat\Context\Environment\InitializedContextEnvironment
-     */
-    public function getEnvironment()
-    {
-        return $this->getDrupal()->getEnvironment();
     }
 
     /**
@@ -149,7 +135,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     {
         if (empty(self::$baseUrl)) {
             $url = parse_url($this->getMinkParameter('base_url'));
-            self::$baseUrl = $url['scheme'] . '://' . $url['host'];
+            self::$baseUrl = sprintf('%s://%s', $url['scheme'], $url['host']);
         }
 
         return self::$baseUrl;
@@ -172,15 +158,33 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @return \WebDriver\Session
+     * @return InitializedContextEnvironment
+     */
+    public function getEnvironment()
+    {
+        return $this->getDrupal()->getEnvironment();
+    }
+
+    /**
+     * @return Selenium2Driver
+     */
+    public function getSessionDriver()
+    {
+        return $this->getSession()->getDriver();
+    }
+
+    /**
+     * @return Session
      */
     public function getWebDriverSession()
     {
-        return $this->getSession()->getDriver()->getWebDriverSession();
+        return $this->getSessionDriver()->getWebDriverSession();
     }
 
     /**
      * @todo Remove this when DrupalExtension will be used Mink >=1.6 and use $this->getSession->getWindowNames();
+     *
+     * @return string[]
      */
     public function getWindowNames()
     {
@@ -192,8 +196,8 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      * @param string $script
      *
      * @example
-     * $this->executeJsOnElement($this->findElement('Meta tags'), 'return jQuery({{ELEMENT}}).text();');
-     * $this->executeJsOnElement($this->findElement('#menu'), '{{ELEMENT}}.focus();');
+     * $this->executeJsOnElement($this->element('*', 'Meta tags'), 'return jQuery({{ELEMENT}}).text();');
+     * $this->executeJsOnElement($this->element('*', '#menu'), '{{ELEMENT}}.focus();');
      *
      * @throws \Exception
      *
@@ -221,7 +225,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     public function debug(array $strings)
     {
         if ($this->hasTag('debug')) {
-            $this->consoleOutput('comment', 4, array_merge(['<info>DEBUG:</info>'], $strings));
+            $this->consoleOutput('question', 4, array_merge(['DEBUG:'], $strings));
         }
 
         return $this;
@@ -326,7 +330,11 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      * @param string $type
      *   Could be "comment",
      * @param int $indent
+     *   Number of spaces.
      * @param array $strings
+     *   Paragraphs.
+     *
+     * @link http://symfony.com/doc/current/components/console/introduction.html
      */
     public function consoleOutput($type, $indent, array $strings)
     {
@@ -336,7 +344,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         unset($arguments[1], $arguments[2]);
 
         // Replace the "type" argument by message that will be printed.
-        $arguments[0] = "<$type>$indent" . implode(PHP_EOL . $indent, $strings) . "</$type>";
+        $arguments[0] = "$indent<$type>" . implode(PHP_EOL . "</$type>$indent<$type>", $strings) . "</$type>";
 
         (new ConsoleOutput)->writeln(call_user_func_array('sprintf', $arguments));
     }

@@ -52,7 +52,7 @@ class TqContext extends RawTqContext
     {
         $this->iSwitchToWindow();
         $this->executeJsOnElement(
-            $this->findByCss('iframe'),
+            $this->element('css', 'iframe'),
             "{{ELEMENT}}.setAttribute('id', 'behat_ckfinder');"
         );
         $this->iSwitchToAnIframe('behat_ckfinder');
@@ -85,7 +85,7 @@ class TqContext extends RawTqContext
     {
         list($width, $height) = explode('x', $width_height);
 
-        $this->getSession()->getDriver()->resizeWindow((int) $width, (int) $height);
+        $this->getSessionDriver()->resizeWindow((int) $width, (int) $height);
     }
 
     /**
@@ -101,15 +101,12 @@ class TqContext extends RawTqContext
      */
     public function pressElement($action, $selector)
     {
-        $element = $this->findElement($selector);
-        $this->throwNoSuchElementException($selector, $element);
         $this->beforeStep();
-
         // 1. Get the action, divide string by spaces and put it parts into an array.
         // 2. Apply the "ucfirst" function for each array element.
         // 3. Make string from an array.
         // 4. Set the first letter of a string to lower case.
-        $element->{lcfirst(implode(array_map('ucfirst', explode(' ', $action))))}();
+        $this->element('*', $selector)->{lcfirst(implode(array_map('ucfirst', explode(' ', $action))))}();
     }
 
     /**
@@ -130,10 +127,7 @@ class TqContext extends RawTqContext
      */
     public function workWithElementsInRegion($selector)
     {
-        $region = $this->findByCss($selector);
-
-        $this->throwNoSuchElementException($selector, $region);
-        $this->setWorkingElement($region);
+        $this->setWorkingElement($this->element('css', $selector));
     }
 
     /**
@@ -201,7 +195,7 @@ class TqContext extends RawTqContext
                 list($tag, $value) = $values;
             }
 
-            self::$tags[$tag] = $value;
+            self::$tags[strtolower($tag)] = $value;
         }
 
         // Any page should be visited due to using jQuery and checking the cookies.

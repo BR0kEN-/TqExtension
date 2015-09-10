@@ -3,7 +3,6 @@
 Scenarios, which will use steps for checking the redirect, should be tagged with `@redirect` tag.
 
 ```gherkin
-@redirect
 Scenario: Form submission
   And I fill "First name" with "Testfirstname"
   When I press on "Submit"

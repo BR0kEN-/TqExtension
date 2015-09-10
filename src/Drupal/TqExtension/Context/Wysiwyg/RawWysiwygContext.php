@@ -7,74 +7,59 @@ namespace Drupal\TqExtension\Context\Wysiwyg;
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
 
-// Exceptions.
-use WebDriver\Exception\NoSuchElement;
+// Helpers.
+use Drupal\TqExtension\Utils\Wysiwyg\Wysiwyg;
 
 class RawWysiwygContext extends RawTqContext
 {
-    protected $wysiwyg = '';
-    protected $selector = '';
+    /**
+     * @var Wysiwyg
+     */
+    private $wysiwyg;
 
     /**
-     * Get the editor instance for use in Javascript.
+     * @param string $wysiwyg
+     *   An object name.
+     * @param array $arguments
+     *   Arguments for object constructor.
      *
-     * @param string $selector
-     *   Any selector of a form field.
-     *
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @throws \Exception
-     * @throws NoSuchElement
-     *
-     * @return string
-     *   A Javascript expression representing the WYSIWYG instance.
      */
-    public function getWysiwygInstance($selector = '')
+    protected function setEditor($wysiwyg, array $arguments = [])
     {
-        if (empty($selector) && empty($this->wysiwyg)) {
-            throw new \RuntimeException('No such editor was not selected.');
+        if (empty($wysiwyg)) {
+            throw new \InvalidArgumentException(
+                'WYSIWYG name cannot be empty. You must mark your scenario with @wysiwyg' .
+                'and @wysiwyg:<NAME> tags. For example: @wysiwyg @wysiwyg:CKEditor'
+            );
         }
 
-        $this->selector = $selector ?: $this->wysiwyg;
-        $field = $this->findField($this->selector);
+        try {
+            $this->wysiwyg = Wysiwyg::instantiate($wysiwyg, $arguments);
+        } catch (\Exception $e) {
+            $this->consoleOutput('comment', 4, [
+                'To describe a new editor you must create an object which will be extended',
+                'by "%s" abstraction.',
+            ], Wysiwyg::class);
 
-        $this->throwNoSuchElementException($this->selector, $field);
-        $id = $field->getAttribute('id');
+            $this->consoleOutput('error', 4, [$e->getMessage()]);
 
-        $instance = "CKEDITOR.instances['$id']";
-
-        if (!$this->executeJs("return !!$instance")) {
-            throw new \Exception(sprintf(
-                'The editor "%s" was not found on the page %s',
-                $id,
-                $this->getSession()->getCurrentUrl()
-            ));
+            throw new \Exception(sprintf('The WYSIWYG editor "%s" does not exist.', $wysiwyg));
         }
-
-        return $instance;
     }
 
     /**
-     * @param string $method
-     *   WYSIWYG editor method.
-     * @param string|array $arguments
-     *   Arguments for method of WYSIWYG editor.
-     * @param string $selector
-     *   Editor selector.
-     *
      * @throws \Exception
-     *   Throws an exception if the editor does not exist.
      *
-     * @return string
-     *   Result of JS evaluation.
+     * @return Wysiwyg
      */
-    public function executeWysiwygMethod($method, $arguments = '', $selector = '')
+    protected function getEditor()
     {
-        if ($arguments && is_array($arguments)) {
-            $arguments = "'" . implode("','", $arguments) . "'";
+        if (null === $this->wysiwyg) {
+            throw new \Exception('The WYSIWYG editor was not set.');
         }
 
-        return $this->executeJs("return !object.$method($arguments);", [
-            '!object' => $this->getWysiwygInstance($selector),
-        ]);
+        return $this->wysiwyg;
     }
 }

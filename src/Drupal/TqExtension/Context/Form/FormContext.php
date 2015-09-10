@@ -40,8 +40,6 @@ class FormContext extends RawFormContext
      *   When value was not changed.
      *
      * @Then /^(?:|I )typed "([^"]*)" in the "([^"]*)" field and chose (\d+) option from autocomplete variants$/
-     *
-     * @form @javascript
      */
     public function choseOptionFromAutocompleteVariants($value, $selector, $option)
     {
@@ -52,9 +50,7 @@ class FormContext extends RawFormContext
             ));
         }
 
-        $field = $this->findField($selector);
-        $this->throwNoSuchElementException($selector, $field);
-
+        $field = $this->element('field', $selector);
         // Syn - a Standalone Synthetic Event Library, provided by Selenium.
         $this->executeJsOnElement($field, sprintf("Syn.type({{ELEMENT}}, '%s')", token_replace($value)));
         $this->waitAjaxAndAnimations();
@@ -110,12 +106,10 @@ class FormContext extends RawFormContext
      *   When field cannot be found.
      *
      * @Then /^(?:I )fill "([^"]*)" with value of field "([^"]*)" of current user$/
-     *
-     * @form @api
      */
     public function fillInWithValueOfFieldOfCurrentUser($field, $user_field)
     {
-        if ($this->user && !$this->user->uid) {
+        if (!empty($this->user) && !$this->user->uid) {
             throw new \Exception('Anonymous user have no fields');
         }
 
@@ -123,7 +117,7 @@ class FormContext extends RawFormContext
         $wrapper = $entity->wrapper($this->user->uid);
         $user_field = $entity->getFieldNameByLocator($user_field);
 
-        if (empty($wrapper->$user_field)) {
+        if (empty($wrapper->{$user_field})) {
             throw new \InvalidArgumentException(sprintf('User entity has no "%s" field.', $user_field));
         }
 
@@ -153,8 +147,6 @@ class FormContext extends RawFormContext
      *   | Financial Services |
      *
      * @Given /^(?:|I )(?:|un)check the boxes:/
-     *
-     * @form
      */
     public function checkboxAction($action, TableNode $checkboxes)
     {
@@ -182,8 +174,6 @@ class FormContext extends RawFormContext
      * @throws \Exception
      *
      * @Given /^(?:|I )check the(| customized) "([^"]*)" radio button$/
-     *
-     * @form
      */
     public function radioAction($customized, $selector)
     {
@@ -216,15 +206,10 @@ class FormContext extends RawFormContext
      * @throws NoSuchElement
      *
      * @When /^(?:|I )fill "([^"]*)" with "([^"]*)"$/
-     *
-     * @form
      */
     public function fillField($selector, $value)
     {
-        $field = $this->findField($selector);
-
-        $this->throwNoSuchElementException($selector, $field);
-        $field->setValue(token_replace($value));
+        $this->element('field', $selector)->setValue(token_replace($value));
     }
 
     /**
@@ -234,8 +219,6 @@ class FormContext extends RawFormContext
      * @throws NoSuchElement
      *
      * @When /^(?:|I )fill the following:$/
-     *
-     * @form
      */
     public function fillFields(TableNode $fields)
     {
@@ -254,8 +237,6 @@ class FormContext extends RawFormContext
      * @throws NoSuchElement
      *
      * @Given /^(?:|I )attach file "([^"]*)" to "([^"]*)"$/
-     *
-     * @form
      */
     public function attachFile($file, $selector)
     {
@@ -271,10 +252,7 @@ class FormContext extends RawFormContext
             throw new \InvalidArgumentException(sprintf('The "%s" file does not exist.', $file));
         }
 
-        $field = $this->findField($selector);
-
-        $this->throwNoSuchElementException($selector, $field);
-        $field->attachFile($file);
+        $this->element('field', $selector)->attachFile($file);
     }
 
     /**
@@ -286,8 +264,6 @@ class FormContext extends RawFormContext
      * @throws NoSuchElement
      *
      * @Given /^(?:|I )select the following in "([^"]*)" hierarchical select:$/
-     *
-     * @form @javascript
      */
     public function setValueForHierarchicalSelect($selector, TableNode $values)
     {
@@ -340,14 +316,12 @@ class FormContext extends RawFormContext
      * @throws FileNotFoundException
      *
      * @Then /^(?:|I )should see the thumbnail$/
-     *
-     * @form
      */
-    public function iShouldSeeTheThumbnail()
+    public function shouldSeeThumbnail()
     {
         $thumb = false;
 
-        foreach (array('media-thumbnail', 'image-preview') as $classname) {
+        foreach (['media-thumbnail', 'image-preview'] as $classname) {
             if ($thumb) {
                 break;
             }
@@ -378,10 +352,8 @@ class FormContext extends RawFormContext
      * @throws \Exception
      *
      * @Then /^(?:|I )should see no errors$/
-     *
-     * @form
      */
-    public function iShouldSeeNoErrors()
+    public function shouldSeeNoErrors()
     {
         $selector = $this->getDrupalSelector('error_message_selector');
 
@@ -391,7 +363,7 @@ class FormContext extends RawFormContext
 
         $session = $this->getSession();
         $page = $session->getPage();
-        $errors = $page->find('css', $this->getDrupalSelector('error_message_selector'));
+        $errors = $page->find('css', $selector);
 
         // Some modules are inserted an empty container for errors before
         // they are arise. The "Clientside Validation" - one of them.
@@ -407,7 +379,7 @@ class FormContext extends RawFormContext
             }
         }
 
-        /* @var \Behat\Mink\Element\NodeElement $formElement */
+        /* @var NodeElement $formElement */
         foreach ($page->findAll('css', 'input, select, textarea') as $formElement) {
             if ($formElement->hasClass('error')) {
                 throw new \Exception(sprintf('Element "#%s" has an error class.', $formElement->getAttribute('id')));
@@ -420,14 +392,10 @@ class FormContext extends RawFormContext
      * @param string $selector
      *
      * @Then /^(?:|I )pick "([^"]*)" from "([^"]*)"$/
-     *
-     * @form
      */
     public function selectFrom($option, $selector)
     {
-        $element = $this->findElement($selector);
-        $this->throwNoSuchElementException($selector, $element);
-        $element->selectOption($option);
+        $this->element('*', $selector)->selectOption($option);
     }
 
     /**
@@ -436,8 +404,6 @@ class FormContext extends RawFormContext
      *
      * @And /^(?:|I )choose "([^"]*)" in "([^"]*)" datepicker$/
      * @Then /^(?:|I )set the "([^"]*)" for "([^"]*)" datepicker$/
-     *
-     * @form @datepicker @javascript
      */
     public function setDate($date, $selector)
     {
@@ -449,8 +415,6 @@ class FormContext extends RawFormContext
      * @param string $date
      *
      * @Then /^(?:|I )check that "([^"]*)" datepicker contains "([^"]*)" date$/
-     *
-     * @form @datepicker @javascript
      */
     public function isDateSelected($selector, $date)
     {
@@ -462,8 +426,6 @@ class FormContext extends RawFormContext
      * @param string $selector
      *
      * @Then /^(?:|I )check that "([^"]*)" is available for "([^"]*)" datepicker$/
-     *
-     * @form @datepicker @javascript
      */
     public function isDateAvailable($date, $selector)
     {

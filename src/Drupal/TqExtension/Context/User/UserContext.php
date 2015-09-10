@@ -27,8 +27,6 @@ class UserContext extends RawUserContext
      *   When required fields are not filled.
      *
      * @Given /^(?:|I am )logged in as a user with "([^"]*)" role(?:|s)(?:| and filled fields:)$/
-     *
-     * @user @api
      */
     public function loginCreatedUser($roles, TableNode $fields = null)
     {
@@ -40,8 +38,6 @@ class UserContext extends RawUserContext
      * @see loginCreatedUser()
      *
      * @Then /^(?:|I )create a user with "([^"]*)" role(?:|s)(?:| and filled fields:)$/
-     *
-     * @user @api
      */
     public function createDrupalUser($roles, TableNode $fields = null)
     {
@@ -57,8 +53,6 @@ class UserContext extends RawUserContext
      *   When user cannot be authorized.
      *
      * @Given /^(?:|I )am logged in with credentials:/
-     *
-     * @user
      */
     public function loginWithCredentials(TableNode $credentials)
     {
@@ -70,8 +64,7 @@ class UserContext extends RawUserContext
      * has more strict checking for authenticated user.
      *
      * @Given /^I am unauthorized user$/
-     *
-     * @user
+     * @Given /^I am log out$/
      */
     public function logoutDrupalUser()
     {
