@@ -7,29 +7,16 @@ namespace Drupal\TqExtension\Context\Wysiwyg;
 // Helpers.
 use Behat\Gherkin\Node\TableNode;
 
-/**
- * @todo Add TinyMCE support.
- */
 class WysiwygContext extends RawWysiwygContext
 {
     /**
      * @param string $selector
      *
      * @Given /^(?:|I )work with "([^"]*)" WYSIWYG editor$/
-     *
-     * @wysiwyg @javascript
      */
     public function workWithEditor($selector)
     {
-        $this->wysiwyg = $selector;
-    }
-
-    /**
-     * @AfterScenario @wysiwyg
-     */
-    public function unsetWysiwyg()
-    {
-        $this->wysiwyg = '';
+        $this->getEditor()->setSelector($selector);
     }
 
     /**
@@ -40,12 +27,10 @@ class WysiwygContext extends RawWysiwygContext
      *   When editor was not found.
      *
      * @Given /^(?:|I )fill "([^"]*)" in (?:|"([^"]*)" )WYSIWYG editor$/
-     *
-     * @wysiwyg @javascript
      */
-    public function setData($text, $selector = '')
+    public function fill($text, $selector = '')
     {
-        $this->executeWysiwygMethod(__FUNCTION__, [$text], $selector);
+        $this->getEditor()->fill($text, $selector);
     }
 
     /**
@@ -56,12 +41,10 @@ class WysiwygContext extends RawWysiwygContext
      *   When editor was not found.
      *
      * @When /^(?:|I )type "([^"]*)" in (?:|"([^"]*)" )WYSIWYG editor$/
-     *
-     * @wysiwyg @javascript
      */
-    public function insertText($text, $selector = '')
+    public function type($text, $selector = '')
     {
-        $this->executeWysiwygMethod(__FUNCTION__, [$text], $selector);
+        $this->getEditor()->type($text, $selector);
     }
 
     /**
@@ -74,19 +57,27 @@ class WysiwygContext extends RawWysiwygContext
      * @throws \RuntimeException
      *
      * @Then /^(?:|I )should(| not) see "([^"]*)" in (?:|"([^"]*)" )WYSIWYG editor$/
-     *
-     * @wysiwyg @javascript
      */
-    public function getData($condition, $text, $selector = '')
+    public function read($condition, $text, $selector = '')
     {
         $condition = (bool) $condition;
+        $wysiwyg = $this->getEditor();
+        $content = $wysiwyg->read($selector);
 
-        if (strpos($this->executeWysiwygMethod(__FUNCTION__, '', $selector), $text) === $condition) {
+        if (!is_string($content)) {
+            $this->debug(['Returned value:', var_export($content, true)]);
+
+            throw new \UnexpectedValueException('Could not read WYSIWYG content.');
+        }
+
+        $this->debug(["Content from WYSIWYG: $content"]);
+
+        if (strpos($content, $text) === $condition) {
             throw new \RuntimeException(sprintf(
                 'The text "%s" was %s found in the "%s" WYSIWYG editor.',
                 $text,
                 $condition ? '' : 'not',
-                $this->selector
+                $wysiwyg->getSelector()
             ));
         }
     }
@@ -96,13 +87,27 @@ class WysiwygContext extends RawWysiwygContext
      *   | Editor locator | Value |
      *
      * @Then /^(?:|I )fill in following WYSIWYG editors:$/
-     *
-     * @wysiwyg @javascript
      */
     public function fillInMultipleEditors(TableNode $fields)
     {
-        foreach ($fields->getRowsHash() as $editor => $value) {
-            $this->setData($value, $editor);
+        foreach ($fields->getRowsHash() as $selector => $value) {
+            $this->fill($value, $selector);
         }
+    }
+
+    /**
+     * @BeforeScenario @wysiwyg
+     */
+    public function beforeScenario()
+    {
+        $this->setEditor($this->getTag('wysiwyg'), [$this]);
+    }
+
+    /**
+     * @AfterScenario @wysiwyg
+     */
+    public function afterScenario()
+    {
+        $this->getEditor()->setSelector('');
     }
 }

@@ -29,14 +29,9 @@ The PHPDoc comment of method should satisfy the next rules:
  * @return \stdClass
  *
  * @Given /^Regex of the Behat step definition$/
- *
- * @contextTag @api @javascript
  */
 ```
 
-- If method is not definition of a Behat step, then tags and step comment must be ommited.
-- If context - is a subcontext then it should have a tag and it must be added before another.
-- The tag of subcontext must be in camelcase and equal to folder name where subcontext located.
 - All code should satisfy [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) standard.
 - For autoloading objects the [PSR-4](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md) is used.
 

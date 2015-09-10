@@ -8,8 +8,6 @@ class DrushContext extends RawDrushContext
 {
     /**
      * @Given /^(?:|I )login with one time link$/
-     *
-     * @drush @api
      */
     public function loginWithOneTimeLink()
     {

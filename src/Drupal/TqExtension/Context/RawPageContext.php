@@ -52,8 +52,7 @@ class RawPageContext extends RawDrupalContext
      */
     public function findByCss($selector)
     {
-        return $this
-            ->getWorkingElement()
+        return $this->getWorkingElement()
             ->find(empty($this->getDrupalParameter('region_map')[$selector]) ? 'css' : 'region', $selector);
     }
 
@@ -84,6 +83,11 @@ class RawPageContext extends RawDrupalContext
         return $field;
     }
 
+    /**
+     * @param string $selector
+     *
+     * @return NodeElement
+     */
     public function findButton($selector)
     {
         $button = $this->getWorkingElement()->findButton($selector);
@@ -110,8 +114,9 @@ class RawPageContext extends RawDrupalContext
      * @param string $locator
      *   Element locator. Can be inaccurate text, inaccurate field label, CSS selector or region name.
      *
-     * @return NodeElement
      * @throws NoSuchElement
+     *
+     * @return NodeElement
      */
     public function findElement($locator)
     {
@@ -141,13 +146,11 @@ class RawPageContext extends RawDrupalContext
     }
 
     /**
-     * @param string $sessionName
-     *
-     * @return NodeElement|null
+     * @return NodeElement
      */
-    public function getBodyElement($sessionName = null)
+    public function getBodyElement()
     {
-        return $this->getSession($sessionName)->getPage()->find('css', 'body');
+        return $this->getSession()->getPage()->find('css', 'body');
     }
 
     /**
@@ -180,5 +183,49 @@ class RawPageContext extends RawDrupalContext
             'xpath',
             "{$element}[text()[starts-with(., '$text')]]"
         );
+    }
+
+    /**
+     * @param string $selector
+     *   Element selector.
+     * @param mixed $element
+     *   Existing element or null.
+     *
+     * @throws NoSuchElement
+     */
+    public function throwNoSuchElementException($selector, $element)
+    {
+        if (null === $element) {
+            throw new NoSuchElement(sprintf('Cannot find an element by "%s" selector.', $selector));
+        }
+    }
+
+    /**
+     * @param string $locator
+     * @param string $selector
+     *
+     * @throws \RuntimeException
+     * @throws NoSuchElement
+     *
+     * @return NodeElement
+     */
+    public function element($locator, $selector)
+    {
+        $map = [
+            'button' => 'Button',
+            'field' => 'Field',
+            'text' => 'ByText',
+            'css' => 'ByCss',
+            '*' => 'Element',
+        ];
+
+        if (!isset($map[$locator])) {
+            throw new \RuntimeException(sprintf('Locator "%s" was not specified.'));
+        }
+
+        $element = $this->{'find' . $map[$locator]}($selector);
+        $this->throwNoSuchElementException($selector, $element);
+
+        return $element;
     }
 }

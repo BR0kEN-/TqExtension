@@ -5,8 +5,8 @@
 namespace Drupal\TqExtension\Context\User;
 
 // Contexts.
-use Drupal\TqExtension\Utils\EntityDrupalWrapper;
 use Drupal\TqExtension\Context\RawTqContext;
+use Drupal\TqExtension\Utils\EntityDrupalWrapper;
 
 class RawUserContext extends RawTqContext
 {
@@ -35,7 +35,7 @@ class RawUserContext extends RawTqContext
     {
         $this->logoutUser();
 
-        if (!$this->user) {
+        if (empty($this->user)) {
             throw new \Exception('Tried to login without a user.');
         }
 
@@ -117,6 +117,8 @@ class RawUserContext extends RawTqContext
      * @param array $fields
      *   Additional data for user account.
      *
+     * @throws \Exception
+     *
      * @return \stdClass
      */
     public function createTestUser(array $fields = [])
@@ -176,7 +178,7 @@ class RawUserContext extends RawTqContext
         $this->userCreate($user);
 
         if (isset($tmp)) {
-            $this->user;
+            $this->user = $tmp;
         }
 
         return $user;

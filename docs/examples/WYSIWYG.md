@@ -1,12 +1,21 @@
 # Testing WYSIWYG
 
-Scenarios, which will use steps for testing WYSIWYG editors, should be tagged with `@wysiwyg` tag.
+Scenarios, which will use steps for testing WYSIWYG editors, MUST be tagged with `@wysiwyg` tag. Additionally
+the `@wysiwyg:VENDOR_NAME` tag must be added  and `VENDOR_NAME` must be the same as an object name that implement
+WYSIWYG API for TqExtension.
 
-**Note**: For now, the `WysiwygContext` works only with [CKEditor](http://ckeditor.com). Support
-of the [TinyMCE](http://www.tinymce.com) planed in future.  
+## Supported editors (out of the box)
+
+- CKEditor
+- EpicEditor
+- jWysiwyg
+- MarkItUp
+- TinyMCE
+
+**Note**: Only one editor could be tested per scenario.
 
 ```gherkin
-@wysiwyg
+@wysiwyg @wysiwyg:CKEditor
 Scenario: Testing WYSIWYG
   Given I am logged in as a user with "administrator" role
   Then I am on the "node/add/employer" page

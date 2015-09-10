@@ -18,8 +18,6 @@ class RedirectContext extends RawRedirectContext
      * @throws \OverflowException
      *
      * @Then /^(?:|I )should be redirected(?:| on "([^"]*)")$/
-     *
-     * @redirect
      */
     public function shouldBeRedirected($page = null)
     {
@@ -59,8 +57,6 @@ class RedirectContext extends RawRedirectContext
      * @throws \Exception
      *
      * @Given /^user should(| not) have an access to the following pages:$/
-     *
-     * @redirect
      */
     public function checkUserAccessToPages($not, TableNode $paths)
     {
@@ -95,8 +91,6 @@ class RedirectContext extends RawRedirectContext
      *
      * @Given /^I am on the "([^"]*)" page$/
      * @Given /^(?:|I )visit the "([^"]*)" page$/
-     *
-     * @redirect
      */
     public function iAmOnThePage($path)
     {
