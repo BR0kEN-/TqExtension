@@ -7,23 +7,38 @@ namespace Drupal\TqExtension\Context\Drush;
 class DrushContext extends RawDrushContext
 {
     /**
-     * @Given /^(?:|I )login with one time link$/
+     * @param string
+     *   User ID, email or name. Argument for "drush uli".
+     *
+     * @throws \Exception
+     *
+     * @Given /^(?:|I )login with one time link(?:| \(([^"]*)\))$/
      */
-    public function loginWithOneTimeLink()
+    public function loginWithOneTimeLink($argument = '')
     {
         $userContext = $this->getUserContext();
-        $userContext->logoutUser();
 
-        $user = $userContext->createTestUser();
+        if (empty($argument)) {
+            $userContext->logoutUser();
+            $argument = $userContext->createTestUser()->name;
+        }
+
         // Care about not-configured Drupal installations, when
         // the "$base_url" variable is not set in "settings.php".
         // Also, remove the last underscore symbol from link for
         // prevent opening the page for reset the password;
-        $link = rtrim($this->getOneTimeLoginLink($user->name), '_');
+        $link = rtrim($this->getOneTimeLoginLink($argument), '_');
         $this->visitPath($link);
 
-        $text = t('You have just used your one-time login link.');
-        if (!preg_match("/$text|$user->name/i", $this->getWorkingElement()->getText())) {
+        if (
+            // The "isLoggedIn" method must be called to set authorization cookie for "Goutte"
+            // session. It must be set to be able to check status codes for the HTTP requests.
+            !$userContext->isLoggedIn() &&
+            !preg_match(
+                sprintf("/%s/i", t('You have just used your one-time login link.')),
+                $this->getWorkingElement()->getText()
+            )
+        ) {
             throw new \Exception(sprintf('Cannot login with one time link: "%s"', $link));
         }
     }
