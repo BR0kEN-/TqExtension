@@ -24,12 +24,19 @@ class RawEmailContext extends RawTqContext
      */
     public function getEmailMessages($to = '')
     {
+        // Update address for checking.
         if (!empty($to) && $this->email !== $to) {
             $this->email = $to;
         }
 
         if (empty($this->messages[$this->email])) {
-            $messages = $this->hasTag('imap') ? $this->getMessagesViaImap($this->email) : $this->getMessagesFromDb();
+            $messages = $this->hasTag('imap')
+              ? $this->getMessagesViaImap($this->email)
+              : $this->getMessagesFromDb();
+
+            if (empty($messages)) {
+                throw new \RuntimeException(sprintf('The message for "%s" was not sent.', $this->email));
+            }
 
             foreach ($messages as &$message) {
                 if ($message['to'] === $this->email) {
@@ -40,9 +47,9 @@ class RawEmailContext extends RawTqContext
             $this->messages[$this->email] = $messages;
         }
 
-        if (empty($this->messages[$this->email])) {
-            throw new \RuntimeException(sprintf('The message for "%s" was not sent.', $this->email));
-        }
+        // The debug messages may differ due to testing testing mode:
+        // Drupal mail system collector or IMAP protocol.
+        $this->debug([var_export($this->messages[$this->email], true)]);
 
         return $this->messages[$this->email];
     }
@@ -60,7 +67,7 @@ class RawEmailContext extends RawTqContext
 
         if (empty($accounts[$email])) {
             throw new \InvalidArgumentException(sprintf(
-                'An account "%s" is not defined. Available accounts: "%s".',
+                'An account for "%s" email address is not defined. Available addresses: "%s".',
                 $email,
                 implode(', ', array_keys($accounts))
             ));
@@ -74,6 +81,7 @@ class RawEmailContext extends RawTqContext
         $dom = new \DOMDocument;
         $links = [];
 
+        // @todo Find a way to do the same nicer.
         @$dom->loadHTML($string);
 
         /* @var \DOMElement $link */
@@ -95,14 +103,13 @@ class RawEmailContext extends RawTqContext
     private function getMessagesViaImap($email)
     {
         $account = $this->getAccount($email);
-        $wait = $this->getTqParameter('wait_for_email');
+        $timeout = $this->getTqParameter('wait_for_email');
 
         $this->setConnection($email, $account['imap'], $account['username'], $account['password']);
 
-        if ($wait > 0) {
-            $this->consoleOutput('comment', 4, ['Waiting %s seconds for letter...'], $wait);
-
-            sleep($wait);
+        if ($timeout > 0) {
+            $this->consoleOutput('comment', 4, ['Waiting %s seconds for letter...'], $timeout);
+            sleep($timeout);
         }
 
         return $this->getMessages($email);

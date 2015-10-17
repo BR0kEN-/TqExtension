@@ -44,7 +44,7 @@ final class TqContextReader implements EnvironmentReader
         }
 
         if ($environment instanceof UninitializedContextEnvironment) {
-            /* @var \splFileInfo $object */
+            /** @var \splFileInfo $object */
             foreach (new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator(__DIR__, \FilesystemIterator::SKIP_DOTS)
             ) as $path => $object) {

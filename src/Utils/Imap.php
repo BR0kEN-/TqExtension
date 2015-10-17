@@ -23,7 +23,7 @@ trait Imap
         if (empty($this->connections[$email])) {
             $connection = imap_open('{' . $imap . '}INBOX', $username, $password);
 
-            if ($connection === false) {
+            if (false === $connection) {
                 throw new \RuntimeException('IMAP connection cannot be open. Maybe some parameters are incorrect.');
             }
 

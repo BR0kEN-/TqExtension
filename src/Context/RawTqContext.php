@@ -13,9 +13,10 @@ use Behat\Behat\Context\Exception\ContextNotFoundException;
 
 // Helpers.
 use WebDriver\Session;
+use Drupal\Driver\DrushDriver;
 use Behat\Mink\Element\NodeElement;
-use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Behat\Hook\Scope\StepScope;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Drupal\TqExtension\Utils as TqUtils;
@@ -129,7 +130,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
 
     /**
      * @return string
-     *   Clean base url without any suffixes.
+     *   Clean base url from any suffixes.
      */
     public function getBaseUrl()
     {
@@ -142,14 +143,23 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
+     * @param string $site
+     *   Drupal site folder.
+     *
      * @return string
      *   URL to files directory.
      */
-    public function getFilesUrl()
+    public function getFilesUrl($site = 'default')
     {
-        return $this->getBaseUrl() . '/sites/default/files';
+        return $this->getBaseUrl() . "/sites/$site/files";
     }
 
+    /**
+     * @param string $text
+     *   JS code for processing.
+     *
+     * @return self
+     */
     protected function processJavaScript(&$text)
     {
         $text = str_replace(['$'], ['jQuery'], $text);
@@ -201,7 +211,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      *
      * @throws \Exception
      *
-     * @return string
+     * @return mixed
      */
     public function executeJsOnElement(NodeElement $element, $script)
     {
@@ -231,6 +241,14 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         return $this;
     }
 
+    /**
+     * @param string $javascript
+     *   JS code for execution.
+     * @param array $args
+     *   Placeholder declarations.
+     *
+     * @return mixed
+     */
     public function executeJs($javascript, array $args = [])
     {
         $javascript = format_string($javascript, $args);
@@ -265,7 +283,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @return \Drupal\Driver\DrushDriver
+     * @return DrushDriver
      */
     public function getDrushDriver()
     {

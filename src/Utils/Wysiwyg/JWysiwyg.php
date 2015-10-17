@@ -7,12 +7,12 @@ namespace Drupal\TqExtension\Utils\Wysiwyg;
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
 
-class MarkItUp extends Wysiwyg
+class JWysiwyg extends Wysiwyg
 {
     public function __construct(RawTqContext $context)
     {
         $this->setContext($context);
-        $this->setInstance("jQuery.markItUp({target: '#%s'})");
+        $this->setObject("jQuery('#%s')");
     }
 
     /**
@@ -20,7 +20,7 @@ class MarkItUp extends Wysiwyg
      */
     public function fill($text, $selector = '')
     {
-        $this->execute('trigger', $selector, ['insertion', [(object) ['placeHolder' => $text]]]);
+        $this->execute('wysiwyg', $selector, ['setContent', $text]);
     }
 
     /**
@@ -28,8 +28,7 @@ class MarkItUp extends Wysiwyg
      */
     public function type($text, $selector = '')
     {
-        // Unfortunately, MarkItUp cannot type to an editor.
-        $this->fill($text, $selector);
+        $this->execute('wysiwyg', $selector, ['insertHtml', $text]);
     }
 
     /**
@@ -37,6 +36,6 @@ class MarkItUp extends Wysiwyg
      */
     public function read($selector = '')
     {
-        return $this->execute('val', $selector);
+        return $this->execute('wysiwyg', $selector, ['getContent']);
     }
 }

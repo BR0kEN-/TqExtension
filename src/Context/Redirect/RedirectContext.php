@@ -61,18 +61,18 @@ class RedirectContext extends RawRedirectContext
     public function checkUserAccessToPages($not, TableNode $paths)
     {
         $code = empty($not) ? 200 : 403;
-        $result = [];
+        $fails = [];
 
         foreach (array_keys($paths->getRowsHash()) as $path) {
             if (!$this->assertStatusCode($path, $code)) {
-                $result[] = $this->unTrailingSlashIt($path);
+                $fails[] = $this->unTrailingSlashIt($path);
             }
         }
 
-        if (!empty($result)) {
+        if (!empty($fails)) {
             throw new \Exception(sprintf(
                 'The following paths: "%s" are %s accessible!',
-                implode(', ', $result),
+                implode(', ', $fails),
                 $not ? '' : 'not'
             ));
         }
@@ -92,7 +92,7 @@ class RedirectContext extends RawRedirectContext
      * @Given /^I am on the "([^"]*)" page$/
      * @Given /^(?:|I )visit the "([^"]*)" page$/
      */
-    public function iAmOnThePage($path)
+    public function visitPage($path)
     {
         if (!$this->assertStatusCode($path, 200)) {
             throw new \Exception(sprintf('The page "%s" is not accessible!', $path));
