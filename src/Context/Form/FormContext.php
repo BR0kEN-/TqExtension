@@ -281,15 +281,15 @@ class FormContext extends RawFormContext
             throw new \Exception('No one hierarchical select was found.');
         }
 
-        /* @var NodeElement $label */
+        /** @var NodeElement $label */
         $label = reset($labels);
         $parent = $label->getParent();
 
         foreach (array_keys($values->getRowsHash()) as $i => $value) {
-            /* @var NodeElement[] $selects */
+            /** @var NodeElement[] $selects */
             $selects = [];
 
-            /* @var NodeElement $select */
+            /** @var NodeElement $select */
             foreach ($parent->findAll('css', 'select') as $select) {
                 if ($select->isVisible()) {
                     $selects[] = $select;
@@ -379,7 +379,7 @@ class FormContext extends RawFormContext
             }
         }
 
-        /* @var NodeElement $formElement */
+        /** @var NodeElement $formElement */
         foreach ($page->findAll('css', 'input, select, textarea') as $formElement) {
             if ($formElement->hasClass('error')) {
                 throw new \Exception(sprintf('Element "#%s" has an error class.', $formElement->getAttribute('id')));

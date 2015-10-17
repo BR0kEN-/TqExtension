@@ -62,7 +62,7 @@ final class EntityDrupalWrapper
      * @param mixed $data
      * @param array $info
      *
-     * @return \EntityDrupalWrapper|\EntityMetadataWrapper
+     * @return \EntityDrupalWrapper
      */
     public function wrapper($data = null, array $info = [])
     {
@@ -81,7 +81,7 @@ final class EntityDrupalWrapper
     }
 
     /**
-     * @return array
+     * @return array[]
      */
     public function getRequiredFields()
     {
@@ -92,7 +92,7 @@ final class EntityDrupalWrapper
      * @param string $field_name
      *   Machine name or label of a field.
      *
-     * @return array
+     * @return array[]
      *   Drupal field definition.
      */
     public function getFieldInfo($field_name)
@@ -106,7 +106,7 @@ final class EntityDrupalWrapper
      * @param string $field_name
      *   Machine name or label of a field.
      *
-     * @return array
+     * @return array[]
      *   Drupal field definition.
      */
     public function getFieldInstance($field_name)

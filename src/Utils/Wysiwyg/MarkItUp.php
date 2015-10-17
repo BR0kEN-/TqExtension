@@ -7,12 +7,12 @@ namespace Drupal\TqExtension\Utils\Wysiwyg;
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
 
-class TinyMCE extends Wysiwyg
+class MarkItUp extends Wysiwyg
 {
     public function __construct(RawTqContext $context)
     {
         $this->setContext($context);
-        $this->setInstance("tinyMCE.get('%s')");
+        $this->setObject("jQuery.markItUp({target: '#%s'})");
     }
 
     /**
@@ -20,7 +20,7 @@ class TinyMCE extends Wysiwyg
      */
     public function fill($text, $selector = '')
     {
-        $this->execute('setContent', $selector, [$text]);
+        $this->execute('trigger', $selector, ['insertion', [(object) ['placeHolder' => $text]]]);
     }
 
     /**
@@ -28,7 +28,7 @@ class TinyMCE extends Wysiwyg
      */
     public function type($text, $selector = '')
     {
-        // Unfortunately, TinyMCE cannot type to an editor.
+        // Unfortunately, MarkItUp cannot type to an editor.
         $this->fill($text, $selector);
     }
 
@@ -37,6 +37,6 @@ class TinyMCE extends Wysiwyg
      */
     public function read($selector = '')
     {
-        return $this->execute('getContent', $selector);
+        return $this->execute('val', $selector);
     }
 }

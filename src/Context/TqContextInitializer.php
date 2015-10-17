@@ -17,12 +17,10 @@ class TqContextInitializer implements Behat\Initializer\ContextInitializer
 
     /**
      * @param array $parameters
-     * @param string $contextNamespace
      */
-    public function __construct(array $parameters, $contextNamespace)
+    public function __construct(array $parameters)
     {
         $this->parameters = $parameters;
-        $this->parameters['context_namespace'] = $contextNamespace;
     }
 
     /**

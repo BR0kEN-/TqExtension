@@ -7,12 +7,12 @@ namespace Drupal\TqExtension\Utils\Wysiwyg;
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
 
-class EpicEditor extends Wysiwyg
+class CKEditor extends Wysiwyg
 {
     public function __construct(RawTqContext $context)
     {
         $this->setContext($context);
-        $this->setInstance("jQuery('#%s').data('epiceditor')");
+        $this->setObject("CKEDITOR.instances['%s']");
     }
 
     /**
@@ -20,7 +20,7 @@ class EpicEditor extends Wysiwyg
      */
     public function fill($text, $selector = '')
     {
-        $this->execute('importFile', $selector, ['', $text]);
+        $this->execute('setData', $selector, [$text]);
     }
 
     /**
@@ -28,8 +28,7 @@ class EpicEditor extends Wysiwyg
      */
     public function type($text, $selector = '')
     {
-        // Unfortunately, EpicEditor cannot type to an editor.
-        $this->fill($text, $selector);
+        $this->execute('insertText', $selector, [$text]);
     }
 
     /**
@@ -37,6 +36,6 @@ class EpicEditor extends Wysiwyg
      */
     public function read($selector = '')
     {
-        return $this->execute('exportFile', $selector);
+        return $this->execute('getData', $selector);
     }
 }

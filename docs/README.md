@@ -89,11 +89,6 @@ Then I check that email for "test@ffwagency.com" contains:
 ```
 
 ```gherkin
-And also check that email contains:
-  | from    | admin@example.com  |
-```
-
-```gherkin
 Then I click on link "Test" in email( that was sent on "test@ffwagency.com")
 ```
 

@@ -17,7 +17,7 @@ abstract class Wysiwyg
      * @var string
      *   JS code that return an instance of WYSIWYG editor.
      */
-    private $instance = '';
+    private $object = '';
     /**
      * @var string
      *   Field selector.
@@ -45,9 +45,27 @@ abstract class Wysiwyg
      *   Must a string of JS code that return an instance of editor. String will be
      *   processed by sprintf() and "%s" placeholder will be replaced by field ID.
      */
-    protected function setInstance($javascript)
+    protected function setObject($javascript)
     {
-        $this->instance = (string) $javascript;
+        $this->object = (string) $javascript;
+    }
+
+    /**
+     * @param string $selector
+     */
+    public function setSelector($selector)
+    {
+        if (!empty($selector)) {
+            $this->selector = (string) $selector;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getSelector()
+    {
+        return $this->selector;
     }
 
     /**
@@ -65,25 +83,22 @@ abstract class Wysiwyg
      */
     protected function getInstance($selector = '')
     {
-        if (empty($this->instance)) {
+        if (empty($this->object)) {
             throw new \RuntimeException('Editor instance was not set.');
         }
 
-        if (empty($selector) && empty($this->selector)) {
+        if (empty($this->selector) && empty($selector)) {
             throw new \RuntimeException('No such editor was not selected.');
         }
 
-        $this->setSelector($selector ?: $this->selector);
+        $this->setSelector($selector);
 
         if (empty($this->instances[$this->selector])) {
-            $elementId = $this->context
-                ->element('field', $this->selector)
-                ->getAttribute('id');
-
-            $instance = sprintf($this->instance, $elementId);
+            $instanceId = $this->context->element('field', $this->selector)->getAttribute('id');
+            $instance = sprintf($this->object, $instanceId);
 
             if (!$this->context->executeJs("return !!$instance")) {
-                throw new \Exception(sprintf('Editor "%s" was not found.', $elementId));
+                throw new \Exception(sprintf('Editor "%s" was not found.', $instanceId));
             }
 
             $this->instances[$this->selector] = $instance;
@@ -113,22 +128,6 @@ abstract class Wysiwyg
             // Remove "[" character from start of the string and "]" from the end.
             '!args' => substr(drupal_json_encode($arguments), 1, -1),
         ]);
-    }
-
-    /**
-     * @param string $selector
-     */
-    public function setSelector($selector)
-    {
-        $this->selector = (string) $selector;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSelector()
-    {
-        return $this->selector;
     }
 
     /**

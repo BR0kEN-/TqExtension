@@ -57,11 +57,9 @@ class TqExtension implements Extension
      */
     public function load(ContainerBuilder $container, array $config)
     {
-        $definition = new Definition($this->contextNamespace('TqContextInitializer'), [
-            $config,
-            $this->contextNamespace()
-        ]);
+        $config['context_namespace'] = $this->contextNamespace();
 
+        $definition = new Definition($this->contextNamespace('TqContextInitializer'), [$config]);
         $definition->addTag(ContextExtension::INITIALIZER_TAG, ['priority' => 0]);
         $container->setDefinition(ContextExtension::INITIALIZER_TAG . '.initializer', $definition);
     }

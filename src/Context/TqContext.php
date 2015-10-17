@@ -48,7 +48,7 @@ class TqContext extends RawTqContext
      *
      * @javascript
      */
-    public function iSwitchToCKFinderWindow()
+    public function switchToCKFinderWindow()
     {
         $this->iSwitchToWindow();
         $this->executeJsOnElement(
@@ -218,11 +218,11 @@ class TqContext extends RawTqContext
     {
         $javascript = '';
 
-        foreach (['Start' => 'true', 'Complete' => 'false'] as $name => $state) {
-            $javascript .= "jQuery(document).bind('ajax$name', function() {window.__behatAjax=$state;});";
+        foreach (['Start' => 'true', 'Complete' => 'false'] as $event => $state) {
+            $javascript .= "$(document).bind('ajax$event', function() {window.__behatAjax = $state;});";
         }
 
-        $this->getSession()->executeScript($javascript);
+        $this->executeJs($javascript);
     }
 
     /**

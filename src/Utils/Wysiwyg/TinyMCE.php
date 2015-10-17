@@ -7,12 +7,12 @@ namespace Drupal\TqExtension\Utils\Wysiwyg;
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
 
-class JWysiwyg extends Wysiwyg
+class TinyMCE extends Wysiwyg
 {
     public function __construct(RawTqContext $context)
     {
         $this->setContext($context);
-        $this->setInstance("jQuery('#%s')");
+        $this->setObject("tinyMCE.get('%s')");
     }
 
     /**
@@ -20,7 +20,7 @@ class JWysiwyg extends Wysiwyg
      */
     public function fill($text, $selector = '')
     {
-        $this->execute('wysiwyg', $selector, ['setContent', $text]);
+        $this->execute('setContent', $selector, [$text]);
     }
 
     /**
@@ -28,7 +28,8 @@ class JWysiwyg extends Wysiwyg
      */
     public function type($text, $selector = '')
     {
-        $this->execute('wysiwyg', $selector, ['insertHtml', $text]);
+        // Unfortunately, TinyMCE cannot type to an editor.
+        $this->fill($text, $selector);
     }
 
     /**
@@ -36,6 +37,6 @@ class JWysiwyg extends Wysiwyg
      */
     public function read($selector = '')
     {
-        return $this->execute('wysiwyg', $selector, ['getContent']);
+        return $this->execute('getContent', $selector);
     }
 }

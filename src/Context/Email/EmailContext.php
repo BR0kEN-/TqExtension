@@ -6,59 +6,65 @@ namespace Drupal\TqExtension\Context\Email;
 
 // Helpers.
 use Behat\Gherkin\Node\TableNode;
+use WebDriver\Exception\NoSuchElement;
 
 class EmailContext extends RawEmailContext
 {
-    const PARSE_STRING = '(.+?)';
+    const PARSE_STRING = '/^(.+?)$/i';
 
     private $originalMailSystem = [
         'default-system' => 'DefaultMailSystem',
     ];
 
     /**
+     * @example
+     * I check that email for "test@example.com" was sent
+     *
      * @param string $to
-     * @param string $type
-     *   Can be "was sent" or "contains".
-     * @param TableNode $values
+     *   Recipient.
+     *
+     * @throws \RuntimeException
+     *   When any message was not sent.
+     *
+     * @Given /^(?:|I )check that email for "([^"]*)" was sent$/
+     */
+    public function wasSent($to)
+    {
+        $this->getEmailMessages($to);
+    }
+
+    /**
+     * @example
+     * I check that email for "test@example.com" contains:
      *   | subject | New email letter   |
      *   | body    | The body of letter |
+     * I also check that email contains:
      *   | from    | admin@example.com  |
      *
-     * @throws \Exception
+     * @param string $to
+     *   Recipient.
+     * @param TableNode $values
+     *   Left column - is a header key, right - value.
      *
-     * @Given /^(?:|I )check that email for "([^"]*)" (was sent|contains:)$/
-     * @Then /^also check that email contains:$/
+     * @throws \RuntimeException
+     *   When any message was not sent.
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     *
+     * @Given /^(?:|I )check that email for "([^"]*)" contains:$/
      */
-    public function checkEmail($to = '', $type = '', TableNode $values = null)
+    public function contains($to, TableNode $values)
     {
-        $emptyData = null === $values;
+        $rows = $values->getRowsHash();
 
-        if ('contains' === $type && $emptyData) {
-            throw new \RuntimeException('At leas one field should be specified.');
-        }
-
-        if (!$emptyData) {
-            $rows = $values->getRowsHash();
-
-            foreach ($this->getEmailMessages($to) as $message) {
-                $failed = [];
-
-                $this->debug([var_export($message, true)]);
-
-                foreach ($rows as $field => $value) {
-                    if (empty($message[$field]) || strpos($message[$field], $value) === false) {
-                        $failed[$field] = $value;
-                    }
+        foreach ($this->getEmailMessages($to) as $message) {
+            foreach ($rows as $field => $value) {
+                if (empty($message[$field])) {
+                    throw new \InvalidArgumentException(sprintf('Message does not contain "%s" header.', $field));
                 }
 
-                if (!empty($failed)) {
-                    $exception = [];
-
-                    foreach ($failed as $field => $value) {
-                        $exception[] = sprintf('The "%s" field has not contain the "%s" value.', $field, $value);
-                    }
-
-                    throw new \Exception(implode(PHP_EOL, $exception));
+                if (strpos($message[$field], $value) === false) {
+                    throw new \RuntimeException(sprintf('Value of "%s" does not contain "%s".', $field, $value));
                 }
             }
         }
@@ -66,7 +72,9 @@ class EmailContext extends RawEmailContext
 
     /**
      * @param string $link
+     *   Link text or value of "href" attribute.
      * @param string $to
+     *   Try to find in specific email.
      *
      * @Given /^(?:|I )click on link "([^"]*)" in email(?:| that was sent on "([^"]*)")$/
      */
@@ -90,7 +98,7 @@ class EmailContext extends RawEmailContext
      *   When parameter "parse_mail_callback" was not specified.
      * @throws \InvalidArgumentException
      *   When parameter "parse_mail_callback" is not callable.
-     * @throws \WebDriver\Exception\NoSuchElement
+     * @throws NoSuchElement
      *   When "Log in" button cannot be found on the page.
      * @throws \RuntimeException
      *   When credentials cannot be parsed or does not exist.
@@ -135,27 +143,31 @@ class EmailContext extends RawEmailContext
         $callback = $this->getTqParameter($param);
 
         if (empty($callback)) {
-            throw new \Exception(sprintf(
-                'The parameter "%s" does not specified in "behat.yml" for "%s" context.',
-                $param,
-                __CLASS__
-            ));
+            throw new \Exception(sprintf('Parameter "%s" was not specified in "behat.yml"', $param));
         }
 
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException(sprintf('The value of "%s" parameter is not callable.', $param));
         }
 
-        $regexps = call_user_func($callback, self::PARSE_STRING, self::PARSE_STRING);
+        $regexps = array_filter(call_user_func($callback, self::PARSE_STRING, self::PARSE_STRING));
+
+        if (count($regexps) < 2) {
+            throw new \RuntimeException(sprintf('Unfortunately you have wrong "%s" function.', $callback));
+        }
+
         $userContext = $this->getUserContext();
 
         foreach ($this->getEmailMessages($to) as $message) {
             if (!empty($message['body'])) {
                 $matches = [];
 
+                // Process every line.
                 foreach (explode("\n", $message['body']) as $string) {
                     foreach ($regexps as $name => $regexp) {
-                        if (!empty($regexp) && preg_match("/^$regexp$/i", $string, $match)) {
+                        preg_match($regexp, $string, $match);
+
+                        if (!empty($match[1])) {
                             $matches[$name] = $match[1];
                         }
                     }
@@ -213,6 +225,10 @@ class EmailContext extends RawEmailContext
      */
     public function beforeScenarioEmailImap()
     {
+        if (!extension_loaded('imap')) {
+            throw new \Exception('PHP configured without IMAP extension.');
+        }
+
         $this->consoleOutput('comment', 2, [
             "Sending messages will be tested via IMAP protocol. You'll need to know, that the message",
             "simply cannot be delivered due to incorrect server configuration or third-party service",
