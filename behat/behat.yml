@@ -21,12 +21,12 @@ default:
     Drupal\TqExtension:
       wait_for_email: 10
       wait_for_redirect: 60
-      email_account_strings: get_account_strings_for_email
-      email_accounts:
-        example1@email.com:
-          imap: imap.gmail.com:993/imap/ssl
-          username: example1@email.com
-          password: p4sswDstr_1
+#      email_account_strings: get_account_strings_for_email
+#      email_accounts:
+#        example1@email.com:
+#          imap: imap.gmail.com:993/imap/ssl
+#          username: example1@email.com
+#          password: p4sswDstr_1
     Drupal\DrupalExtension:
       blackbox: ~
       api_driver: drupal

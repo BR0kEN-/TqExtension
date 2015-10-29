@@ -7,12 +7,17 @@ namespace Drupal\TqExtension\Context\Drush;
 class DrushContext extends RawDrushContext
 {
     /**
-     * @param string
+     * @example
+     * Given I login with one time link[ (1)]
+     * Then drush uli[ admin]
+     *
+     * @param string $argument
      *   User ID, email or name. Argument for "drush uli".
      *
      * @throws \Exception
      *
      * @Given /^(?:|I )login with one time link(?:| \(([^"]*)\))$/
+     * @Then /^drush uli(?:| ([^"]*))$/
      */
     public function loginWithOneTimeLink($argument = '')
     {

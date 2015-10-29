@@ -27,14 +27,14 @@ class RedirectContext extends RawRedirectContext
         $this->consoleOutput('comment', 4, ['Waiting %s seconds for redirect...'], $wait);
 
         while ($wait >= $seconds++) {
-            $url = $this->unTrailingSlashIt($this->getSession()->getCurrentUrl());
+            $url = $this->getCurrentUrl();
             sleep(1);
 
             if ($url != $this->pageUrl) {
                 if (isset($page)) {
-                    $page = $this->unTrailingSlashIt($page);
+                    $page = trim($page, '/');
 
-                    if (!in_array($url, [$page, $this->getBaseUrl() . "/$page"])) {
+                    if (!in_array($url, [$page, $this->locatePath($page)])) {
                         continue;
                     }
                 }
@@ -65,7 +65,7 @@ class RedirectContext extends RawRedirectContext
 
         foreach (array_keys($paths->getRowsHash()) as $path) {
             if (!$this->assertStatusCode($path, $code)) {
-                $fails[] = $this->unTrailingSlashIt($path);
+                $fails[] = $path;
             }
         }
 
@@ -86,15 +86,18 @@ class RedirectContext extends RawRedirectContext
      *   Then I am at "page/url"
      *
      * @param string $path
+     *   Path to visit.
+     * @param string|int $code
+     *   Expected HTTP status code.
      *
      * @throws \Exception
      *
-     * @Given /^I am on the "([^"]*)" page$/
-     * @Given /^(?:|I )visit the "([^"]*)" page$/
+     * @Given /^I am on the "([^"]*)" page(?:| and HTTP code is "([^"]*)")$/
+     * @Given /^(?:|I )visit the "([^"]*)" page(?:| and HTTP code is "([^"]*)")$/
      */
-    public function visitPage($path)
+    public function visitPage($path, $code = 200)
     {
-        if (!$this->assertStatusCode($path, 200)) {
+        if (!$this->assertStatusCode($path, $code)) {
             throw new \Exception(sprintf('The page "%s" is not accessible!', $path));
         }
 
