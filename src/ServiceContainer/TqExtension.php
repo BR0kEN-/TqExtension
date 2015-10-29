@@ -66,6 +66,8 @@ class TqExtension implements Extension
 
     /**
      * {@inheritDoc}
+     *
+     * @see EnvironmentExtension::getEnvironmentReaderId()
      */
     public function process(ContainerBuilder $container)
     {
@@ -151,8 +153,8 @@ class TqExtension implements Extension
      */
     private function setDefinition(ContainerBuilder $container, $class, $id, array $arguments = [])
     {
-        $container
-            ->setDefinition($id, new Definition($this->contextNamespace($class), $arguments))
-            ->addTag($id, ['priority' => 0]);
+        $definition = new Definition($this->contextNamespace($class), $arguments);
+        $definition->addTag($id, ['priority' => 0]);
+        $container->setDefinition($id, $definition);
     }
 }

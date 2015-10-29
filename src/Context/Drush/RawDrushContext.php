@@ -16,10 +16,10 @@ class RawDrushContext extends RawTqContext
      */
     public function getOneTimeLoginLink($username)
     {
-        return $this->getDrushDriver()->drush('uli', [
+        return trim($this->getDrushDriver()->drush('uli', [
             $username,
             '--browser=0',
             '--uri=' . $this->locatePath(),
-        ]);
+        ]));
     }
 }
