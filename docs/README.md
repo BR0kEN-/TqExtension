@@ -76,7 +76,8 @@ And scroll to "Meta tags" element
 ### DrushContext
 
 ```gherkin
-Then I login with one time link
+Given I login with one time link( (1))
+Then drush uli( admin)
 ```
 
 ### [EmailContext](examples/EMAIL.md)
@@ -206,9 +207,9 @@ And user should( not) have an access to the following pages:
 ```gherkin
 ## This step should be used instead of "I am at" if page should be checked for accessibility
 ## before visiting.
-And I am on the "admin/config" page
+And I am on the "admin/config" page( and HTTP code is "200")
 ## Also, an alias can be used:
-And (I )visit the "admin/config" page
+And (I )visit the "admin/config" page( and HTTP code is "200")
 ```
 
 ### UserContext

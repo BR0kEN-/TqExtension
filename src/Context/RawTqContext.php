@@ -39,12 +39,6 @@ use Drupal\TqExtension\Utils as TqUtils;
 class RawTqContext extends RawPageContext implements TqContextInterface
 {
     /**
-     * Project base URL.
-     *
-     * @var string
-     */
-    private static $baseUrl = '';
-    /**
      * Parameters of TqExtension.
      *
      * @var array
@@ -128,19 +122,6 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         return $selectors[$name];
     }
 
-    /**
-     * @return string
-     *   Clean base url from any suffixes.
-     */
-    public function getBaseUrl()
-    {
-        if (empty(self::$baseUrl)) {
-            $url = parse_url($this->getMinkParameter('base_url'));
-            self::$baseUrl = sprintf('%s://%s', $url['scheme'], $url['host']);
-        }
-
-        return self::$baseUrl;
-    }
 
     /**
      * @param string $site
@@ -151,7 +132,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function getFilesUrl($site = 'default')
     {
-        return $this->getBaseUrl() . "/sites/$site/files";
+        return $this->locatePath("sites/$site/files");
     }
 
     /**
@@ -229,13 +210,16 @@ class RawTqContext extends RawPageContext implements TqContextInterface
 
     /**
      * @param array $strings
-     *
+
      * @return self
      */
     public function debug(array $strings)
     {
         if ($this->hasTag('debug')) {
-            $this->consoleOutput('question', 4, array_merge(['DEBUG:'], $strings));
+            $arguments = func_get_args();
+
+            array_unshift($arguments[0], '<info>DEBUG:</info>');
+            call_user_func_array([$this, 'consoleOutput'], array_merge(['comment', 4], $arguments));
         }
 
         return $this;
@@ -258,16 +242,6 @@ class RawTqContext extends RawPageContext implements TqContextInterface
             ->debug([$javascript])
             ->getSession()
             ->evaluateScript($javascript);
-    }
-
-    /**
-     * @param string $url
-     *
-     * @return string
-     */
-    public function unTrailingSlashIt($url)
-    {
-        return trim($url, '/');
     }
 
     /**
@@ -342,6 +316,67 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     public function getTqParameter($name)
     {
         return isset($this->parameters[$name]) ? $this->parameters[$name] : false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function locatePath($path = '')
+    {
+        // Obtain base URL when path is empty, or not starts from "//" or "http".
+        if (empty($path) || strpos($path, '//') !== 0 && strpos($path, 'http') !== 0) {
+            $path = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($path, '/');
+        }
+
+        $url = parse_url($path);
+
+        if (!isset($url['host'])) {
+            throw new \InvalidArgumentException(sprintf('Incorrect URL: %s', func_get_arg(0)));
+        }
+
+        // When URL starts from "//" the "scheme" key will not exists.
+        if (isset($url['scheme'])) {
+            // Check scheme.
+            if (!in_array($url['scheme'], ['http', 'https'])) {
+                throw new \InvalidArgumentException(sprintf('%s is not valid scheme.', $url['scheme']));
+            }
+
+            $path = $url['scheme'] . ':';
+        } else {
+            // Process "//" at the start.
+            $path = '';
+        }
+
+        $path .= '//';
+
+        if (isset($url['user'], $url['pass'])) {
+            // Encode special characters in username and password. Useful
+            // when some item contain something like "@" symbol.
+            foreach (['user' => ':', 'pass' => '@'] as $part => $suffix) {
+                $path .= rawurlencode($url[$part]) . $suffix;
+            }
+        }
+
+        $path .= $url['host'];
+
+        // Append additional URL components.
+        foreach (['port' => ':', 'path' => '', 'query' => '?', 'fragment' => '#'] as $part => $prefix) {
+            if (isset($url[$part])) {
+                $path .= $prefix . $url[$part];
+            }
+        }
+
+        $this->debug(['URL: %s'], $path);
+
+        return $path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentUrl()
+    {
+        return $this->locatePath($this->getSession()->getCurrentUrl());
     }
 
     /**

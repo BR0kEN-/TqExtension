@@ -233,7 +233,7 @@ class TqContext extends RawTqContext
     public function beforeStep(Scope\BeforeStepScope $step = null)
     {
         if (null !== $step) {
-            $this->pageUrl = $this->unTrailingSlashIt($this->getSession()->getCurrentUrl());
+            $this->pageUrl = $this->getCurrentUrl();
         }
     }
 

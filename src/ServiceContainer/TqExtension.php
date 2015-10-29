@@ -59,9 +59,9 @@ class TqExtension implements Extension
     {
         $config['context_namespace'] = $this->contextNamespace();
 
-        $definition = new Definition($this->contextNamespace('TqContextInitializer'), [$config]);
-        $definition->addTag(ContextExtension::INITIALIZER_TAG, ['priority' => 0]);
-        $container->setDefinition(ContextExtension::INITIALIZER_TAG . '.initializer', $definition);
+        $this->setDefinition($container, 'TqContextInitializer', ContextExtension::INITIALIZER_TAG, [
+            $config,
+        ]);
     }
 
     /**
@@ -69,14 +69,9 @@ class TqExtension implements Extension
      */
     public function process(ContainerBuilder $container)
     {
-        $definition = new Definition($this->contextNamespace('TqContextReader'));
-        $definition->addTag(EnvironmentExtension::READER_TAG, ['priority' => 50]);
-
-        foreach ($this->processor->findAndSortTaggedServices($container, ContextExtension::READER_TAG) as $reference) {
-            $definition->addMethodCall('registerContextReader', [$reference]);
-        }
-
-        $container->setDefinition(EnvironmentExtension::READER_TAG . '.context', $definition);
+        $this->setDefinition($container, 'TqContextReader', EnvironmentExtension::READER_TAG . '.context', [
+            $this->processor->findAndSortTaggedServices($container, ContextExtension::READER_TAG),
+        ]);
     }
 
     /**
@@ -140,5 +135,24 @@ class TqExtension implements Extension
         }
 
         $config->end()->end()->end()->end();
+    }
+
+    /**
+     * Add definition to DI container.
+     *
+     * @param ContainerBuilder $container
+     *   DI container.
+     * @param string $class
+     *   Class name (in TqExtension namespace).
+     * @param string $id
+     *   Definition ID.
+     * @param array $arguments
+     *   Definition arguments.
+     */
+    private function setDefinition(ContainerBuilder $container, $class, $id, array $arguments = [])
+    {
+        $container
+            ->setDefinition($id, new Definition($this->contextNamespace($class), $arguments))
+            ->addTag($id, ['priority' => 0]);
     }
 }

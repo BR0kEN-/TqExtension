@@ -12,7 +12,7 @@ class RawRedirectContext extends RawTqContext
     /**
      * @param string $path
      *   Relative URL.
-     * @param int $code
+     * @param string|int $code
      *   HTTP response code.
      *
      * @return bool
@@ -20,8 +20,10 @@ class RawRedirectContext extends RawTqContext
     public function assertStatusCode($path, $code)
     {
         // The "Goutte" session should be used because it provide the request status codes.
-        $this->visitPath($this->unTrailingSlashIt($path), 'goutte');
+        $this->visitPath($path, 'goutte');
+        $responseCode = $this->getSession('goutte')->getStatusCode();
+        $this->debug(['HTTP code is: %s'], $responseCode);
 
-        return $this->getSession('goutte')->getStatusCode() === $code;
+        return $responseCode == $code;
     }
 }
