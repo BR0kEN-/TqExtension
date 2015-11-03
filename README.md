@@ -42,3 +42,12 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 - [Alexander Petrov](https://github.com/aapetrov)
 - [Anastasia Guba](https://github.com/Naastya)
 - [Artyom Miroshnik](https://github.com/M1r1k)
+
+## History
+
+TqExtension is a next stage of development of [Behat context by Propeople](https://github.com/BR0kEN-/behat-drupal-propeople-context) that is currently unsupported.
+
+## Presentations
+
+- [Kyiv Drupal Camp (September 5-6, 2015)](https://docs.google.com/presentation/d/1JPJvLPORbO4vf9fFLgnQ0bEqe7XahqZ7iUjsd75yKmg)
+- [Lviv Drupal Camp (October 17-18, 2015)](https://docs.google.com/presentation/d/1b4m8FoUNt0zMz98FFxgZ9chV8I7V8ek2oU5GZmkCriQ)
