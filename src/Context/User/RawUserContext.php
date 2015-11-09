@@ -163,16 +163,19 @@ class RawUserContext extends RawTqContext
             }
         }
 
-        if (isset($this->user)) {
-            $tmp = $this->user;
-        }
-
         if (isset($user->name)) {
             $existing_user = user_load_by_name($user->name);
 
             if (!empty($existing_user)) {
                 user_delete($existing_user->uid);
             }
+        }
+
+        // $this->user always exist but when no user created it has "false" as a value.
+        // Variable stored to another because RawDrupalContext::userCreate() will modify
+        // it and this will affect for future actions.
+        if (!empty($this->user)) {
+            $tmp = $this->user;
         }
 
         $this->userCreate($user);
