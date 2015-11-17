@@ -42,6 +42,7 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 - [Alexander Petrov](https://github.com/aapetrov)
 - [Anastasia Guba](https://github.com/Naastya)
 - [Artyom Miroshnik](https://github.com/M1r1k)
+- [Andrei Perciun](https://github.com/andreiperciun)
 
 ## History
 
