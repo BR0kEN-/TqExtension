@@ -52,11 +52,11 @@ final class TqContextReader implements EnvironmentReader
             foreach (new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator(__DIR__, \FilesystemIterator::SKIP_DOTS)
             ) as $path => $object) {
-                $namespace = ltrim(str_replace(__DIR__, '', $path), '/');
+                $namespace = ltrim(str_replace(__DIR__, '', $path), DIRECTORY_SEPARATOR);
 
                 // Allow names which not starts from "Raw" and ends by "Context.php".
                 if (strrpos($namespace, 'Context.php') !== false && strpos($namespace, 'Raw') !== 0) {
-                    $class = str_replace('/', '\\', __NAMESPACE__ . '/' . trim($namespace, '.php'));
+                    $class = str_replace('/', '\\', __NAMESPACE__ . '/' . rtrim($namespace, '.php'));
 
                     if (!$environment->hasContextClass($class)) {
                         $environment->registerContextClass($class);
