@@ -63,6 +63,7 @@ class RawPageContext extends RawDrupalContext
      */
     public function findField($selector)
     {
+        $selector = ltrim($selector, '#');
         $element = $this->getWorkingElement();
         $field = $element->findField($selector);
 
