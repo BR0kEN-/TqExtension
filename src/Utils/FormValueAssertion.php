@@ -121,7 +121,7 @@ class FormValueAssertion
     }
 
     /**
-     * @param string[] $allowedElements
+     * @param array[] $allowedElements
      *   Element machine names.
      */
     private function restrictElements(array $allowedElements)
