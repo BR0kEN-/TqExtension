@@ -141,7 +141,7 @@ Then I fill "last_name" with "Bondarenko"
 ```gherkin
 ## This method must be used instead of 'I fill in the following:'!
 Then I fill the following:
-  | first_name | Sergey    |
+  | first_name | Sergii    |
   | last_name | Bondarenko |
 ```
 
@@ -225,7 +225,7 @@ Given I am logged in as a user with "administrator" role
 ##   correct value will be saved.
 ## - The machine name or label of a field can be used as selector.
 Given I am logged in as a user with "administrator" role and filled fields:
-  | Full name | Sergey Bondarenko   |
+  | Full name | Sergii Bondarenko   |
   | Position  | Web Developer       |
   | Company   | FFW                 |
 ```

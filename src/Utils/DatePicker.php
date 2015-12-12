@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Sergey Bondarenko, <sb@firstvector.org>
+ * @author Sergii Bondarenko, <sb@firstvector.org>
  */
 namespace Drupal\TqExtension\Utils;
 

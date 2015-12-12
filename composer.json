@@ -5,7 +5,7 @@
   "keywords": ["drupal", "web", "test", "behat", "testing", "extension"],
   "license": "MIT",
   "authors": [{
-    "name": "Sergey Bondarenko",
+    "name": "Sergii Bondarenko",
     "email": "sb@firstvector.org"
   }],
   "require": {
