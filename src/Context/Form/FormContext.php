@@ -16,6 +16,7 @@ use Behat\Mink\Element\NodeElement;
 
 // Utils.
 use Drupal\TqExtension\Utils\DatePicker;
+use Drupal\TqExtension\Utils\FormValueAssertion;
 use Drupal\TqExtension\Utils\EntityDrupalWrapper;
 
 class FormContext extends RawFormContext
@@ -399,10 +400,63 @@ class FormContext extends RawFormContext
     }
 
     /**
+     * @example
+     * And pick the following:
+     *   | Entity Reference                     | Type of new field    |
+     *   | Inline entity form - Multiple values | Widget for new field |
+     *
+     * @param TableNode $rows
+     *
+     * @Then /^(?:|I )pick the following:$/
+     */
+    public function selectFromFollowing(TableNode $rows)
+    {
+        foreach ($rows->getRowsHash() as $option => $selector) {
+            $this->selectFrom($option, $selector);
+        }
+    }
+
+    /**
+     * @example
+     * And check that "Users" field has "admin" value
+     * And check that "Users" field has not "customer" value
+     *
+     * @Then /^(?:|I )check that "([^"]*)" field has(| not) "([^"]*)" value$/
+     */
+    public function assertTextualField($selector, $not, $expected)
+    {
+        (new FormValueAssertion($this, $selector, $not, $expected))->textual();
+    }
+
+    /**
+     * @example
+     * And check that "User" is selected in "Apply to" select
+     * And check that "Product(s)" is not selected in "Apply to" select
+     *
+     * @Then /^(?:|I )check that "([^"]*)" is(| not) selected in "([^"]*)" select$/
+     */
+    public function assertSelectableField($expected, $not, $selector)
+    {
+        (new FormValueAssertion($this, $selector, $not, $expected))->selectable();
+    }
+
+    /**
+     * @example
+     * And check that "Order discount" is checked
+     * And check that "Product discount" is not checked
+     *
+     * @Then /^(?:|I )check that "([^"]*)" is(| not) checked$/
+     */
+    public function assertCheckableField($selector, $not)
+    {
+        (new FormValueAssertion($this, $selector, $not))->checkable();
+    }
+
+    /**
      * @param string $date
      * @param string $selector
      *
-     * @And /^(?:|I )choose "([^"]*)" in "([^"]*)" datepicker$/
+     * @Then /^(?:|I )choose "([^"]*)" in "([^"]*)" datepicker$/
      * @Then /^(?:|I )set the "([^"]*)" for "([^"]*)" datepicker$/
      */
     public function setDate($date, $selector)
