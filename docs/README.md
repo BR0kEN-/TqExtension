@@ -171,6 +171,12 @@ And pick "Kiyv" from "City"
 ```
 
 ```gherkin
+And pick the following:
+  | Entity Reference                     | Type of new field    |
+  | Inline entity form - Multiple values | Widget for new field |
+```
+
+```gherkin
 Then I choose "October 13, 2017" in "Date" datepicker
 ```
 
@@ -180,6 +186,18 @@ Then I check that "Date" datepicker contains "October 13, 2017" date
 
 ```gherkin
 Then I check that "October 13, 2017" is available for "Date" datepicker$
+```
+
+```gherkin
+And check that "Users" field has( not) "admin" value
+```
+
+```gherkin
+And check that "User" is( not) selected in "Apply to" select
+```
+
+```gherkin
+And check that "Order discount" is( not) checked
 ```
 
 ### RedirectContext
