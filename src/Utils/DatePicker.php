@@ -42,7 +42,7 @@ class DatePicker
         }
 
         $this->element = $this->context->element('*', $selector);
-        $this->date = sprintf("new Date('%s')", date('c', strtotime($date)));
+        $this->date = self::jsDate($date);
     }
 
     /**
@@ -50,6 +50,7 @@ class DatePicker
      */
     public function setDate()
     {
+        // @todo setDate will not work if browser window is not active.
         $this->datePicker([__FUNCTION__, '<date>']);
 
         return $this;
@@ -63,26 +64,32 @@ class DatePicker
     public function isDateSelected()
     {
         $value = $this->datePicker(['getDate']);
-        $date = $this->execute($this->date);
+        $initial = $this->execute($this->date);
 
-        $this->context->debug(["Comparing $value with $date"]);
+        // By some reasons DatePicker could not return a date using "getDate" method
+        // and we'll try to use it from input value directly. An issue could occur
+        // after saving the form and/or reloading the page.
+        if (empty($value)) {
+            $value = $this->execute(self::jsDate($this->element->getValue()));
+        }
 
-        if ($value !== $date) {
-            throw new \Exception(sprintf('DatePicker contains the "%s" but should "%s".', $value, $date));
+        $this->context->debug(["Comparing $value with $initial"]);
+
+        if ($value !== $initial) {
+            throw new \Exception(sprintf('DatePicker contains the "%s" but should "%s".', $value, $initial));
         }
 
         return $this;
     }
 
     /**
-     * @todo For now, any out of scope variable inside of "beforeShowDay" method will be undefined.
-     *
      * @throws \Exception
      *
      * @return self
      */
     public function isDateAvailable()
     {
+        // @todo For now, any out of scope variable inside of "beforeShowDay" method will be undefined.
         $beforeShowDay = $this->datePicker(['option', 'beforeShowDay']);
 
         if (!empty($beforeShowDay) && !empty($this->execute("$beforeShowDay($this->date)")[0])) {
@@ -119,5 +126,16 @@ class DatePicker
                 return in_array($value, ['<date>']) ? $this->date : "'$value'";
             }, $arguments))
         ));
+    }
+
+    /**
+     * @param string $date
+     *   The string to parse.
+     *
+     * @return string
+     */
+    private static function jsDate($date)
+    {
+        return sprintf("new Date('%s')", date('c', strtotime($date)));
     }
 }
