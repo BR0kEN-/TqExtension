@@ -131,7 +131,7 @@ class TqContext extends RawTqContext
     }
 
     /**
-     * @Then /^I checkout to whole page$/
+     * @Then /^(?:|I )checkout to whole page$/
      */
     public function unsetWorkingElementScope()
     {
@@ -233,7 +233,7 @@ class TqContext extends RawTqContext
     public function beforeStep(Scope\BeforeStepScope $step = null)
     {
         if (null !== $step) {
-            $this->pageUrl = $this->getCurrentUrl();
+            self::$pageUrl = $this->getCurrentUrl();
         }
     }
 
