@@ -21,26 +21,28 @@ class RedirectContext extends RawRedirectContext
      */
     public function shouldBeRedirected($page = null)
     {
-        $seconds = 0;
         $wait = $this->getTqParameter('wait_for_redirect');
+        $pages = [];
+        $seconds = 0;
 
         $this->consoleOutput('comment', 4, ['Waiting %s seconds for redirect...'], $wait);
 
+        if (isset($page)) {
+            $page = trim($page, '/');
+            $pages = [$page, $this->locatePath($page)];
+        }
+
         while ($wait >= $seconds++) {
             $url = $this->getCurrentUrl();
-            sleep(1);
+            $raw = explode('?', $url)[0];
 
-            if ($url != $this->pageUrl) {
-                if (isset($page)) {
-                    $page = trim($page, '/');
+            $this->debug(["Expected URLs: %s", "Current URL: $raw"], implode(', ', $pages));
 
-                    if (!in_array($url, [$page, $this->locatePath($page)])) {
-                        continue;
-                    }
-                }
-
+            if ((!empty($pages) && in_array($raw, $pages)) || $url === self::$pageUrl) {
                 return;
             }
+
+            sleep(1);
         }
 
         throw new \OverflowException('The waiting time is over.');
