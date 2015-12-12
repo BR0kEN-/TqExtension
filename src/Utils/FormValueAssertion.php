@@ -45,11 +45,11 @@ class FormValueAssertion
      * @var bool
      *   Negate the condition.
      */
-    private $not = FALSE;
+    private $not = false;
 
     /**
      * @param RawTqContext $context
-     *      Behat context.
+     *   Behat context.
      * @param string $selector
      *   Field selector.
      * @param bool $not
@@ -138,7 +138,7 @@ class FormValueAssertion
             $type = $this->element->getAttribute('type');
 
             if (!in_array($type, $types)) {
-              throw new \RuntimeException(sprintf('Type "%s" is not allowed for "%s" tag', $type, $this->tag));
+                throw new \RuntimeException(sprintf('Type "%s" is not allowed for "%s" tag', $type, $this->tag));
             }
         }
     }
@@ -157,17 +157,16 @@ class FormValueAssertion
             if ($this->not) {
                 throw new \Exception(
                     empty($word)
-                      ? 'Field contain a value, but should not.'
-                      : "Element is $word, but should not be."
+                    ? 'Field contain a value, but should not.'
+                    : "Element is $word, but should not be."
                 );
             }
-        }
-        else {
+        } else {
             if (!$this->not) {
                 throw new \Exception(
                     empty($word)
-                      ? 'Field does not contain a value.'
-                      : "Element is not $word."
+                    ? 'Field does not contain a value.'
+                    : "Element is not $word."
                 );
             }
         }
