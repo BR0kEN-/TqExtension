@@ -53,7 +53,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     /**
      * @var string
      */
-    protected $pageUrl = '';
+    protected static $pageUrl = '';
 
     /**
      * @param string $method
