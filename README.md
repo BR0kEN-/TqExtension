@@ -30,8 +30,8 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 
 ## Documentation
 
-- [For developers](docs/developers/README.md)
-- [For testers](docs/README.md)
+- [For developers](docs/developers)
+- [For all](docs)
 
 ## Author
 

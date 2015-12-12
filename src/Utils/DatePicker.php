@@ -90,6 +90,7 @@ class DatePicker
     public function isDateAvailable()
     {
         // @todo For now, any out of scope variable inside of "beforeShowDay" method will be undefined.
+        // @link https://github.com/refactoror/SelBlocks/issues/5#issuecomment-68511965
         $beforeShowDay = $this->datePicker(['option', 'beforeShowDay']);
 
         if (!empty($beforeShowDay) && !empty($this->execute("$beforeShowDay($this->date)")[0])) {
