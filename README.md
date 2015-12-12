@@ -35,7 +35,7 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 
 ## Author
 
-- [Sergey Bondarenko (BR0kEN)](https://github.com/BR0kEN-)
+- [Sergii Bondarenko (BR0kEN)](https://github.com/BR0kEN-)
 
 ## Contributors
 

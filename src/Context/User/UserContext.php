@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Sergey Bondarenko, <sb@firstvector.org>
+ * @author Sergii Bondarenko, <sb@firstvector.org>
  */
 namespace Drupal\TqExtension\Context\User;
 
@@ -12,7 +12,7 @@ class UserContext extends RawUserContext
     /**
      * @example
      * Then I am logged in as a user with "CRM Client" role and filled fields
-     *   | Full name                | Sergey Bondarenko |
+     *   | Full name                | Sergii Bondarenko |
      *   | Position                 | Developer         |
      *   | field_crm_user_company   | FFW               |
      *
