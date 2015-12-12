@@ -13,9 +13,7 @@ trait Imap
 
     public function closeConnections()
     {
-        foreach ($this->connections as $connection) {
-            imap_close($connection);
-        }
+        array_map('imap_close', $this->connections);
     }
 
     public function setConnection($email, $imap, $username, $password)

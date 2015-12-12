@@ -78,14 +78,10 @@ class RawEmailContext extends RawTqContext
 
     public function parseLinksText($string)
     {
-        $dom = new \DOMDocument;
         $links = [];
 
-        // @todo Find a way to do the same nicer.
-        @$dom->loadHTML($string);
-
-        /* @var \DOMElement $link */
-        foreach ((new \DOMXPath($dom))->query('//a[@href]') as $link) {
+        /** @var \DOMElement $link */
+        foreach ((new \DOMXPath(self::parseHTML($string)))->query('//a[@href]') as $link) {
             $links[$link->textContent] = $link->getAttribute('href');
         }
 
@@ -126,5 +122,19 @@ class RawEmailContext extends RawTqContext
             ->fetchField();
 
         return empty($result) ? [] : unserialize($result);
+    }
+
+    private static function parseHTML($string)
+    {
+        $doс = new \DOMDocument;
+
+        // Handle errors/warnings and don't mess up output of your script.
+        // @see http://stackoverflow.com/a/17559716
+        $libxml_state = libxml_use_internal_errors(true);
+        $doс->loadHTML($string);
+        libxml_clear_errors();
+        libxml_use_internal_errors($libxml_state);
+
+        return $doс;
     }
 }
