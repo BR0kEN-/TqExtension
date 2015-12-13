@@ -45,7 +45,8 @@ class DatabaseManager
             throw new \InvalidArgumentException(sprintf('An object of "%s" type does not exist.', $callee));
         }
 
-        /** @var array $databases */
+        $databases = [];
+
         require sprintf('%s/%s/settings.php', DRUPAL_ROOT, conf_path());
 
         if (empty($databases[$connection])) {
@@ -59,11 +60,7 @@ class DatabaseManager
         $this->newName = "tqextension_$this->originalName";
         $this->credentials = sprintf($this->credentials, $info['username'], $info['password']);
 
-        foreach (['drop', 'create'] as $action) {
-            $this->exec("mysql $this->credentials -e '$action database $this->newName;'");
-        }
-
-        $this->exec("mysqldump $this->credentials $this->originalName | mysql $this->credentials $this->newName");
+        $this->cloneDatabase();
     }
 
     /**
@@ -75,9 +72,34 @@ class DatabaseManager
     }
 
     /**
+     * Store original database to temporary for future restoring.
+     */
+    private function cloneDatabase()
+    {
+        $actions = [];
+
+        // Need to drop temporary database if it was created previously.
+        if (!empty($this->exec("mysql $this->credentials -e 'show databases' | grep $this->newName"))) {
+            $actions[] = "drop";
+        }
+
+        $actions[] = "create";
+
+        foreach ($actions as $action) {
+            $this->exec("mysql $this->credentials -e '$action database $this->newName;'");
+        }
+
+        $this->exec("mysqldump $this->credentials $this->originalName | mysql $this->credentials $this->newName");
+    }
+
+    /**
      * Executes a shell command.
      *
      * @param string $command
+     *   Command to execute.
+     *
+     * @return string
+     *   Result of a shell command.
      */
     private function exec($command)
     {
@@ -87,6 +109,6 @@ class DatabaseManager
             call_user_func([$this->callee, 'debug'], [$command]);
         }
 
-        shell_exec($command);
+        return trim(shell_exec($command));
     }
 }
