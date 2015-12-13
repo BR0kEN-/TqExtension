@@ -25,7 +25,7 @@ class RedirectContext extends RawRedirectContext
         $pages = [];
         $seconds = 0;
 
-        $this->consoleOutput('comment', 4, ['Waiting %s seconds for redirect...'], $wait);
+        self::consoleOutput('comment', 4, ['Waiting %s seconds for redirect...'], $wait);
 
         if (isset($page)) {
             $page = trim($page, '/');
@@ -36,7 +36,7 @@ class RedirectContext extends RawRedirectContext
             $url = $this->getCurrentUrl();
             $raw = explode('?', $url)[0];
 
-            $this->debug(["Expected URLs: %s", "Current URL: $raw"], implode(', ', $pages));
+            self::debug(["Expected URLs: %s", "Current URL: $raw"], implode(', ', $pages));
 
             if ((!empty($pages) && in_array($raw, $pages)) || $url === self::$pageUrl) {
                 return;

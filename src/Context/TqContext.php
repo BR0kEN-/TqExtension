@@ -5,7 +5,8 @@
 namespace Drupal\TqExtension\Context;
 
 // Helpers.
-use Behat\Behat\Hook\Scope;
+use Behat\Behat\Hook\Scope as BehatScope;
+use Drupal\TqExtension\Utils\DatabaseManager;
 
 class TqContext extends RawTqContext
 {
@@ -15,6 +16,10 @@ class TqContext extends RawTqContext
      * @var array
      */
     private $mainWindow = [];
+    /**
+     * @var DatabaseManager
+     */
+    private static $database;
 
     /**
      * Supports switching between the two windows only.
@@ -161,7 +166,7 @@ class TqContext extends RawTqContext
      */
     public function scrollToElement($selector)
     {
-        if (!$this->hasTag('javascript')) {
+        if (!self::hasTag('javascript')) {
             throw new \Exception('Scrolling to an element is impossible without a JavaScript.');
         }
 
@@ -169,34 +174,53 @@ class TqContext extends RawTqContext
     }
 
     /**
-     * @BeforeSuite @api
+     * IMPORTANT! The "BeforeSuite" hook should not be tagged, because suite has no tags!
+     *
+     * @BeforeSuite
      */
     public static function beforeSuite()
     {
         self::setDrupalVariables([
-            // Set to "FALSE", because the administration menu will not be rendered.
-            // https://www.drupal.org/node/2023625#comment-8607207
+            // Set to "false", because the administration menu will not be rendered.
+            // @see https://www.drupal.org/node/2023625#comment-8607207
             'admin_menu_cache_client' => false,
         ]);
     }
 
     /**
-     * @param Scope\BeforeScenarioScope $scope
+     * @param BehatScope\BeforeFeatureScope $scope
+     *   Scope of the processing feature.
+     *
+     * @BeforeFeature
+     */
+    public static function beforeFeature(BehatScope\BeforeFeatureScope $scope)
+    {
+        self::collectTags($scope->getFeature()->getTags());
+
+        // Database will be cloned for every feature with @cloneDB tag.
+        if (self::hasTag('clonedb')) {
+            self::$database = new DatabaseManager(self::getTag('clonedb', 'default'), self::class);
+        }
+    }
+
+    /**
+     * @AfterFeature
+     */
+    public static function afterFeature()
+    {
+        // Restore initial database when feature is done (call __destruct).
+        self::$database = null;
+    }
+
+    /**
+     * @param BehatScope\BeforeScenarioScope $scope
+     *   Scope of the processing scenario.
      *
      * @BeforeScenario
      */
-    public function beforeScenario(Scope\BeforeScenarioScope $scope)
+    public function beforeScenario(BehatScope\BeforeScenarioScope $scope)
     {
-        foreach (array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags()) as $tag) {
-            $values = explode(':', $tag);
-            $value = '';
-
-            if (count($values) > 1) {
-                list($tag, $value) = $values;
-            }
-
-            self::$tags[strtolower($tag)] = $value;
-        }
+        self::collectTags($scope->getScenario()->getTags());
 
         // Any page should be visited due to using jQuery and checking the cookies.
         $this->visitPath('/');
@@ -228,11 +252,14 @@ class TqContext extends RawTqContext
     /**
      * IMPORTANT! The "BeforeStep" hook should not be tagged, because steps has no tags!
      *
+     * @param BehatScope\BeforeStepScope $scope
+     *   Scope of the processing step.
+     *
      * @BeforeStep
      */
-    public function beforeStep(Scope\BeforeStepScope $step = null)
+    public function beforeStep(BehatScope\BeforeStepScope $scope = null)
     {
-        if (null !== $step) {
+        if (null !== $scope) {
             self::$pageUrl = $this->getCurrentUrl();
         }
     }
@@ -240,11 +267,12 @@ class TqContext extends RawTqContext
     /**
      * IMPORTANT! The "AfterStep" hook should not be tagged, because steps has no tags!
      *
-     * @param Scope\AfterStepScope $step
+     * @param BehatScope\AfterStepScope $scope
+     *   Scope of the processing step.
      *
      * @AfterStep
      */
-    public function afterStep(Scope\AfterStepScope $step)
+    public function afterStep(BehatScope\AfterStepScope $scope)
     {
         // If "mainWindow" variable is not empty that means that additional window has been opened.
         // Then, if number of opened windows equals to one, we need to switch back to original window,
@@ -254,7 +282,7 @@ class TqContext extends RawTqContext
             $this->iSwitchToWindow();
         }
 
-        if ($this->hasTag('javascript') && self::isStepImpliesJsEvent($step)) {
+        if (self::hasTag('javascript') && self::isStepImpliesJsEvent($scope)) {
             $this->waitAjaxAndAnimations();
         }
     }

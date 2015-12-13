@@ -17,7 +17,6 @@ use Drupal\Driver\DrushDriver;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Behat\Hook\Scope\StepScope;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Drupal\TqExtension\Utils as TqUtils;
 
@@ -38,18 +37,14 @@ use Drupal\TqExtension\Utils as TqUtils;
  */
 class RawTqContext extends RawPageContext implements TqContextInterface
 {
+    use TqUtils\Interaction;
+
     /**
      * Parameters of TqExtension.
      *
      * @var array
      */
     private $parameters = [];
-    /**
-     * A set of tags for each scenario.
-     *
-     * @var array
-     */
-    protected static $tags = [];
     /**
      * @var string
      */
@@ -200,29 +195,13 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         // We need to trigger something with "withSyn" method, because, otherwise an element won't be found.
         $element->focus();
 
-        $this->processJavaScript($script)->debug([$script]);
+        $this->processJavaScript($script);
+        self::debug([$script]);
 
         return $session->execute([
             'script' => str_replace('{{ELEMENT}}', 'arguments[0]', $script),
             'args' => [['ELEMENT' => $session->element('xpath', $element->getXpath())->getID()]],
         ]);
-    }
-
-    /**
-     * @param array $strings
-
-     * @return self
-     */
-    public function debug(array $strings)
-    {
-        if ($this->hasTag('debug')) {
-            $arguments = func_get_args();
-
-            array_unshift($arguments[0], '<info>DEBUG:</info>');
-            call_user_func_array([$this, 'consoleOutput'], array_merge(['comment', 4], $arguments));
-        }
-
-        return $this;
     }
 
     /**
@@ -237,11 +216,10 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     {
         $javascript = format_string($javascript, $args);
 
-        return $this
-            ->processJavaScript($javascript)
-            ->debug([$javascript])
-            ->getSession()
-            ->evaluateScript($javascript);
+        $this->processJavaScript($javascript);
+        self::debug([$javascript]);
+
+        return $this->getSession()->evaluateScript($javascript);
     }
 
     /**
@@ -271,30 +249,6 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     {
         $this->getSession()
              ->wait(1000, "window.__behatAjax === false && !jQuery(':animated').length && !jQuery.active");
-    }
-
-    /**
-     * @param string $tag
-     *   The name of tag.
-     *
-     * @return bool
-     *   Indicates the state of tag existence in a feature and/or scenario.
-     */
-    public function hasTag($tag)
-    {
-        return isset(self::$tags[$tag]);
-    }
-
-    /**
-     * @param string $tag
-     *   The name of tag.
-     *
-     * @return string
-     *   Tag value or an empty string.
-     */
-    public function getTag($tag)
-    {
-        return $this->hasTag($tag) ? self::$tags[$tag] : '';
     }
 
     /**
@@ -366,8 +320,6 @@ class RawTqContext extends RawPageContext implements TqContextInterface
             }
         }
 
-        $this->debug(['URL: %s'], $path);
-
         return $path;
     }
 
@@ -377,28 +329,5 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     public function getCurrentUrl()
     {
         return $this->locatePath($this->getSession()->getCurrentUrl());
-    }
-
-    /**
-     * @param string $type
-     *   Could be "comment",
-     * @param int $indent
-     *   Number of spaces.
-     * @param array $strings
-     *   Paragraphs.
-     *
-     * @link http://symfony.com/doc/current/components/console/introduction.html
-     */
-    public function consoleOutput($type, $indent, array $strings)
-    {
-        $indent = implode(' ', array_fill_keys(range(0, $indent), ''));
-        $arguments = func_get_args();
-        // Remove the "indent" and "strings" parameters from an array with arguments.
-        unset($arguments[1], $arguments[2]);
-
-        // Replace the "type" argument by message that will be printed.
-        $arguments[0] = "$indent<$type>" . implode(PHP_EOL . "</$type>$indent<$type>", $strings) . "</$type>";
-
-        (new ConsoleOutput)->writeln(call_user_func_array('sprintf', $arguments));
     }
 }
