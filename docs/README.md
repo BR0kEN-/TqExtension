@@ -4,6 +4,18 @@
 - To see all, available in your system, steps execute the `bin/behat -dl`.
 - Some examples can be found [here](examples).
 
+## Work with copy of DB on the fly
+
+If your steps makes an irreversible changes in database and you want to be sure that works with clean, initial database, then **TqExtension** can give such possibility for you.
+
+Note, database will be copied before feature started and will be restored after completion. This means that changes, made by scenarios in feature, will be available until next feature started. This gives a possibility to operate changes per scenarios in one feature.
+
+Also you able to adjust settings for every feature. By default you WILL NOT WORK WITH A COPY OF DB and, to enable this, you MUST ADD `@cloneDB` tag to FEATURE DEFINITION. **Its important**: not to scenario definition, to feature.
+
+And even you want to work with specific connection (key in `$databases` array from `settings.php`) - it's possible. Just add it name after the `@cloneDB` tag, separated by `:` (e.g. `@cloneDB:default`).
+
+All this sounds great, but there are drawbacks. **You will lost execution time before and after every feature.** The value of this time depends on your hardware and size of database. So try to not use large databases for testing.
+
 ## Table of contents
 
 - [TqContext](#tqcontext)
