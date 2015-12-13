@@ -73,7 +73,7 @@ class DatePicker
             $value = $this->execute(self::jsDate($this->element->getValue()));
         }
 
-        $this->context->debug(["Comparing $value with $initial"]);
+        call_user_func([$this->context, 'debug'], ["Comparing $value with $initial"]);
 
         if ($value !== $initial) {
             throw new \Exception(sprintf('DatePicker contains the "%s" but should "%s".', $value, $initial));

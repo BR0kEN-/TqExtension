@@ -30,7 +30,7 @@ class RawEmailContext extends RawTqContext
         }
 
         if (empty($this->messages[$this->email])) {
-            $messages = $this->hasTag('imap')
+            $messages = self::hasTag('imap')
               ? $this->getMessagesViaImap($this->email)
               : $this->getMessagesFromDb();
 
@@ -49,7 +49,7 @@ class RawEmailContext extends RawTqContext
 
         // The debug messages may differ due to testing testing mode:
         // Drupal mail system collector or IMAP protocol.
-        $this->debug([var_export($this->messages[$this->email], true)]);
+        self::debug([var_export($this->messages[$this->email], true)]);
 
         return $this->messages[$this->email];
     }

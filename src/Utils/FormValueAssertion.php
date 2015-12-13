@@ -22,28 +22,33 @@ class FormValueAssertion
      */
     private $selector = '';
     /**
+     * Found element.
+     *
      * @var NodeElement
-     *   Found element.
      */
     private $element;
     /**
+     * Expected value.
+     *
      * @var string
-     *   Expected value.
      */
     private $expected = '';
     /**
+     * Field element value.
+     *
      * @var string
-     *   Field element value.
      */
     private $value = '';
     /**
+     * Tag name of found element.
+     *
      * @var string
-     *   Tag name of found element.
      */
     private $tag = '';
     /**
+     * Negate the condition.
+     *
      * @var bool
-     *   Negate the condition.
      */
     private $not = false;
 
@@ -79,7 +84,7 @@ class FormValueAssertion
             'input' => [],
         ]);
 
-        $this->context->debug([
+        call_user_func([$this->context, 'debug'], [
             "Expected: $this->expected",
             "Value: $this->value",
             "Tag: $this->tag",
@@ -96,7 +101,7 @@ class FormValueAssertion
         $this->restrictElements(['select' => []]);
         $data = [$this->value, $this->element->find('xpath', "//option[@value='$this->value']")->getText()];
 
-        $this->context->debug([
+        call_user_func([$this->context, 'debug'], [
             "Expected: $this->expected",
             "Value: %s",
             "Tag: $this->tag",
@@ -116,12 +121,13 @@ class FormValueAssertion
             throw new \RuntimeException('Element cannot be checked.');
         }
 
-        $this->context->debug([$this->element->getOuterHtml()]);
+        call_user_func([$this->context, 'debug'], [$this->element->getOuterHtml()]);
+
         $this->assert($this->element->isChecked(), 'checked');
     }
 
     /**
-     * @param array[] $allowedElements
+     * @param string[] $allowedElements
      *   Element machine names.
      */
     private function restrictElements(array $allowedElements)

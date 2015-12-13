@@ -192,7 +192,7 @@ class EmailContext extends RawEmailContext
      */
     public function beforeScenarioEmailApi()
     {
-        $this->consoleOutput('comment', 2, [
+        self::consoleOutput('comment', 2, [
             "Sending messages will be tested by storing them in a database instead of sending.",
             "This is the good choice, because you testing the application, not web-server.\n",
         ]);
@@ -229,7 +229,7 @@ class EmailContext extends RawEmailContext
             throw new \Exception('PHP configured without IMAP extension.');
         }
 
-        $this->consoleOutput('comment', 2, [
+        self::consoleOutput('comment', 2, [
             "Sending messages will be tested via IMAP protocol. You'll need to know, that the message",
             "simply cannot be delivered due to incorrect server configuration or third-party service",
             "problems. Would be better if you'll test this functionality using the <info>@api</info>.\n",

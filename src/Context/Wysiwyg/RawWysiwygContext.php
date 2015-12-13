@@ -38,12 +38,12 @@ class RawWysiwygContext extends RawTqContext
         try {
             $this->wysiwyg = Wysiwyg::instantiate($wysiwyg, $arguments);
         } catch (\Exception $e) {
-            $this->consoleOutput('comment', 4, [
+            self::consoleOutput('comment', 4, [
                 'To describe a new editor you must create an object which will be extended',
                 'by "%s" abstraction.',
             ], Wysiwyg::class);
 
-            $this->consoleOutput('error', 4, [$e->getMessage()]);
+            self::consoleOutput('error', 4, [$e->getMessage()]);
 
             throw new \Exception(sprintf('The WYSIWYG editor "%s" does not exist.', $wysiwyg));
         }
