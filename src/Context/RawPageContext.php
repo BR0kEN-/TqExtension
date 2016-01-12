@@ -65,23 +65,20 @@ class RawPageContext extends RawDrupalContext
     {
         $selector = ltrim($selector, '#');
         $element = $this->getWorkingElement();
-        $field = $element->findField($selector);
 
-        if (null === $field) {
-            foreach ($this->findLabels($selector) as $forAttribute => $label) {
-                // We trying to find an ID with "-upload" suffix, because some
-                // image inputs in Drupal are suffixed by it.
-                foreach ([$forAttribute, "$forAttribute-upload"] as $elementID) {
-                    $field = $element->findById($elementID);
+        foreach ($this->findLabels($selector) as $forAttribute => $label) {
+            // We trying to find an ID with "-upload" suffix, because some
+            // image inputs in Drupal are suffixed by it.
+            foreach ([$forAttribute, "$forAttribute-upload"] as $elementID) {
+                $field = $element->findById($elementID);
 
-                    if (null !== $field) {
-                        return $field;
-                    }
+                if (null !== $field) {
+                    return $field;
                 }
             }
         }
 
-        return $field;
+        return $element->findField($selector);
     }
 
     /**
