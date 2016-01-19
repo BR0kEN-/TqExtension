@@ -322,15 +322,15 @@ class FormContext extends RawFormContext
     {
         $thumb = false;
 
-        foreach (['media-thumbnail', 'image-preview'] as $classname) {
+        foreach (['.upload-preview', '.media-thumbnail img', '.image-preview img'] as $selector) {
             if ($thumb) {
                 break;
             }
 
-            $thumb = $this->findByCss(".$classname img");
+            $thumb = $this->findByCss($selector);
         }
 
-        if (!$thumb) {
+        if (null === $thumb) {
             throw new \Exception('An expected image tag was not found.');
         }
 
