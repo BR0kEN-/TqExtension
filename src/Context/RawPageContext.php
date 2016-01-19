@@ -12,6 +12,7 @@ use WebDriver\Exception\NoSuchElement;
 
 // Helpers.
 use Behat\Mink\Element\NodeElement;
+use Drupal\TqExtension\Utils\XPath;
 
 class RawPageContext extends RawDrupalContext
 {
@@ -88,14 +89,11 @@ class RawPageContext extends RawDrupalContext
      */
     public function findButton($selector)
     {
-        $button = $this->getWorkingElement()->findButton($selector);
+        $element = $this->getWorkingElement();
 
-        if (null === $button) {
-            // @todo Improve button selector.
-            return $this->findByInaccurateText('(//button | //input)', $selector);
-        }
-
-        return $button;
+        // Search inside of: "id", "name", "title", "alt" and "value" attributes.
+        return $element->findButton($selector)
+            ?: (new XPath\InaccurateText('//button', $element))->text($selector)->find();
     }
 
     /**
@@ -105,7 +103,7 @@ class RawPageContext extends RawDrupalContext
      */
     public function findByText($text)
     {
-        return $this->findByInaccurateText('//*', $text);
+        return (new XPath\InaccurateText('//*', $this->getWorkingElement()))->text($text)->find();
     }
 
     /**
@@ -134,9 +132,10 @@ class RawPageContext extends RawDrupalContext
      */
     public function findLabels($text)
     {
+        $xpath = new XPath\InaccurateText('//label[@for]', $this->getWorkingElement());
         $labels = [];
 
-        foreach ($this->findByInaccurateText('//label[@for]', $text, true) as $label) {
+        foreach ($xpath->text($text)->findAll() as $label) {
             $labels[$label->getAttribute('for')] = $label;
         }
 
@@ -149,38 +148,6 @@ class RawPageContext extends RawDrupalContext
     public function getBodyElement()
     {
         return $this->getSession()->getPage()->find('css', 'body');
-    }
-
-    /**
-     * @param NodeElement $element
-     * @param string $attribute
-     * @param string $value
-     *
-     * @return NodeElement|null
-     */
-    public function getParentWithAttribute($element, $attribute, $value = '')
-    {
-        $attribute = empty($value) ? "@$attribute" : "contains(@$attribute, '$value')";
-
-        return $element->find('xpath', "/ancestor::*[$attribute]");
-    }
-
-    /**
-     * @param string $element
-     *   HTML element name.
-     * @param string $text
-     *   Element text.
-     * @param bool $all
-     *   Find all or only first.
-     *
-     * @return NodeElement|NodeElement[]|null
-     */
-    private function findByInaccurateText($element, $text, $all = false)
-    {
-        return $this->getWorkingElement()->{'find' . ($all ? 'All' : '')}(
-            'xpath',
-            "{$element}[text()[starts-with(., '$text')]]"
-        );
     }
 
     /**
