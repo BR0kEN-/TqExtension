@@ -106,7 +106,6 @@ class TqContext extends RawTqContext
      */
     public function pressElement($action, $selector)
     {
-        $this->beforeStep();
         // 1. Get the action, divide string by spaces and put it parts into an array.
         // 2. Apply the "ucfirst" function for each array element.
         // 3. Make string from an array.
@@ -252,27 +251,25 @@ class TqContext extends RawTqContext
     /**
      * IMPORTANT! The "BeforeStep" hook should not be tagged, because steps has no tags!
      *
-     * @param BehatScope\BeforeStepScope $scope
+     * @param BehatScope\StepScope|BehatScope\BeforeStepScope $scope
      *   Scope of the processing step.
      *
      * @BeforeStep
      */
-    public function beforeStep(BehatScope\BeforeStepScope $scope = null)
+    public function beforeStep(BehatScope\StepScope $scope)
     {
-        if (null !== $scope) {
-            self::$pageUrl = $this->getCurrentUrl();
-        }
+        self::$pageUrl = $this->getCurrentUrl();
     }
 
     /**
      * IMPORTANT! The "AfterStep" hook should not be tagged, because steps has no tags!
      *
-     * @param BehatScope\AfterStepScope $scope
+     * @param BehatScope\StepScope|BehatScope\AfterStepScope $scope
      *   Scope of the processing step.
      *
      * @AfterStep
      */
-    public function afterStep(BehatScope\AfterStepScope $scope)
+    public function afterStep(BehatScope\StepScope $scope)
     {
         // If "mainWindow" variable is not empty that means that additional window has been opened.
         // Then, if number of opened windows equals to one, we need to switch back to original window,
