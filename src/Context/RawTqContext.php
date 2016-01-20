@@ -117,6 +117,14 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         return $selectors[$name];
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getDrupalText($name)
+    {
+        // Make text selectors translatable.
+        return t(parent::getDrupalText($name));
+    }
 
     /**
      * @param string $site
