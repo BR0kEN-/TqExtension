@@ -175,10 +175,6 @@ Then should see the thumbnail
 ```
 
 ```gherkin
-And should see no errors
-```
-
-```gherkin
 And pick "Kiyv" from "City"
 ```
 
@@ -300,4 +296,30 @@ Then I should not see "vulnerability" in "Presentation" WYSIWYG editor
 ```gherkin
 Then I fill in following WYSIWYG editors
   | Editor locator | Value |
+```
+
+### [MessageContext](examples/MESSAGES.md)
+
+```gherkin
+And (I )should see no errors( on the page)
+```
+
+```gherkin
+# The <TYPE> could be ommited or one of the following:
+# - error
+# - warning
+# - success
+And (I )should( not) see the (<TYPE> )message "An error occured."
+```
+
+```gherkin
+# Similar to previous, but with placeholders replacing.
+And (I )should( not) see the (<TYPE> )message "!name field is required."
+  | !name | E-mail address  |
+```
+
+```gherkin
+# Similar to previous, but placeholder should be formatted in another way.
+And (I )should( not) see the following (<TYPE> )messages:
+  | !name field is required.  | !name => E-mail address |
 ```
