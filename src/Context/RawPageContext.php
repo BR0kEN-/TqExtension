@@ -188,6 +188,7 @@ class RawPageContext extends RawDrupalContext
             throw new \RuntimeException(sprintf('Locator "%s" was not specified.'));
         }
 
+        $selector = t($selector);
         $element = $this->{'find' . $map[$locator]}($selector);
         $this->throwNoSuchElementException($selector, $element);
 
