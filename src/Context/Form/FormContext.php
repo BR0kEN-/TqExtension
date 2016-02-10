@@ -346,49 +346,6 @@ class FormContext extends RawFormContext
     }
 
     /**
-     * Check that the page have no error messages and fields - error classes.
-     *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
-     * @throws \Exception
-     *
-     * @Then /^(?:|I )should see no errors$/
-     */
-    public function shouldSeeNoErrors()
-    {
-        $selector = $this->getDrupalSelector('error_message_selector');
-
-        if (empty($selector)) {
-            throw new \InvalidArgumentException('The "error_message_selector" in behat.yml is not configured.');
-        }
-
-        $session = $this->getSession();
-        $page = $session->getPage();
-        $errors = $page->find('css', $selector);
-
-        // Some modules are inserted an empty container for errors before
-        // they are arise. The "Clientside Validation" - one of them.
-        if (null !== $errors) {
-            $text = $errors->getText();
-
-            if (!empty($text)) {
-                throw new \RuntimeException(sprintf(
-                    'The page "%s" contains following error messages: "%s"',
-                    $session->getCurrentUrl(),
-                    $text
-                ));
-            }
-        }
-
-        /** @var NodeElement $formElement */
-        foreach ($page->findAll('css', 'input, select, textarea') as $formElement) {
-            if ($formElement->hasClass('error')) {
-                throw new \Exception(sprintf('Element "#%s" has an error class.', $formElement->getAttribute('id')));
-            }
-        }
-    }
-
-    /**
      * @param string $option
      * @param string $selector
      *
