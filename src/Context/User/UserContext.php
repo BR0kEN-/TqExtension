@@ -70,4 +70,14 @@ class UserContext extends RawUserContext
     {
         $this->logoutUser();
     }
+
+    /**
+     * @AfterScenario
+     */
+    public function afterUserScenario() {
+        // Logout, when scenario finished an execution, is required for "Scenario Outline" because an
+        // object will not be instantiated for every iteration and user data, from previous one, will
+        // be kept.
+        $this->logoutUser();
+    }
 }
