@@ -115,13 +115,20 @@ class RawEmailContext extends RawTqContext
     {
         // We can't use variable_get() because Behat has another bootstrapped
         // variable $conf that is not updated from cURL bootstrapped Drupal instance.
-        $result = db_select('variable', 'v')
+        $query = db_select('variable', 'v')
             ->fields('v', ['value'])
-            ->condition('name', 'drupal_test_email_collector')
-            ->execute()
+            ->condition('name', 'drupal_test_email_collector');
+
+        self::debug(['SQL query is: %s', $query]);
+
+        $result = $query->execute()
             ->fetchField();
 
-        return empty($result) ? [] : unserialize($result);
+        $result = empty($result) ? [] : unserialize($result);
+
+        self::debug(['Emails from the database: %s'], drupal_var_export($result, '  '));
+
+        return $result;
     }
 
     private static function parseHTML($string)
