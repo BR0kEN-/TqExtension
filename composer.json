@@ -10,6 +10,7 @@
   }],
   "require": {
     "php": ">=5.5",
+    "behat/environment-loader": "dev-master",
     "drupal/drupal-extension": "~3.0"
   },
   "autoload": {
