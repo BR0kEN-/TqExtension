@@ -261,6 +261,8 @@ class TqContext extends RawTqContext
     public function beforeStep(BehatScope\StepScope $scope)
     {
         self::$pageUrl = $this->getCurrentUrl();
+        // To allow Drupal use its internal, web-based functionality, such as "arg()" or "current_path()" etc.
+        $_GET['q'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
     }
 
     /**
