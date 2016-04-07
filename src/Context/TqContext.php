@@ -262,7 +262,11 @@ class TqContext extends RawTqContext
     {
         self::$pageUrl = $this->getCurrentUrl();
         // To allow Drupal use its internal, web-based functionality, such as "arg()" or "current_path()" etc.
-        $_GET['q'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
+        $path = ltrim(parse_url(static::$pageUrl)['path'], '/');
+        if ('' == $path) {
+            $path = variable_get('site_frontpage', 'node');
+        }
+        $_GET['q'] = drupal_get_normal_path($path);
     }
 
     /**
