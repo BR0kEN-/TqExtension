@@ -1,51 +1,33 @@
 <?php
 /**
- * @author Sergii Bondarenko, <sb@firstvector.org>
+ * @author Cristina Eftimita, <eftimitac@gmail.com>
  */
 namespace Drupal\TqExtension\Context\Node;
 
-use Drupal\TqExtension\Context\RawTqContext;
-
-class NodeContext extends RawTqContext
+class NodeContext extends RawNodeContext
 {
     /**
      * @When /^I (visit|view|edit) "([^"]+)" node of type "([^"]+)"$/
      */
-    public function iVisitNodePageOfType($operation, $title, $type) {
-        if ($operation == 'visit') {
-            $operation = 'view';
+    public function visitNode($operation, $title, $type) {
+        if ('visit' === $operation) {
+             $operation = 'view';
         }
-        $query = new \EntityFieldQuery();
-        $result = $query
-            ->entityCondition('entity_type', 'node')
-            // @todo: Add support for CT label.
-            ->entityCondition('bundle', strtolower($type))
-            ->propertyCondition('title', $title)
-            ->range(0, 1)
-            ->execute();
+        $nid = $this->getNodeIdByTitle($title, $type);
 
-        if (empty($result['node'])) {
-            $params = array(
-                '@title' => $title,
-                '@type' => $type,
-            );
-            throw new \Exception(format_string("Node @title of @type not found.", $params));
-        }
-
-        $nid = key($result['node']);
-        $this->getSession()->visit($this->locatePath('/node/' . $nid . '/' . $operation));
+        $this->getRedirectContext()->visitPage("node/$nid/$operation");
     }
 
     /**
-     * @When I edit this node
+     * @When /^(?:|I )edit (?:this|current|the) node$/
      */
-    public function iEditThisNode()
+    public function editNode()
     {
-        if (preg_match("@node/(\d+)@", $_GET['q'], $matches)) {
-            $this->getSession()->visit($this->locatePath('/node/' . $matches[1] . '/edit'));
+        $args = arg();
+        if (count($args) < 2 || ('node' !== $args[0] || $args[1] <= 0)) {
+            throw new \RuntimeException(sprintf('Page "%s" is not a node. Unable to edit.', static::$pageUrl));
         }
-        else {
-            throw new \Exception("You're not currently on a node page.");
-        }
+
+        $this->getRedirectContext()->visitPage('node/' . $args[1] . '/edit');
     }
 }
