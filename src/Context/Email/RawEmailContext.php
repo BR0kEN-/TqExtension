@@ -49,7 +49,7 @@ class RawEmailContext extends RawTqContext
 
         // The debug messages may differ due to testing testing mode:
         // Drupal mail system collector or IMAP protocol.
-        self::debug([var_export($this->messages[$this->email], true)]);
+        self::debug(['%s'], var_export($this->messages[$this->email], true));
 
         return $this->messages[$this->email];
     }
