@@ -53,8 +53,8 @@ trait Interaction
         $indent = implode(' ', array_fill_keys(range(0, $indent), '')) . "<$type>";
 
         self::$consoleOutput->writeln(vsprintf(
-          $indent . implode("\n</$type>$indent", $strings) . "</$type>",
-          array_slice(func_get_args(), 3)
+            $indent . implode("\n</$type>$indent", $strings) . "</$type>",
+            array_slice(func_get_args(), 3)
         ));
     }
 
