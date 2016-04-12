@@ -165,6 +165,7 @@ class RawUserContext extends RawTqContext
         $random = $this->getRandom();
         $username = $random->name(8);
         $user = [
+            'uid' => 0,
             'name' => $username,
             'pass' => $random->name(16),
             'mail' => "$username@example.com",
