@@ -119,7 +119,7 @@ class RawEmailContext extends RawTqContext
             ->fields('v', ['value'])
             ->condition('name', 'drupal_test_email_collector');
 
-        self::debug(['SQL query is: %s', $query]);
+        self::debug(['SQL query is: %s'], $query);
 
         $result = $query->execute()
             ->fetchField();
