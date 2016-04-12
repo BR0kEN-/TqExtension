@@ -126,7 +126,7 @@ class RawEmailContext extends RawTqContext
 
         $result = empty($result) ? [] : unserialize($result);
 
-        self::debug(['Emails from the database: %s'], drupal_var_export($result, '  '));
+        self::debug(['Emails from the database: %s'], var_export($result, true));
 
         return $result;
     }

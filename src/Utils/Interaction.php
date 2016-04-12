@@ -27,8 +27,8 @@ trait Interaction
             array_unshift($strings, '<question>DEBUG:</question>');
             call_user_func_array(['self', 'consoleOutput'], array_merge(
                 ['comment', 4, $strings],
-                array_slice(func_get_args(), 1))
-            );
+                array_slice(func_get_args(), 1)
+            ));
         }
     }
 
@@ -46,19 +46,16 @@ trait Interaction
      */
     public static function consoleOutput($type, $indent, array $strings)
     {
-        if (!isset(self::$consoleOutput)) {
-            self::$consoleOutput = new ConsoleOutput;
+        if (null === self::$consoleOutput) {
+            self::$consoleOutput = new ConsoleOutput();
         }
 
-        $indent = implode(' ', array_fill_keys(range(0, $indent), ''));
-        $arguments = func_get_args();
-        // Remove the "indent" and "strings" parameters from an array with arguments.
-        unset($arguments[1], $arguments[2]);
+        $indent = implode(' ', array_fill_keys(range(0, $indent), '')) . "<$type>";
 
-        // Replace the "type" argument by message that will be printed.
-        $arguments[0] = "$indent<$type>" . implode(PHP_EOL . "</$type>$indent<$type>", $strings) . "</$type>";
-
-        self::$consoleOutput->writeln(call_user_func_array('sprintf', $arguments));
+        self::$consoleOutput->writeln(vsprintf(
+          $indent . implode("\n</$type>$indent", $strings) . "</$type>",
+          array_slice(func_get_args(), 3)
+        ));
     }
 
     /**
