@@ -72,6 +72,30 @@ class UserContext extends RawUserContext
     }
 
     /**
+     * @param $operation
+     *   The operation applied on the user: view or edit.
+     * @param $column
+     *   The column in users table into which the value will be searched.
+     * @param $value
+     *   The value to search in users table.
+     *
+     * @throws \Exception
+     *   When user not found.
+     *
+     * @When /^I (visit|view|edit) user with (name|mail) "([^"]+)"$/
+     */
+    public function visitUser($operation, $column, $value)
+    {
+        if ('visit' === $operation) {
+            $operation = 'view';
+        }
+
+        $uid = $this->getUserByColumn($column, $value);
+
+        $this->getRedirectContext()->visitPage("user/$uid/$operation");
+    }
+
+    /**
      * @AfterScenario
      */
     public function afterUserScenario() {

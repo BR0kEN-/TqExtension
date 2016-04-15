@@ -188,4 +188,31 @@ class RawUserContext extends RawTqContext
 
         return $user;
     }
+
+    /**
+     * Retrieves user by given property.
+     *
+     * @param $column
+     *   User property, name or mail, to look for.
+     * @param $value
+     *   The value to search for in the given column.
+     *
+     * @return int|null
+     *   Returns user uid if found.
+     *
+     * @throws \Exception
+     */
+    public function getUserByColumn($column, $value)
+    {
+        $uid = db_select('users', 'u')
+          ->fields('u', array('uid'))
+          ->condition('u.' . $column, '%' . db_like($value) . '%', 'LIKE')
+          ->range(0, 1)
+          ->execute()->fetchField();
+
+        if (empty($uid)) {
+            throw new \Exception(sprintf("User with the %s: %s not found.", $column, $value));
+        }
+        return $uid;
+    }
 }
