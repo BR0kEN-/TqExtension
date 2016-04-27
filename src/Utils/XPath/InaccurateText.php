@@ -86,7 +86,7 @@ class InaccurateText
     public function __toString()
     {
         if (!empty($this->text)) {
-            $this->text = "[starts-with(translate(normalize-space(.), ' ', ''), '$this->text')]";
+            $this->text = "[starts-with(normalize-space(.), '$this->text')]";
         }
 
         return sprintf("$this->query[%s$this->text]", empty($this->attribute) ? 'text()' : "@$this->attribute");
