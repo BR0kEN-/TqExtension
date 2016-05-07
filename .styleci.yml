@@ -3,4 +3,6 @@ linting: true
 
 finder:
   exclude:
-    - "behat/features/bootstrap/*"
+    - "behat/features/bootstrap"
+  name:
+    - "*.php"
