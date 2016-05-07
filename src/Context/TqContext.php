@@ -6,7 +6,6 @@ namespace Drupal\TqExtension\Context;
 
 // Scope definitions.
 use Behat\Behat\Hook\Scope;
-
 // Utils.
 use Drupal\TqExtension\Utils\Database\Database;
 

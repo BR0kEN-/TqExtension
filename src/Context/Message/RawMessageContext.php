@@ -6,7 +6,6 @@ namespace Drupal\TqExtension\Context\Message;
 
 // Helpers.
 use Behat\Mink\Element\NodeElement;
-
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
 

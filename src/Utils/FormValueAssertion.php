@@ -6,7 +6,6 @@ namespace Drupal\TqExtension\Utils;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
-
 // Helpers.
 use Behat\DebugExtension\Debugger;
 use Behat\Mink\Element\NodeElement;

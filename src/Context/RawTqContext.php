@@ -7,11 +7,9 @@ namespace Drupal\TqExtension\Context;
 // Contexts.
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Drupal\DrupalExtension\Context as DrupalContexts;
-
 // Exceptions.
 use Behat\Behat\Context\Exception\ContextNotFoundException;
 use Behat\DebugExtension\Debugger;
-
 // Helpers.
 use WebDriver\Session;
 use Drupal\Driver\DrushDriver;
@@ -19,6 +17,7 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
+// Utils.
 use Drupal\TqExtension\Utils\Tags;
 
 /**

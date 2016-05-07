@@ -6,11 +6,10 @@ namespace Drupal\TqExtension\Context\User;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
-use Drupal\TqExtension\Utils\EntityDrupalWrapper;
-
 // Utils.
-use Drupal\TqExtension\Utils\Database\FetchField;
 use Drupal\TqExtension\Utils\BaseEntity;
+use Drupal\TqExtension\Utils\Database\FetchField;
+use Drupal\TqExtension\Utils\EntityDrupalWrapper;
 
 class RawUserContext extends RawTqContext
 {

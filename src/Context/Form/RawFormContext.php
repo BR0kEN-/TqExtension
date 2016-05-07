@@ -9,5 +9,4 @@ use Drupal\TqExtension\Context\RawTqContext;
 
 class RawFormContext extends RawTqContext
 {
-
 }

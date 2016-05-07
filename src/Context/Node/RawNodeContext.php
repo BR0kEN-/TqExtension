@@ -6,7 +6,6 @@ namespace Drupal\TqExtension\Context\Node;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
-
 // Utils.
 use Drupal\TqExtension\Utils\Database\FetchField;
 use Drupal\TqExtension\Utils\BaseEntity;

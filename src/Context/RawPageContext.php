@@ -6,12 +6,11 @@ namespace Drupal\TqExtension\Context;
 
 // Contexts.
 use Drupal\DrupalExtension\Context\RawDrupalContext;
-
 // Exceptions.
 use WebDriver\Exception\NoSuchElement;
-
 // Helpers.
 use Behat\Mink\Element\NodeElement;
+// Utils.
 use Drupal\TqExtension\Utils\XPath;
 
 class RawPageContext extends RawDrupalContext

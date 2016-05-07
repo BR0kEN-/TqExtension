@@ -6,9 +6,9 @@ namespace Drupal\TqExtension\Context\Wysiwyg;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
-
-// Utils.
+// Helpers.
 use Behat\DebugExtension\Message;
+// Utils.
 use Drupal\TqExtension\Utils\Wysiwyg\Wysiwyg;
 
 class RawWysiwygContext extends RawTqContext

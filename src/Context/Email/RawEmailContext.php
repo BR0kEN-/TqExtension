@@ -6,7 +6,6 @@ namespace Drupal\TqExtension\Context\Email;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
-
 // Utils.
 use Behat\DebugExtension\Message;
 use Drupal\TqExtension\Utils\Imap;
