@@ -8,10 +8,13 @@ namespace Drupal\TqExtension\Utils;
 use Drupal\TqExtension\Context\RawTqContext;
 
 // Helpers.
+use Behat\DebugExtension\Debugger;
 use Behat\Mink\Element\NodeElement;
 
 class FormValueAssertion
 {
+    use Debugger;
+
     /**
      * @var RawTqContext
      */
@@ -84,10 +87,14 @@ class FormValueAssertion
             'input' => [],
         ]);
 
-        call_user_func([$this->context, 'debug'], [
-            "Expected: $this->expected",
-            "Value: $this->value",
-            "Tag: $this->tag",
+        self::debug([
+            'Expected: %s',
+            'Value: %s',
+            'Tag: %s',
+        ], [
+            $this->expected,
+            $this->value,
+            $this->tag,
         ]);
 
         $this->assert(trim($this->expected) === $this->value);
@@ -101,11 +108,15 @@ class FormValueAssertion
         $this->restrictElements(['select' => []]);
         $data = [$this->value, $this->element->find('xpath', "//option[@value='$this->value']")->getText()];
 
-        call_user_func([$this->context, 'debug'], [
-            "Expected: $this->expected",
-            "Value: %s",
-            "Tag: $this->tag",
-        ], implode(' => ', $data));
+        self::debug([
+            'Expected: %s',
+            'Value: %s',
+            'Tag: %s',
+        ], [
+            $this->expected,
+            implode(' => ', $data),
+            $this->tag,
+        ]);
 
         $this->assert(in_array($this->expected, $data), 'selected');
     }
@@ -121,7 +132,7 @@ class FormValueAssertion
             throw new \RuntimeException('Element cannot be checked.');
         }
 
-        call_user_func([$this->context, 'debug'], [$this->element->getOuterHtml()]);
+        self::debug(['%s'], [$this->element->getOuterHtml()]);
 
         $this->assert($this->element->isChecked(), 'checked');
     }

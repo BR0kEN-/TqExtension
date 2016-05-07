@@ -65,12 +65,12 @@ class WysiwygContext extends RawWysiwygContext
         $content = $wysiwyg->read($selector);
 
         if (!is_string($content)) {
-            self::debug(['Returned value:', var_export($content, true)]);
+            self::debug(['Returned value:', '%s'], [var_export($content, true)]);
 
             throw new \UnexpectedValueException('Could not read WYSIWYG content.');
         }
 
-        self::debug(["Content from WYSIWYG: $content"]);
+        self::debug(["Content from WYSIWYG: %s"], [$content]);
 
         if (strpos($content, $text) === $condition) {
             throw new \RuntimeException(sprintf(

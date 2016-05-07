@@ -10,6 +10,30 @@ use Behat\Gherkin\Node\TableNode;
 class UserContext extends RawUserContext
 {
     /**
+     * @param string $operation
+     *   Allowable values: "edit", "view", "visit".
+     * @param string $value
+     *   The name or email of a user.
+     *
+     * @When /^(?:|I )(visit|view|edit) (?:the "([^"]+)"|current) user$/
+     */
+    public function visitPage($operation, $value = '')
+    {
+        $column = $value;
+
+        // If we have an empty value then try to use current user.
+        if ('' !== $value) {
+            $column = strpos($value, '@') === false ? 'name' : 'mail';
+        }
+
+        // This helps us restrict an access for editing for users without correct permissions.
+        // Will check for 403 HTTP status code.
+        $this->getRedirectContext()
+            // Check user by email if value contains a "dog" symbol.
+            ->visitPage($this->entityUrl($operation, $column, $value));
+    }
+
+    /**
      * @example
      * Then I am logged in as a user with "CRM Client" role and filled fields
      *   | Full name                | Sergii Bondarenko |
@@ -74,7 +98,8 @@ class UserContext extends RawUserContext
     /**
      * @AfterScenario
      */
-    public function afterUserScenario() {
+    public function afterUserScenario()
+    {
         // Logout, when scenario finished an execution, is required for "Scenario Outline" because an
         // object will not be instantiated for every iteration and user data, from previous one, will
         // be kept.

@@ -6,9 +6,12 @@ namespace Drupal\TqExtension\Utils\XPath;
 
 // Helpers.
 use Behat\Mink\Element\NodeElement;
+use Behat\DebugExtension\Debugger;
 
 class InaccurateText
 {
+    use Debugger;
+
     /**
      * The text, desired to be found.
      *
@@ -86,10 +89,14 @@ class InaccurateText
     public function __toString()
     {
         if (!empty($this->text)) {
-            $this->text = "[starts-with(., '$this->text')]";
+            $this->text = "[starts-with(normalize-space(.), '$this->text')]";
         }
 
-        return sprintf("$this->query[%s$this->text]", empty($this->attribute) ? 'text()' : "@$this->attribute");
+        $xpath = sprintf("$this->query[%s$this->text]", empty($this->attribute) ? 'text()' : "@$this->attribute");
+
+        self::debug(['XPath: %s'], [$xpath]);
+
+        return $xpath;
     }
 
     public function text($text)

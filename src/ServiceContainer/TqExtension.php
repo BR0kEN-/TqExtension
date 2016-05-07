@@ -30,6 +30,9 @@ class TqExtension implements Extension
      */
     public function initialize(ExtensionManager $extensionManager)
     {
+        if (null === $extensionManager->getExtension('debug')) {
+            $extensionManager->activateExtension('Behat\DebugExtension');
+        }
     }
 
     /**

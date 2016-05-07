@@ -8,10 +8,13 @@ namespace Drupal\TqExtension\Utils;
 use Drupal\TqExtension\Context\RawTqContext;
 
 // Helpers.
+use Behat\DebugExtension\Debugger;
 use Behat\Mink\Element\NodeElement;
 
 class DatePicker
 {
+    use Debugger;
+
     /**
      * @var NodeElement
      */
@@ -73,7 +76,7 @@ class DatePicker
             $value = $this->execute(self::jsDate($this->element->getValue()));
         }
 
-        call_user_func([$this->context, 'debug'], ["Comparing $value with $initial"]);
+        self::debug(['Comparing "%s" with "%s".'], [$value, $initial]);
 
         if ($value !== $initial) {
             throw new \Exception(sprintf('DatePicker contains the "%s" but should "%s".', $value, $initial));
