@@ -4,9 +4,6 @@
  */
 namespace Drupal\TqExtension\Utils;
 
-// Helpers.
-use Symfony\Component\Console\Output\ConsoleOutput;
-
 trait Tags
 {
     /**
