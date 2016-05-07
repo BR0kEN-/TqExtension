@@ -7,7 +7,8 @@ namespace Drupal\TqExtension\Context\Wysiwyg;
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
 
-// Helpers.
+// Utils.
+use Behat\DebugExtension\Message;
 use Drupal\TqExtension\Utils\Wysiwyg\Wysiwyg;
 
 class RawWysiwygContext extends RawTqContext
@@ -38,12 +39,14 @@ class RawWysiwygContext extends RawTqContext
         try {
             $this->wysiwyg = Wysiwyg::instantiate($wysiwyg, $arguments);
         } catch (\Exception $e) {
-            self::consoleOutput('comment', 4, [
+            new Message('comment', 4, [
                 'To describe a new editor you must create an object which will be extended',
                 'by "%s" abstraction.',
-            ], Wysiwyg::class);
+            ], [
+                Wysiwyg::class,
+            ]);
 
-            self::consoleOutput('error', 4, [$e->getMessage()]);
+            new Message('error', 4, ['%s'], [$e->getMessage()]);
 
             throw new \Exception(sprintf('The WYSIWYG editor "%s" does not exist.', $wysiwyg));
         }

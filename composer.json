@@ -11,6 +11,7 @@
   "require": {
     "php": ">=5.5",
     "behat/environment-loader": "1.*",
+    "behat/debug-extension": "dev-master",
     "drupal/drupal-extension": "~3.0"
   },
   "autoload": {

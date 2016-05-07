@@ -5,6 +5,7 @@
 namespace Drupal\TqExtension\Context\Redirect;
 
 // Helpers.
+use Behat\DebugExtension\Message;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink as Mink;
 
@@ -25,7 +26,7 @@ class RedirectContext extends RawRedirectContext
         $pages = [];
         $seconds = 0;
 
-        self::consoleOutput('comment', 4, ['Waiting %s seconds for redirect...'], $wait);
+        new Message('comment', 4, ['Waiting %s seconds for redirect...'], [$wait]);
 
         if (isset($page)) {
             $page = trim($page, '/');
@@ -36,7 +37,13 @@ class RedirectContext extends RawRedirectContext
             $url = $this->getCurrentUrl();
             $raw = explode('?', $url)[0];
 
-            self::debug(["Expected URLs: %s", "Current URL: $raw"], implode(', ', $pages));
+            self::debug([
+                'Expected URLs: %s',
+                'Current URL: %s',
+            ], [
+                implode(', ', $pages),
+                $raw,
+            ]);
 
             if ((!empty($pages) && in_array($raw, $pages)) || $url === self::$pageUrl) {
                 return;
@@ -102,6 +109,8 @@ class RedirectContext extends RawRedirectContext
         if (!$this->assertStatusCode($path, $code)) {
             throw new \Exception(sprintf('The page "%s" is not accessible!', $path));
         }
+
+        self::debug(['Visited page: %s'], [$path]);
 
         $this->visitPath($path);
     }

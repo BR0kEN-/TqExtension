@@ -4,9 +4,11 @@
  */
 namespace Drupal\TqExtension\Context;
 
-// Helpers.
-use Behat\Behat\Hook\Scope as BehatScope;
-use Drupal\TqExtension\Utils\DatabaseManager;
+// Scope definitions.
+use Behat\Behat\Hook\Scope;
+
+// Utils.
+use Drupal\TqExtension\Utils\Database\Database;
 
 class TqContext extends RawTqContext
 {
@@ -17,7 +19,7 @@ class TqContext extends RawTqContext
      */
     private $mainWindow = [];
     /**
-     * @var DatabaseManager
+     * @var Database
      */
     private static $database;
 
@@ -187,18 +189,18 @@ class TqContext extends RawTqContext
     }
 
     /**
-     * @param BehatScope\BeforeFeatureScope $scope
+     * @param Scope\BeforeFeatureScope $scope
      *   Scope of the processing feature.
      *
      * @BeforeFeature
      */
-    public static function beforeFeature(BehatScope\BeforeFeatureScope $scope)
+    public static function beforeFeature(Scope\BeforeFeatureScope $scope)
     {
         self::collectTags($scope->getFeature()->getTags());
 
         // Database will be cloned for every feature with @cloneDB tag.
         if (self::hasTag('clonedb')) {
-            self::$database = new DatabaseManager(self::getTag('clonedb', 'default'), self::class);
+            self::$database = clone new Database(self::getTag('clonedb', 'default'));
         }
     }
 
@@ -212,12 +214,12 @@ class TqContext extends RawTqContext
     }
 
     /**
-     * @param BehatScope\BeforeScenarioScope $scope
+     * @param Scope\BeforeScenarioScope $scope
      *   Scope of the processing scenario.
      *
      * @BeforeScenario
      */
-    public function beforeScenario(BehatScope\BeforeScenarioScope $scope)
+    public function beforeScenario(Scope\BeforeScenarioScope $scope)
     {
         self::collectTags($scope->getScenario()->getTags());
 
@@ -253,27 +255,28 @@ class TqContext extends RawTqContext
     /**
      * IMPORTANT! The "BeforeStep" hook should not be tagged, because steps has no tags!
      *
-     * @param BehatScope\StepScope|BehatScope\BeforeStepScope $scope
+     * @param Scope\StepScope|Scope\BeforeStepScope $scope
      *   Scope of the processing step.
      *
      * @BeforeStep
      */
-    public function beforeStep(BehatScope\StepScope $scope)
+    public function beforeStep(Scope\StepScope $scope)
     {
         self::$pageUrl = $this->getCurrentUrl();
         // To allow Drupal use its internal, web-based functionality, such as "arg()" or "current_path()" etc.
         $_GET['q'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
+        drupal_path_initialize();
     }
 
     /**
      * IMPORTANT! The "AfterStep" hook should not be tagged, because steps has no tags!
      *
-     * @param BehatScope\StepScope|BehatScope\AfterStepScope $scope
+     * @param Scope\StepScope|Scope\AfterStepScope $scope
      *   Scope of the processing step.
      *
      * @AfterStep
      */
-    public function afterStep(BehatScope\StepScope $scope)
+    public function afterStep(Scope\StepScope $scope)
     {
         // If "mainWindow" variable is not empty that means that additional window has been opened.
         // Then, if number of opened windows equals to one, we need to switch back to original window,

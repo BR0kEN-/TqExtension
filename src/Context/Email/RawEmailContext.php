@@ -5,8 +5,12 @@
 namespace Drupal\TqExtension\Context\Email;
 
 // Contexts.
-use Drupal\TqExtension\Utils\Imap;
 use Drupal\TqExtension\Context\RawTqContext;
+
+// Utils.
+use Behat\DebugExtension\Message;
+use Drupal\TqExtension\Utils\Imap;
+use Drupal\TqExtension\Utils\Database\FetchField;
 
 class RawEmailContext extends RawTqContext
 {
@@ -49,7 +53,7 @@ class RawEmailContext extends RawTqContext
 
         // The debug messages may differ due to testing testing mode:
         // Drupal mail system collector or IMAP protocol.
-        self::debug([var_export($this->messages[$this->email], true)]);
+        self::debug(['%s'], [var_export($this->messages[$this->email], true)]);
 
         return $this->messages[$this->email];
     }
@@ -104,7 +108,7 @@ class RawEmailContext extends RawTqContext
         $this->setConnection($email, $account['imap'], $account['username'], $account['password']);
 
         if ($timeout > 0) {
-            $this->consoleOutput('comment', 4, ['Waiting %s seconds for letter...'], $timeout);
+            new Message('comment', 4, ['Waiting %s seconds for letter...'], [$timeout]);
             sleep($timeout);
         }
 
@@ -115,25 +119,20 @@ class RawEmailContext extends RawTqContext
     {
         // We can't use variable_get() because Behat has another bootstrapped
         // variable $conf that is not updated from cURL bootstrapped Drupal instance.
-        $query = db_select('variable', 'v')
-            ->fields('v', ['value'])
-            ->condition('name', 'drupal_test_email_collector');
-
-        self::debug(['SQL query is: %s', $query]);
-
-        $result = $query->execute()
-            ->fetchField();
+        $result = (new FetchField('variable', 'value'))
+            ->condition('name', 'drupal_test_email_collector')
+            ->execute();
 
         $result = empty($result) ? [] : unserialize($result);
 
-        self::debug(['Emails from the database: %s'], drupal_var_export($result, '  '));
+        self::debug(['Emails from the database: %s'], [var_export($result, true)]);
 
         return $result;
     }
 
     private static function parseHTML($string)
     {
-        $doс = new \DOMDocument;
+        $doс = new \DOMDocument();
 
         // Handle errors/warnings and don't mess up output of your script.
         // @see http://stackoverflow.com/a/17559716

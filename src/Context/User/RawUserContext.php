@@ -8,11 +8,49 @@ namespace Drupal\TqExtension\Context\User;
 use Drupal\TqExtension\Context\RawTqContext;
 use Drupal\TqExtension\Utils\EntityDrupalWrapper;
 
+// Utils.
+use Drupal\TqExtension\Utils\Database\FetchField;
+use Drupal\TqExtension\Utils\BaseEntity;
+
 class RawUserContext extends RawTqContext
 {
+    use BaseEntity;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function entityType()
+    {
+        return 'user';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCurrentId()
+    {
+        return empty($this->user->uid) ? 0 : $this->user->uid;
+    }
+
+    /**
+     * @param string $column
+     *   Column of a "users" table.
+     * @param string $value
+     *   Expected value in column.
+     *
+     * @return int
+     */
+    protected function getIdByArguments($column, $value)
+    {
+        return (new FetchField('users', 'uid'))
+            ->condition($column, $value)
+            ->execute();
+    }
+
     /**
      * @param string $roles
      *   Necessary user roles separated by comma.
+     * @param array $fields
      *
      * @return \stdClass
      */
@@ -81,7 +119,7 @@ class RawUserContext extends RawTqContext
             throw new \Exception($message);
         }
 
-        $GLOBALS['user'] = $this->user;
+        $GLOBALS['user'] = $this->user = user_load_by_name($props['username']);
     }
 
     /**

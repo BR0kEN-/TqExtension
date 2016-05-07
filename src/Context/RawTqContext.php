@@ -10,6 +10,7 @@ use Drupal\DrupalExtension\Context as DrupalContexts;
 
 // Exceptions.
 use Behat\Behat\Context\Exception\ContextNotFoundException;
+use Behat\DebugExtension\Debugger;
 
 // Helpers.
 use WebDriver\Session;
@@ -18,7 +19,7 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
-use Drupal\TqExtension\Utils as TqUtils;
+use Drupal\TqExtension\Utils\Tags;
 
 /**
  * @see RawTqContext::__call()
@@ -37,7 +38,8 @@ use Drupal\TqExtension\Utils as TqUtils;
  */
 class RawTqContext extends RawPageContext implements TqContextInterface
 {
-    use TqUtils\Interaction;
+    use Debugger;
+    use Tags;
 
     /**
      * Parameters of TqExtension.

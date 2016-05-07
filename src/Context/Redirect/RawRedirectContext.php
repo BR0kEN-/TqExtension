@@ -22,7 +22,8 @@ class RawRedirectContext extends RawTqContext
         // The "Goutte" session should be used because it provide the request status codes.
         $this->visitPath($path, 'goutte');
         $responseCode = $this->getSession('goutte')->getStatusCode();
-        self::debug(['HTTP code is: %s'], $responseCode);
+
+        self::debug(['HTTP code is: %s'], [$responseCode]);
 
         return $responseCode == $code;
     }

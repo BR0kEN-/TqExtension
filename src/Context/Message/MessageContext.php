@@ -79,7 +79,14 @@ class MessageContext extends RawMessageContext
         }
 
         $translated = t($message, $args);
-        $this->debug(['Input: %s', 'Translated: %s'], $message, $translated);
+
+        self::debug([
+            'Input: %s',
+            'Translated: %s',
+        ], [
+            $message,
+            $translated,
+        ]);
 
         /** @var NodeElement $element */
         foreach ($elements as $element) {
