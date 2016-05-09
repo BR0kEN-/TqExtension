@@ -11,6 +11,8 @@ default:
     Behat\MinkExtension:
       goutte:
         guzzle_parameters:
+          # Ignore cURL error about self-signed SSL certificates.
+          verify: false
           config:
             curl:
               CURLOPT_TIMEOUT: 300
