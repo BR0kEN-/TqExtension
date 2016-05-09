@@ -11,6 +11,9 @@ env:
   - COMPOSER_OPTS=""
   - COMPOSER_OPTS="--prefer-lowest"
 
+services:
+  - mysql
+
 matrix:
   exclude:
     - php: hhvm
