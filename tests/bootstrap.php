@@ -31,7 +31,7 @@ define('CONFIG_PATH', __DIR__ . '/behat/behat.yml');
  */
 function drush($command, array $arguments = [])
 {
-    return shell_exec(sprintf("drush %s -r %s -y", vsprintf($command, $arguments), DRUPAL_PATH));
+    return shell_exec(sprintf('./bin/drush %s -r %s -y', vsprintf($command, $arguments), DRUPAL_PATH));
 }
 
 /**

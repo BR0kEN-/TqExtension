@@ -16,7 +16,7 @@
   },
   "require-dev": {
     "drush/drush": "8.*",
-    "phpunit/phpunit": "5.*"
+    "phpunit/phpunit": "4 - 5"
   },
   "autoload": {
     "psr-4": {
