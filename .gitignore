@@ -1,3 +1,15 @@
+/*
+
+!src/
+!docs/
+!behat/
+!tests/
+
+!LICENSE
+!README.md
+!phpunit.xml
+!composer.json
+
 # Ignore files which names start from dot.
 .*
 
@@ -6,9 +18,3 @@
 
 # Do not ignore configurations of CI services.
 !*.yml
-
-# Ignore files with extensions.
-*.lock
-
-# Ignore directories.
-vendor/
