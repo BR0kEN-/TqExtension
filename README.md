@@ -43,6 +43,9 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 - [Anastasia Guba](https://github.com/Naastya)
 - [Artyom Miroshnik](https://github.com/M1r1k)
 - [Andrei Perciun](https://github.com/andreiperciun)
+- [Alexei Gorobet](https://github.com/asgorobets)
+- [Cristina Eftimita](https://github.com/Eftimitac)
+- [Sergiu Teaca](https://github.com/sergiuteaca)
 
 ## History
 
