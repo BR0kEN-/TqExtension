@@ -57,19 +57,9 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function dbCreate()
-    {
-        $this->db->create('testdb');
-        // Check that database exists.
-        self::assertTrue($this->db->exist('testdb'));
-    }
-
-    /**
-     * @test
-     * @depends dbCreate
-     */
     public function dbDrop()
     {
+        $this->dbCreate();
         // Database was created in method from which this one depends.
         $this->db->drop('testdb');
         // Make sure that database does not exists after deleting.
@@ -78,10 +68,10 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @depends dbCreate
      */
     public function dbCopy()
     {
+        $this->dbCreate();
         // Database was created in method from which this one depends.
         $this->db->copy('testdb', 'testdb_copy');
         // Ensure that database was copied.
@@ -94,12 +84,19 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @depends dbCreate
      */
     public function dbClear()
     {
+        $this->dbCreate();
         $this->db->clear('testdb');
         self::assertTrue($this->db->exist('testdb'));
         $this->dbDrop();
+    }
+
+    private function dbCreate()
+    {
+        $this->db->create('testdb');
+        // Check that database exists.
+        self::assertTrue($this->db->exist('testdb'));
     }
 }
