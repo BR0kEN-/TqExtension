@@ -35,7 +35,7 @@ class RawNodeContext extends RawTqContext
     protected function getIdByArguments($title, $contentType = '')
     {
         $nid = new FetchField('node', 'nid');
-        $nid->condition('title', "%$title", 'like');
+        $nid->condition('title', "$title%", 'like');
 
         // Try to recognize node type by its title if content type specified and does not exist.
         if ('' !== $contentType && !isset(node_type_get_types()[$contentType])) {
