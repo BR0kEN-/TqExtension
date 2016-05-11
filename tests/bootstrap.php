@@ -73,7 +73,6 @@ if (strpos($argsline, 'functional') !== false || strpos($argsline, 'testsuite') 
     }
 
     // Install Drupal.
-    // @todo Find a way to work without DB password.
     drush('si standard --db-url=mysql://%s:%s@%s/%s --account-name=%s --account-pass=%s', [
         DRUPAL_DB_USER,
         DRUPAL_DB_PASS,
