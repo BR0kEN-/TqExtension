@@ -106,6 +106,5 @@ if (strpos($argsline, 'functional') !== false || strpos($argsline, 'testsuite') 
     register_shutdown_function(function () use ($processId) {
         shell_exec("kill $processId");
         prepare_config(true);
-        var_dump(shell_exec(sprintf('cat %s/behat.log', DRUPAL_PATH)));
     });
 }

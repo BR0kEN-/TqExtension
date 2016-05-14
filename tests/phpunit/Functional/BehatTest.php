@@ -11,7 +11,13 @@ namespace Drupal\Tests\TqExtension\Functional;
  */
 abstract class BehatTest extends \PHPUnit_Framework_TestCase
 {
-    const FEATURE_PATH = 'tests/behat/features';
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp()
+    {
+        chdir(dirname(CONFIG_FILE));
+    }
 
     /**
      * @param string $feature
@@ -20,15 +26,10 @@ abstract class BehatTest extends \PHPUnit_Framework_TestCase
     protected function runFeature($feature)
     {
         $code = 0;
-        $feature .= '.feature';
-        $file = static::FEATURE_PATH . "/$feature";
+        $file = "features/$feature.feature";
 
         if (file_exists($file)) {
-            system(sprintf(
-                "cd %s && ../../bin/behat --no-colors %s/$feature",
-                dirname(static::FEATURE_PATH),
-                basename(static::FEATURE_PATH)
-            ), $code);
+            system("../../bin/behat --no-colors $file", $code);
             self::assertTrue(0 === $code);
         } else {
             self::fail(sprintf('File "%s/%s" does not exists!', getcwd(), $file));
@@ -41,14 +42,14 @@ abstract class BehatTest extends \PHPUnit_Framework_TestCase
      */
     protected function runFeaturesGroup($group)
     {
-        $dir = static::FEATURE_PATH . "/$group";
+        $dir = "features/$group";
         $files = glob("$dir/*.feature");
 
         if (empty($files)) {
             self::fail(sprintf('No features exists in "%s/%s" directory.', getcwd(), $dir));
         } else {
             foreach ($files as $file) {
-                $this->runFeature(str_replace([static::FEATURE_PATH, '.feature'], '', $file));
+                $this->runFeature(str_replace(['features/', '.feature'], '', $file));
             }
         }
     }
