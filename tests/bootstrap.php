@@ -98,7 +98,6 @@ if (strpos($argsline, 'functional') !== false || strpos($argsline, 'testsuite') 
         ROUTER_FILE
     ));
 
-    chdir(dirname(CONFIG_FILE));
     prepare_config();
 
     register_shutdown_function(function () use ($processId) {
