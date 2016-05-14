@@ -5,19 +5,23 @@
 
 global $argv;
 
+// Drupal configuration.
 define('DRUPAL_PATH', __DIR__ . '/drupal_tqextension_phpunit');
 define('DRUPAL_HOST', '127.0.0.1:1349');
-
 define('DRUPAL_USER', 'admin');
 define('DRUPAL_PASS', 'admin');
-
+// Drush configuration.
+define('DRUSH_BINARY', realpath('./bin/drush'));
+// Database configuration.
 define('DRUPAL_DB_HOST', '127.0.0.1');
 define('DRUPAL_DB_USER', 'root');
 define('DRUPAL_DB_PASS', '');
 define('DRUPAL_DB_NAME', basename(DRUPAL_PATH));
-
-define('ROUTER_PATH', DRUPAL_PATH . '/router.php');
-define('CONFIG_PATH', __DIR__ . '/behat/behat.yml');
+// Behat configuration.
+define('CONFIG_FILE', __DIR__ . '/behat/behat.yml');
+// Routing configuration.
+define('ROUTER_URL', 'https://gist.githubusercontent.com/shawnachieve/4592ea196d1c8519e3b6/raw/0fbf62e5f6ac6eca09f013d8ff9b080f0da50dbb/.ht_router.php');
+define('ROUTER_FILE', DRUPAL_PATH . '/' . basename(ROUTER_URL));
 
 /**
  * Execute Drush command.
@@ -31,7 +35,7 @@ define('CONFIG_PATH', __DIR__ . '/behat/behat.yml');
  */
 function drush($command, array $arguments = [])
 {
-    return shell_exec(sprintf('./bin/drush %s -r %s -y', vsprintf($command, $arguments), DRUPAL_PATH));
+    return shell_exec(sprintf('%s %s -r %s -y', DRUSH_BINARY, vsprintf($command, $arguments), DRUPAL_PATH));
 }
 
 /**
@@ -53,7 +57,7 @@ function prepare_config($restore = false)
         $arguments = array_flip($arguments);
     }
 
-    return file_put_contents(CONFIG_PATH, strtr(file_get_contents(CONFIG_PATH), $arguments));
+    return file_put_contents(CONFIG_FILE, strtr(file_get_contents(CONFIG_FILE), $arguments));
 }
 
 $argsline = strtolower(implode($argv));
@@ -82,32 +86,19 @@ if (strpos($argsline, 'functional') !== false || strpos($argsline, 'testsuite') 
         DRUPAL_PASS,
     ]);
 
-    // Create router for built-in web-server.
-    file_put_contents(
-        ROUTER_PATH,
-        "
-        <?php
-        \$url = parse_url(\$_SERVER['REQUEST_URI']);
-
-        if (file_exists('.' . \$url['path'])) {
-            // Serve requested resource as-is.
-            return false;
-        }
-
-        \$_GET['q'] = trim(\$url['path'], '/');
-        require 'index.php';
-        "
-    );
+    if (!file_exists(ROUTER_FILE)) {
+        shell_exec(sprintf('wget -O %s %s', ROUTER_FILE, ROUTER_URL));
+    }
 
     // Run built-in PHP web-server.
     $processId = shell_exec(sprintf(
         'php -S %s -t %s %s >/dev/null 2>&1 & echo $!',
         DRUPAL_HOST,
         DRUPAL_PATH,
-        ROUTER_PATH
+        ROUTER_FILE
     ));
 
-    chdir(dirname(CONFIG_PATH));
+    chdir(dirname(CONFIG_FILE));
     prepare_config();
 
     register_shutdown_function(function () use ($processId) {
