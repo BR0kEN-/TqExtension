@@ -87,7 +87,10 @@ if (strpos($argsline, 'functional') !== false || strpos($argsline, 'testsuite') 
     ]);
 
     if (!file_exists(ROUTER_FILE)) {
+        $index = sprintf('%s/index.php', DRUPAL_PATH);
+
         shell_exec(sprintf('wget -O %s %s', ROUTER_FILE, ROUTER_URL));
+        file_put_contents($index, str_replace('getcwd()', "'" . DRUPAL_PATH . "'", file_get_contents($index)));
     }
 
     // Run built-in PHP web-server.
