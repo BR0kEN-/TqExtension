@@ -189,6 +189,7 @@ class RawPageContext extends RawDrupalContext
 
         $selector = t($selector);
         $element = $this->{'find' . $map[$locator]}($selector);
+        file_put_contents('behat.log', $this->getWorkingElement()->getOuterHtml() . '=========', FILE_APPEND);
         $this->throwNoSuchElementException($selector, $element);
 
         return $element;
