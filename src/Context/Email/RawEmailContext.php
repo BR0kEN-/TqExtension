@@ -131,15 +131,16 @@ class RawEmailContext extends RawTqContext
 
     private static function parseHTML($string)
     {
-        $doс = new \DOMDocument();
+        $document = new \DOMDocument();
 
         // Handle errors/warnings and don't mess up output of your script.
         // @see http://stackoverflow.com/a/17559716
         $libxml_state = libxml_use_internal_errors(true);
-        $doс->loadHTML($string);
+        $document->loadHTML($string);
+
         libxml_clear_errors();
         libxml_use_internal_errors($libxml_state);
 
-        return $doс;
+        return $document;
     }
 }

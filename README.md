@@ -3,12 +3,12 @@
 The **TqExtension** provide a flexible methods and API for testing websites running on Drupal 7. All
 code in this repository extends an integration layer provided by [DrupalExtension](https://github.com/jhedstrom/drupalextension).
 
-[![Build Status](https://img.shields.io/travis/BR0kEN-/TqExtension/master.svg?style=flat)](https://travis-ci.org/BR0kEN-/TqExtension)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/BR0kEN-/TqExtension.svg?style=flat)](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/BR0kEN-/TqExtension.svg?style=flat)](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension)
-[![Total Downloads](https://poser.pugx.org/drupal/tqextension/downloads)](https://packagist.org/packages/drupal/tqextension)
-[![Latest Stable Version](https://poser.pugx.org/drupal/tqextension/v/stable)](https://packagist.org/packages/drupal/tqextension)
-[![License](https://poser.pugx.org/drupal/tqextension/license)](https://packagist.org/packages/drupal/tqextension)
+[![Build Status](https://img.shields.io/travis/BR0kEN-/TqExtension/master.svg?style=flat-square)](https://travis-ci.org/BR0kEN-/TqExtension)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/BR0kEN-/TqExtension.svg?style=flat-square)](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension/code-structure)
+[![Quality Score](https://img.shields.io/scrutinizer/g/BR0kEN-/TqExtension.svg?style=flat-square)](https://scrutinizer-ci.com/g/BR0kEN-/TqExtension)
+[![Total Downloads](https://img.shields.io/packagist/dt/drupal/tqextension.svg?style=flat-square)](https://packagist.org/packages/drupal/tqextension)
+[![Latest Stable Version](https://poser.pugx.org/drupal/tqextension/v/stable?format=flat-square)](https://packagist.org/packages/drupal/tqextension)
+[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://packagist.org/packages/drupal/tqextension)
 
 ## Installation
 

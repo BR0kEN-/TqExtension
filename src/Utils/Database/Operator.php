@@ -41,10 +41,10 @@ class Operator
         $credentials = [];
 
         foreach ([
-          'u' => $username,
-          'p' => $password,
-          'h' => $host,
-          'P' => $port,
+            'u' => $username,
+            'p' => $password,
+            'h' => $host,
+            'P' => $port,
         ] as $parameter => $value) {
             if (!empty($value)) {
                 $credentials[] = "-$parameter$value";

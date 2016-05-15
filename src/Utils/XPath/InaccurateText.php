@@ -5,8 +5,8 @@
 namespace Drupal\TqExtension\Utils\XPath;
 
 // Helpers.
-use Behat\Mink\Element\NodeElement;
 use Behat\DebugExtension\Debugger;
+use Behat\Mink\Element\NodeElement;
 
 class InaccurateText
 {
@@ -99,6 +99,11 @@ class InaccurateText
         return $xpath;
     }
 
+    /**
+     * @param string $text
+     *
+     * @return $this
+     */
     public function text($text)
     {
         $this->text = $text;
@@ -106,6 +111,11 @@ class InaccurateText
         return $this;
     }
 
+    /**
+     * @param string $attribute
+     *
+     * @return $this
+     */
     public function attribute($attribute)
     {
         $this->attribute = $attribute;

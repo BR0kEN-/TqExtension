@@ -48,7 +48,7 @@ class RawPageContext extends RawDrupalContext
     /**
      * @param string $selector
      *
-     * @return NodeElement|null
+     * @return NodeElement
      */
     public function findByCss($selector)
     {
