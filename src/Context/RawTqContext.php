@@ -24,6 +24,7 @@ use Drupal\TqExtension\Utils\Tags;
  * @see RawTqContext::__call()
  *
  * @method User\UserContext getUserContext()
+ * @method Node\NodeContext getNodeContext()
  * @method Form\FormContext getFormContext()
  * @method Email\EmailContext getEmailContext()
  * @method Drush\DrushContext getDrushContext()
