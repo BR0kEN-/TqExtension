@@ -26,7 +26,7 @@ class RawUserContext extends RawTqContext
     /**
      * {@inheritdoc}
      */
-    protected function getCurrentId()
+    public function getCurrentId()
     {
         return empty($this->user->uid) ? 0 : $this->user->uid;
     }
@@ -39,7 +39,7 @@ class RawUserContext extends RawTqContext
      *
      * @return int
      */
-    protected function getIdByArguments($column, $value)
+    public function getIdByArguments($column, $value)
     {
         return (new FetchField('users', 'uid'))
             ->condition($column, $value)

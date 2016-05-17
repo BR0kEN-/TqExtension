@@ -26,14 +26,14 @@ trait BaseEntity
      * @return int
      *   An ID of the entity.
      */
-    abstract protected function getIdByArguments($argument1, $argument2);
+    abstract public function getIdByArguments($argument1, $argument2);
 
     /**
      * Get identifier of current entity.
      *
      * @return int
      */
-    protected function getCurrentId()
+    public function getCurrentId()
     {
         // We have programmatically bootstrapped Drupal core, so able to use such functionality.
         $args = arg();
@@ -52,7 +52,7 @@ trait BaseEntity
      * @return string
      *   Entity URL.
      */
-    protected function entityUrl($operation, $argument1 = '', $argument2 = '')
+    public function entityUrl($operation, $argument1 = '', $argument2 = '')
     {
         if ('visit' === $operation) {
             $operation = 'view';

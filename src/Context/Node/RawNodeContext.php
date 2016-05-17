@@ -32,7 +32,7 @@ class RawNodeContext extends RawTqContext
      *
      * @throws \InvalidArgumentException
      */
-    protected function getIdByArguments($title, $contentType = '')
+    public function getIdByArguments($title, $contentType = '')
     {
         $nid = new FetchField('node', 'nid');
         $nid->condition('title', "$title%", 'like');
