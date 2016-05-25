@@ -49,8 +49,8 @@ function drush($command, array $arguments = [])
 function prepare_config($restore = false)
 {
     $arguments = [
-      '<DRUPAL_HOST>' => DRUPAL_HOST,
-      '<DRUPAL_PATH>' => DRUPAL_PATH,
+        '<DRUPAL_HOST>' => DRUPAL_HOST,
+        '<DRUPAL_PATH>' => DRUPAL_PATH,
     ];
 
     if ($restore) {
