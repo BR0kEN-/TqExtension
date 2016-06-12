@@ -3,8 +3,6 @@
  * @author Sergii Bondarenko, <sb@firstvector.org>
  */
 
-global $argv;
-
 // Drupal configuration.
 define('DRUPAL_ROOT', __DIR__ . '/drupal_tqextension_phpunit');
 define('DRUPAL_HOST', '127.0.0.1:1349');
@@ -46,7 +44,7 @@ function drush($command, array $arguments = [])
  *
  * @return bool
  */
-function prepare_config($restore = false)
+function behat_config($restore = false)
 {
     $arguments = [
         '<DRUPAL_HOST>' => DRUPAL_HOST,
@@ -99,14 +97,16 @@ $processId = shell_exec(sprintf(
     ROUTER_FILE
 ));
 
-prepare_config();
-
+// Bootstrap Drupal to make available an API.
 $_SERVER['REMOTE_ADDR'] = 'localhost';
 
 require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
+// Initialize Behat configuration.
+behat_config();
+
 register_shutdown_function(function () use ($processId) {
     shell_exec("kill $processId");
-    prepare_config(true);
+    behat_config(true);
 });
