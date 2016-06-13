@@ -58,8 +58,6 @@ function behat_config($restore = false)
     return file_put_contents(CONFIG_FILE, strtr(file_get_contents(CONFIG_FILE), $arguments));
 }
 
-$argsline = strtolower(implode($argv));
-
 // Drop and create database.
 (new Drupal\TqExtension\Utils\Database\Operator(DRUPAL_DB_USER, DRUPAL_DB_PASS, DRUPAL_DB_HOST))
     ->clear(DRUPAL_DB_NAME);
