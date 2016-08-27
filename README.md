@@ -10,23 +10,68 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 [![Latest Stable Version](https://poser.pugx.org/drupal/tqextension/v/stable?format=flat-square)](https://packagist.org/packages/drupal/tqextension)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://packagist.org/packages/drupal/tqextension)
 
+## Requirements
+
+* composer
+* behat
+
 ## Installation
 
-- `curl -sS https://getcomposer.org/installer | php`
-- `vim composer.json`
-```json
-{
-  "require": {
-    "drupal/tqextension": "~1.0"
-  },
-  "config": {
-    "bin-dir": "bin"
-  }
-}
-```
-- `composer install`
+To install TqExtension on an existing project:
+
+- `composer require drupal/tqextension`
+- Add contexts to Behat, see [Configuration](#configuration) below
+
+## Behat Quick Start Guide
+
+If you've not worked with Behat, there is a quick starter included in this repository:
+
+- `composer require drupal/tqextension`
 - `cp -r vendor/drupal/tqextension/behat/ behat`
-- Configure `behat.yml`
+- `cd behat`
+- `vim behat.yml` and change:
+  - Replace `<BASE_URL>` with the URL of the Drupal site
+  - Replace `<DRUPAL_ROOT>` with the relative or absolute directory path of the Drupal site
+- Run behat: `../vendor/bin/behat`
+
+## Configuration
+
+1. Make the TqExtension contexts available to Behat, you can do this in one of two ways:
+
+  A. Make your FeatureContext extend RawTqContext, [like this](behat/features/bootstrap/FeatureContext.php)
+
+  B. Or add any specific contexts to your `behat.yml`:
+
+    ```
+    default:
+      suites:
+        default:
+          contexts:
+            - Drupal\TqExtension\Context\Drush\DrushContext
+            - Drupal\TqExtension\Context\Email\EmailContext
+            - Drupal\TqExtension\Context\Form\FormContext
+            - Drupal\TqExtension\Context\Message\MessageContext
+            - Drupal\TqExtension\Context\Redirect\RedirectContext
+            - Drupal\TqExtension\Context\TqContext
+            - Drupal\TqExtension\Context\User\UserContext
+            - Drupal\TqExtension\Context\Wysiwyg\WysiwygContext
+    ```
+
+2. Optionally, configure the TqExtension extension with the following options in the `behat.yml`:
+
+  ```
+  default:
+    extensions:
+      Drupal\TqExtension:
+        wait_for_email: 10
+        wait_for_redirect: 60
+        email_account_strings: get_account_strings_for_email
+        email_accounts:
+          example1@email.com:
+            imap: imap.gmail.com:993/imap/ssl
+            username: example1@email.com
+            password: p4sswDstr_1
+  ```
 
 ## Documentation
 
