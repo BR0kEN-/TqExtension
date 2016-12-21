@@ -232,6 +232,37 @@ class TqContext extends RawTqContext
     }
 
     /**
+     * @param string $selector
+     * @param string $attribute
+     * @param string $expectedValue
+     *
+     * @throws \Exception
+     *
+     * @example
+     * Then I should see the "#table_cell" element with "colspan" attribute having "3" value
+     *
+     * @Then /^(?:|I )should see the "([^"]*)" element with "([^"]*)" attribute having "([^"]*)" value$/
+     */
+    public function assertElementAttribute($selector, $attribute, $expectedValue)
+    {
+        $actualValue = $this->element('*', $selector)->getAttribute($attribute);
+
+        if (null === $actualValue) {
+            throw new \InvalidArgumentException(sprintf(
+                'Element does not contain the "%s" attribute.',
+                $attribute
+            ));
+        } elseif ($actualValue !== $expectedValue) {
+            throw new \Exception(sprintf(
+                'Attribute "%s" have the "%s" value which is not equal to "%s".',
+                $attribute,
+                $actualValue,
+                $expectedValue
+            ));
+        }
+    }
+
+    /**
      * @param Scope\BeforeFeatureScope $scope
      *   Scope of the processing feature.
      *

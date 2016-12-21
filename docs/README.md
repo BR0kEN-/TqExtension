@@ -89,6 +89,10 @@ And scroll to "Meta tags" element
 Then check that "TypeError: cell[0] is undefined" JS error( not) appears in "misc/tabledrag.js" file
 ```
 
+```gherkin
+Then I should see the "#table_cell" element with "colspan" attribute having "3" value
+```
+
 ### DrushContext
 
 ```gherkin
