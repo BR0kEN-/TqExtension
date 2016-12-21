@@ -3,8 +3,12 @@
  * @author Sergii Bondarenko, <sb@firstvector.org>
  */
 
+use Drupal\Core\DrupalKernel;
+use Symfony\Component\HttpFoundation\Request;
+
 // Drupal configuration.
-define('DRUPAL_ROOT', __DIR__ . '/drupal_tqextension_phpunit');
+define('DRUPAL_CORE', getenv('DRUPAL_CORE') ?: '7');
+define('DRUPAL_ROOT', __DIR__ . '/drupal_tqextension_phpunit_' . DRUPAL_CORE);
 define('DRUPAL_HOST', '127.0.0.1:1349');
 define('DRUPAL_USER', 'admin');
 define('DRUPAL_PASS', 'admin');
@@ -20,6 +24,10 @@ define('CONFIG_FILE', __DIR__ . '/behat/behat.yml');
 // Routing configuration.
 define('ROUTER_URL', 'https://gist.githubusercontent.com/shawnachieve/4592ea196d1c8519e3b6/raw/0fbf62e5f6ac6eca09f013d8ff9b080f0da50dbb/.ht_router.php');
 define('ROUTER_FILE', DRUPAL_ROOT . '/' . basename(ROUTER_URL));
+
+if (!in_array(DRUPAL_CORE, [7, 8])) {
+    exit(sprintf("The %s version of Drupal core does not supported.\n", DRUPAL_CORE));
+}
 
 /**
  * Execute Drush command.
@@ -64,7 +72,8 @@ function behat_config($restore = false)
 
 // Download Drupal and rename the folder.
 if (!file_exists(DRUPAL_ROOT)) {
-    drush('dl drupal-7 --drupal-project-rename=%s --destination=%s', [
+    drush('dl drupal-%s --drupal-project-rename=%s --destination=%s', [
+        DRUPAL_CORE,
         DRUPAL_DB_NAME,
         dirname(DRUPAL_ROOT),
     ]);
@@ -98,13 +107,26 @@ $processId = shell_exec(sprintf(
 // Bootstrap Drupal to make available an API.
 $_SERVER['REMOTE_ADDR'] = 'localhost';
 
-require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
-drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+switch (DRUPAL_CORE) {
+    case 7:
+        require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+        drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+        break;
+
+    case 8:
+        $autoloader = require_once DRUPAL_ROOT . '/autoload.php';
+        $kernel = new DrupalKernel('prod', $autoloader);
+        $request = Request::createFromGlobals();
+        $response = $kernel->handle($request);
+        $response->send();
+        $kernel->terminate($request, $response);
+        break;
+}
 
 // Initialize Behat configuration.
 behat_config();
 
 register_shutdown_function(function () use ($processId) {
-    shell_exec("kill $processId");
+    shell_exec("kill $processId > /dev/null 2>&1");
     behat_config(true);
 });
