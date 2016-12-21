@@ -135,7 +135,13 @@ class TqContext extends RawTqContext
      */
     public function workWithElementsInRegion($selector)
     {
-        $this->setWorkingElement($this->element('css', $selector));
+        if (in_array($selector, ['html', 'head'])) {
+            $element = $this->getSession()->getPage()->find('css', $selector);
+        } else {
+            $element = $this->element('css', $selector);
+        }
+
+        $this->setWorkingElement($element);
     }
 
     /**
