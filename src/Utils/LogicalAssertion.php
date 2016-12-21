@@ -13,21 +13,25 @@ trait LogicalAssertion
 {
     /**
      * @param mixed $value
-     * @param bool $not
+     *   Value to check.
+     * @param bool $negate
      *   Negate the condition.
+     *
+     * @return int
+     *   - 0: Everything is fine.
+     *   - 1: Value is found, but should not be.
+     *   - 2: Value is not found, but should be.
      */
-    public static function assertion($value, $not)
+    public static function assertion($value, $negate)
     {
-        $not = (bool) $not;
+        $negate = (bool) $negate;
 
         if ($value) {
-            if ($not) {
-                // Value is found, but should not be.
+            if ($negate) {
                 return 1;
             }
         } else {
-            if (!$not) {
-                // Value is not found, but should be.
+            if (!$negate) {
                 return 2;
             }
         }
