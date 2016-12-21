@@ -2,32 +2,23 @@
 /**
  * @author Sergii Bondarenko, <sb@firstvector.org>
  */
-
 namespace Drupal\Tests\TqExtension\Utils;
 
 use Drupal\TqExtension\Utils\LogicalAssertion;
+use Drupal\Tests\TqExtension\TraitTest;
 
 /**
  * Class LogicalAssertionTest.
  *
  * @package Drupal\Tests\TqExtension\Utils
  *
+ * @property LogicalAssertion $target
+ *
  * @coversDefaultClass \Drupal\TqExtension\Utils\LogicalAssertion
  */
-class LogicalAssertionTest extends \PHPUnit_Framework_TestCase
+class LogicalAssertionTest extends TraitTest
 {
-    /**
-     * @var LogicalAssertion
-     */
-    private $logicalAssertion;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp()
-    {
-        $this->logicalAssertion = $this->getMockForTrait(LogicalAssertion::class);
-    }
+    const FQN = LogicalAssertion::class;
 
     /**
      * @covers ::assertion
@@ -39,7 +30,7 @@ class LogicalAssertionTest extends \PHPUnit_Framework_TestCase
      */
     public function testAssertion($value, $negate, $expected)
     {
-        $this->assertSame($expected, $this->logicalAssertion->assertion($value, $negate));
+        $this->assertSame($expected, $this->target->assertion($value, $negate));
     }
 
     /**

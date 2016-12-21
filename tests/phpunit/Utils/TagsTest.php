@@ -2,62 +2,55 @@
 /**
  * @author Sergii Bondarenko, <sb@firstvector.org>
  */
-
 namespace Drupal\Tests\TqExtension\Utils;
 
 use Drupal\TqExtension\Utils\Tags;
+use Drupal\Tests\TqExtension\TraitTest;
 
 /**
  * Class TagsTest.
  *
  * @package Drupal\Tests\TqExtension\Utils
+ *
+ * @property Tags $target
+ *
+ * @coversDefaultClass \Drupal\TqExtension\Utils\Tags
  */
-class TagsTest extends \PHPUnit_Framework_TestCase
+class TagsTest extends TraitTest
 {
-    /**
-     * @var Tags
-     */
-    private $tags;
+    const FQN = Tags::class;
 
     /**
-     * {@inheritdoc}
+     * @covers ::collectTags
      */
-    public function setUp()
+    public function testCollectTags()
     {
-        $this->tags = $this->getMockForTrait(Tags::class);
+        $this->target->collectTags(['JavaScript', 'WYSIWYG', 'wysiwyg:CKEditor']);
+
+        self::assertAttributeCount(2, 'tags', $this->target);
     }
 
     /**
-     * @test
+     * @covers ::hasTag
      */
-    public function collectTags()
+    public function testHasTag()
     {
-        $this->tags->collectTags(['JavaScript', 'WYSIWYG', 'wysiwyg:CKEditor']);
+        $this->testCollectTags();
 
-        self::assertAttributeCount(2, 'tags', $this->tags);
+        self::assertTrue($this->target->hasTag('javascript'));
+        self::assertTrue($this->target->hasTag('wysiwyg'));
+
+        self::assertFalse($this->target->hasTag('JavaScript'));
+        self::assertFalse($this->target->hasTag('WYSIWYG'));
     }
 
     /**
-     * @test
+     * @covers ::getTag
      */
-    public function hasTag()
+    public function testGetTag()
     {
-        $this->collectTags();
+        $this->testCollectTags();
 
-        self::assertTrue($this->tags->hasTag('javascript'));
-        self::assertTrue($this->tags->hasTag('wysiwyg'));
-
-        self::assertFalse($this->tags->hasTag('JavaScript'));
-        self::assertFalse($this->tags->hasTag('WYSIWYG'));
-    }
-
-    /**
-     * @test
-     */
-    public function getTag()
-    {
-        $this->collectTags();
-
-        self::assertSame('CKEditor', $this->tags->getTag('wysiwyg'));
+        self::assertSame('CKEditor', $this->target->getTag('wysiwyg'));
     }
 }

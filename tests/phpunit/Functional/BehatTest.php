@@ -30,7 +30,7 @@ abstract class BehatTest extends \PHPUnit_Framework_TestCase
 
         if (file_exists($file)) {
             system("../../bin/behat --no-colors $file", $code);
-            self::assertTrue(0 === $code);
+            self::assertSame(0, $code);
         } else {
             self::fail(sprintf('File "%s/%s" does not exists!', getcwd(), $file));
         }
