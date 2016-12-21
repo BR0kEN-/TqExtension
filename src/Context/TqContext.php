@@ -8,9 +8,12 @@ namespace Drupal\TqExtension\Context;
 use Behat\Behat\Hook\Scope;
 // Utils.
 use Drupal\TqExtension\Utils\Database\Database;
+use Drupal\TqExtension\Utils\LogicalAssertion;
 
 class TqContext extends RawTqContext
 {
+    use LogicalAssertion;
+
     /**
      * The name and working element of main window.
      *
@@ -174,17 +177,58 @@ class TqContext extends RawTqContext
     }
 
     /**
-     * IMPORTANT! The "BeforeSuite" hook should not be tagged, because suite has no tags!
+     * @param string $message
+     *   JS error.
+     * @param bool $negate
+     *   Whether page should or should not contain the error.
+     * @param string $file
+     *   File where error appears.
      *
-     * @BeforeSuite
+     * @throws \RuntimeException
+     * @throws \Exception
+     *
+     * @example
+     * Then check that "TypeError: cell[0] is undefined" JS error appears in "misc/tabledrag.js" file
+     *
+     * @Then /^check that "([^"]*)" JS error(| not) appears in "([^"]*)" file$/
+     *
+     * @javascript
      */
-    public static function beforeSuite()
+    public function checkJavaScriptError($message, $negate, $file)
     {
-        self::setDrupalVariables([
-            // Set to "false", because the administration menu will not be rendered.
-            // @see https://www.drupal.org/node/2023625#comment-8607207
-            'admin_menu_cache_client' => false,
-        ]);
+        $errors = $this->getSession()->evaluateScript('return JSON.stringify(window.errors);');
+        $negate = (bool) $negate;
+
+        if (empty($errors)) {
+            if (!$negate) {
+                throw new \RuntimeException('Page does not contain JavaScript errors.');
+            }
+        } else {
+            $base_url = $this->locatePath();
+
+            foreach (json_decode($errors) as $error) {
+                $error->location = str_replace($base_url, '', $error->location);
+
+                switch (static::assertion(
+                    strpos($error->message, $message) === 0 && strpos($error->location, $file) === 0,
+                    $negate
+                )) {
+                    case 1:
+                        throw new \Exception(sprintf(
+                            'The "%s" error found in "%s" file, but should not be.',
+                            $message,
+                            $file
+                        ));
+
+                    case 2:
+                        throw new \Exception(sprintf(
+                            'The "%s" error not found in "%s" file, but should be.',
+                            $message,
+                            $file
+                        ));
+                }
+            }
+        }
     }
 
     /**
@@ -201,6 +245,14 @@ class TqContext extends RawTqContext
         if (self::hasTag('clonedb')) {
             self::$database = clone new Database(self::getTag('clonedb', 'default'));
         }
+
+        static::setDrupalVariables([
+            // Set to "false", because the administration menu will not be rendered.
+            // @see https://www.drupal.org/node/2023625#comment-8607207
+            'admin_menu_cache_client' => false,
+        ]);
+
+        static::injectCustomJavascript('CatchErrors');
     }
 
     /**
@@ -210,6 +262,9 @@ class TqContext extends RawTqContext
     {
         // Restore initial database when feature is done (call __destruct).
         self::$database = null;
+
+        // Remove injected script.
+        static::injectCustomJavascript('CatchErrors', true);
     }
 
     /**

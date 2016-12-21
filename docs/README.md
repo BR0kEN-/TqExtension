@@ -85,6 +85,10 @@ Then I wait 60 seconds
 And scroll to "Meta tags" element
 ```
 
+```gherkin
+Then check that "TypeError: cell[0] is undefined" JS error( not) appears in "misc/tabledrag.js" file
+```
+
 ### DrushContext
 
 ```gherkin

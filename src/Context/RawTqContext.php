@@ -233,6 +233,38 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
+     * @param string $file
+     *   Existing file from "src/JavaScript" without ".js" extension.
+     * @param bool $delete
+     *   Whether injection should be deleted.
+     */
+    protected static function injectCustomJavascript($file, $delete = false)
+    {
+        $file .= '.js';
+        $modulePath = drupal_get_filename('module', 'system');
+        $destination = dirname($modulePath) . '/' . $file;
+        $injection = "\ndrupal_add_js('$destination', array('every_page' => TRUE));";
+
+        if ($delete) {
+            file_unmanaged_delete("$destination");
+
+            $search = $injection;
+            $replace = '';
+        } else {
+            file_unmanaged_copy(
+                str_replace('Context', 'JavaScript', __DIR__) . '/' . $file,
+                $destination,
+                FILE_EXISTS_REPLACE
+            );
+
+            $search = 'system_add_module_assets();';
+            $replace = $search . $injection;
+        }
+
+        file_put_contents($modulePath, str_replace($search, $replace, file_get_contents($modulePath)));
+    }
+
+    /**
      * Check JS events in step definition.
      *
      * @param StepScope $event
