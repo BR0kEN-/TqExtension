@@ -30,7 +30,7 @@ class LogicalAssertionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers assertion
+     * @covers ::assertion
      * @dataProvider dataset
      *
      * @param mixed $value
