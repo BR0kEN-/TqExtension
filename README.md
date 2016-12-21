@@ -29,6 +29,13 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 - `cp -r vendor/drupal/tqextension/behat/ behat`
 - Configure `behat.yml`
 
+## Requirements
+
+Selenium 2.53 - is the [final `2.x` release](https://github.com/SeleniumHQ/selenium/blob/master/java/CHANGELOG#L133). The latest version of Firefox it's supports - is `47`.
+
+- Selenium 2.53 (not above)
+- Firefox 47 (not above)
+
 ## Documentation
 
 - [For developers](docs/developers)
