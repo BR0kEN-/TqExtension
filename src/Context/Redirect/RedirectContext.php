@@ -7,7 +7,6 @@ namespace Drupal\TqExtension\Context\Redirect;
 // Helpers.
 use Behat\DebugExtension\Message;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Mink as Mink;
 
 class RedirectContext extends RawRedirectContext
 {
