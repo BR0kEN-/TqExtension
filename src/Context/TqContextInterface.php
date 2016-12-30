@@ -14,4 +14,12 @@ interface TqContextInterface extends SnippetAcceptingContext
      * @param array $parameters
      */
     public function setTqParameters(array $parameters);
+
+    /**
+     * @param string $name
+     *   The name of parameter from behat.yml.
+     *
+     * @return mixed
+     */
+    public function getTqParameter($name);
 }

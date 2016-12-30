@@ -9,7 +9,6 @@ use Drupal\TqExtension\Context\RawTqContext;
 // Utils.
 use Behat\DebugExtension\Message;
 use Drupal\TqExtension\Utils\Imap;
-use Drupal\TqExtension\Utils\Database\FetchField;
 
 class RawEmailContext extends RawTqContext
 {
@@ -116,13 +115,7 @@ class RawEmailContext extends RawTqContext
 
     private function getMessagesFromDb()
     {
-        // We can't use variable_get() because Behat has another bootstrapped
-        // variable $conf that is not updated from cURL bootstrapped Drupal instance.
-        $result = (new FetchField('variable', 'value'))
-            ->condition('name', 'drupal_test_email_collector')
-            ->execute();
-
-        $result = empty($result) ? [] : unserialize($result);
+        $result = \DrupalKernelPlaceholder::getEmailMessages();
 
         self::debug(['Emails from the database: %s'], [var_export($result, true)]);
 

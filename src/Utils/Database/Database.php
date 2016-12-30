@@ -40,13 +40,13 @@ class Database
      */
     public function __construct($connection)
     {
-        if (!defined('DRUPAL_ROOT') || !function_exists('conf_path')) {
+        if (!defined('DRUPAL_ROOT')) {
             throw new \RuntimeException('Drupal is not bootstrapped.');
         }
 
         $databases = [];
 
-        require sprintf('%s/%s/settings.php', DRUPAL_ROOT, conf_path());
+        require sprintf('%s/%s/settings.php', DRUPAL_ROOT, \DrupalKernelPlaceholder::sitePath());
 
         if (empty($databases[$connection])) {
             throw new \InvalidArgumentException(sprintf('The "%s" database connection does not exist.', $connection));

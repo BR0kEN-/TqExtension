@@ -51,7 +51,11 @@ class FormContext extends RawFormContext
 
         $field = $this->element('field', $selector);
         // Syn - a Standalone Synthetic Event Library, provided by Selenium.
-        $this->executeJsOnElement($field, sprintf("Syn.type({{ELEMENT}}, '%s')", token_replace($value)));
+        $this->executeJsOnElement(
+            $field,
+            sprintf("Syn.type({{ELEMENT}}, '%s')", \DrupalKernelPlaceholder::tokenReplace($value))
+        );
+
         $this->waitAjaxAndAnimations();
 
         $autocomplete = $field->getParent()->findById('autocomplete');
@@ -95,8 +99,8 @@ class FormContext extends RawFormContext
      *
      * @param string $field
      *   The name of field to fill in. HTML Label, name or ID can be user as selector.
-     * @param string $user_field
-     *   The name of field from which the data will taken. Drupal label or machine name can be used as selector.
+     * @param string $userField
+     *   The name of field from which the data will taken. Field label or machine name can be used as selector.
      *
      * @throws \InvalidArgumentException
      * @throws \UnexpectedValueException
@@ -106,24 +110,23 @@ class FormContext extends RawFormContext
      *
      * @Then /^(?:I )fill "([^"]*)" with value of field "([^"]*)" of current user$/
      */
-    public function fillInWithValueOfFieldOfCurrentUser($field, $user_field)
+    public function fillInWithValueOfFieldOfCurrentUser($field, $userField)
     {
-        if (!empty($this->user) && !$this->user->uid) {
+        if (!empty($this->user) && empty($this->user->uid)) {
             throw new \Exception('Anonymous user have no fields');
         }
 
         $entity = new EntityDrupalWrapper('user');
-        $wrapper = $entity->wrapper($this->user->uid);
-        $user_field = $entity->getFieldNameByLocator($user_field);
+        $entity->load($this->user->uid);
 
-        if (empty($wrapper->{$user_field})) {
-            throw new \InvalidArgumentException(sprintf('User entity has no "%s" field.', $user_field));
+        if (!$entity->hasField($userField)) {
+            throw new \InvalidArgumentException(sprintf('User entity has no "%s" field.', $userField));
         }
 
-        $value = $wrapper->{$user_field}->value();
+        $value = $entity->getFieldValue($userField);
 
         if (empty($value)) {
-            throw new \UnexpectedValueException('The value of "%s" field is empty.', $user_field);
+            throw new \UnexpectedValueException('The value of "%s" field is empty.', $userField);
         }
 
         $this->fillField($field, $value);
@@ -208,7 +211,7 @@ class FormContext extends RawFormContext
      */
     public function fillField($selector, $value)
     {
-        $this->element('field', $selector)->setValue(token_replace($value));
+        $this->element('field', $selector)->setValue(\DrupalKernelPlaceholder::tokenReplace($value));
     }
 
     /**

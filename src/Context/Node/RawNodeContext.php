@@ -38,7 +38,7 @@ class RawNodeContext extends RawTqContext
         $nid->condition('title', "$title%", 'like');
 
         // Try to recognize node type by its title if content type specified and does not exist.
-        if ('' !== $contentType && !isset(node_type_get_types()[$contentType])) {
+        if ('' !== $contentType && !\DrupalKernelPlaceholder::isContentTypeExists($contentType)) {
             $contentType = (new FetchField('node_type', 'type'))
                 ->condition('name', $contentType)
                 ->execute();

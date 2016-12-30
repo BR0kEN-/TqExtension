@@ -36,13 +36,7 @@ class RedirectContext extends RawRedirectContext
             $url = $this->getCurrentUrl();
             $raw = explode('?', $url)[0];
 
-            self::debug([
-                'Expected URLs: %s',
-                'Current URL: %s',
-            ], [
-                implode(', ', $pages),
-                $raw,
-            ]);
+            self::debug(['Expected URLs: %s', 'Current URL: %s'], [implode(', ', $pages), $raw]);
 
             if ((!empty($pages) && in_array($raw, $pages)) || $url === self::$pageUrl) {
                 return;
@@ -51,7 +45,7 @@ class RedirectContext extends RawRedirectContext
             sleep(1);
         }
 
-        throw new \OverflowException('The waiting time is over.');
+        throw new \OverflowException('Waiting time is over.');
     }
 
     /**

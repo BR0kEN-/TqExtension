@@ -74,9 +74,9 @@ class WysiwygContext extends RawWysiwygContext
 
         if (strpos($content, $text) === $condition) {
             throw new \RuntimeException(sprintf(
-                'The text "%s" was %s found in the "%s" WYSIWYG editor.',
+                'The text "%s" was%s found in the "%s" WYSIWYG editor.',
                 $text,
-                $condition ? '' : 'not',
+                $condition ? '' : ' not',
                 $wysiwyg->getSelector()
             ));
         }

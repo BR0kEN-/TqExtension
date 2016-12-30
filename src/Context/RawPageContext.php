@@ -184,10 +184,10 @@ class RawPageContext extends RawDrupalContext
         ];
 
         if (!isset($map[$locator])) {
-            throw new \RuntimeException(sprintf('Locator "%s" was not specified.'));
+            throw new \RuntimeException(sprintf('Locator "%s" is not available.', $locator));
         }
 
-        $selector = t($selector);
+        $selector = \DrupalKernelPlaceholder::t($selector);
         $element = $this->{'find' . $map[$locator]}($selector);
         $this->throwNoSuchElementException($selector, $element);
 

@@ -17,7 +17,8 @@ before_script:
   - travis_retry composer update $COMPOSER_OPTS
 
 script:
-  - bin/phpunit --coverage-text --coverage-clover=coverage.clover
+  - DRUPAL_CORE=7 bin/phpunit --coverage-text --coverage-clover=coverage.clover
+  - DRUPAL_CORE=8 bin/phpunit --coverage-text --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar

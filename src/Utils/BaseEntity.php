@@ -36,7 +36,7 @@ trait BaseEntity
     public function getCurrentId()
     {
         // We have programmatically bootstrapped Drupal core, so able to use such functionality.
-        $args = arg();
+        $args = \DrupalKernelPlaceholder::arg();
 
         return count($args) > 1 && $this->entityType() === $args[0] && $args[1] > 0 ? (int) $args[1] : 0;
     }

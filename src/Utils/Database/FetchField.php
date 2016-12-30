@@ -12,7 +12,7 @@ class FetchField
     use Debugger;
 
     /**
-     * @var \SelectQuery
+     * @var object
      */
     private $query;
 
@@ -24,7 +24,7 @@ class FetchField
      */
     public function __construct($table, $field)
     {
-        $this->query = db_select($table);
+        $this->query = \DrupalKernelPlaceholder::selectQuery($table);
         $this->query->fields($table, [$field]);
     }
 
@@ -47,10 +47,7 @@ class FetchField
      */
     public function execute()
     {
-        self::debug(
-            ['SQL query is: %s'],
-            [trim(str_replace("\n", ' ', $this->query))]
-        );
+        self::debug(['SQL query is: %s'], [trim(str_replace("\n", ' ', $this->query))]);
 
         return $this->query->execute()->fetchField();
     }

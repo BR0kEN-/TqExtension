@@ -176,7 +176,7 @@ class TqContext extends RawTqContext
     public function scrollToElement($selector)
     {
         if (!self::hasTag('javascript')) {
-            throw new \Exception('Scrolling to an element is impossible without a JavaScript.');
+            throw new \Exception('Scrolling to an element is impossible without JavaScript.');
         }
 
         $this->executeJsOnElement($this->findElement($selector), '{{ELEMENT}}.scrollIntoView(true);');
@@ -283,13 +283,8 @@ class TqContext extends RawTqContext
             self::$database = clone new Database(self::getTag('clonedb', 'default'));
         }
 
-        static::setDrupalVariables([
-            // Set to "false", because the administration menu will not be rendered.
-            // @see https://www.drupal.org/node/2023625#comment-8607207
-            'admin_menu_cache_client' => false,
-        ]);
-
-        static::injectCustomJavascript('CatchErrors');
+        \DrupalKernelPlaceholder::beforeFeature($scope);
+        \DrupalKernelPlaceholder::injectCustomJavascript('CatchErrors');
     }
 
     /**
@@ -301,7 +296,7 @@ class TqContext extends RawTqContext
         self::$database = null;
 
         // Remove injected script.
-        static::injectCustomJavascript('CatchErrors', true);
+        \DrupalKernelPlaceholder::injectCustomJavascript('CatchErrors', true);
     }
 
     /**
@@ -355,8 +350,7 @@ class TqContext extends RawTqContext
     {
         self::$pageUrl = $this->getCurrentUrl();
         // To allow Drupal use its internal, web-based functionality, such as "arg()" or "current_path()" etc.
-        $_GET['q'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
-        drupal_path_initialize();
+        $_SERVER['REQUEST_URI'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
     }
 
     /**
@@ -377,7 +371,7 @@ class TqContext extends RawTqContext
             $this->iSwitchToWindow();
         }
 
-        if (self::hasTag('javascript') && self::isStepImpliesJsEvent($scope)) {
+        if (self::isStepImpliesJsEvent($scope)) {
             $this->waitAjaxAndAnimations();
         }
     }

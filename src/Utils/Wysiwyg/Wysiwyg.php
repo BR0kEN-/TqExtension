@@ -125,8 +125,8 @@ abstract class Wysiwyg
     {
         return $this->context->executeJs("return !object.$method(!args);", [
             '!object' => $this->getInstance($selector),
-            // Remove "[" character from start of the string and "]" from the end.
-            '!args' => substr(drupal_json_encode($arguments), 1, -1),
+            // Remove "[" character from start and "]" from the end of string.
+            '!args' => substr(\DrupalKernelPlaceholder::jsonEncode($arguments), 1, -1),
         ]);
     }
 

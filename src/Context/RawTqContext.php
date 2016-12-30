@@ -13,6 +13,7 @@ use Behat\DebugExtension\Debugger;
 // Helpers.
 use WebDriver\Session;
 use Drupal\Driver\DrushDriver;
+use Drupal\Component\Utility\Random;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Behat\Hook\Scope\StepScope;
@@ -29,12 +30,12 @@ use Drupal\TqExtension\Utils\Tags;
  * @method Email\EmailContext getEmailContext()
  * @method Drush\DrushContext getDrushContext()
  * @method Wysiwyg\WysiwygContext getWysiwygContext()
+ * @method Message\MessageContext getMessageContext()
  * @method Redirect\RedirectContext getRedirectContext()
  * @method TqContext getTqContext()
  * @method DrupalContexts\MinkContext getMinkContext()
  * @method DrupalContexts\DrupalContext getDrupalContext()
- * @method DrupalContexts\MessageContext getMessageContext()
- * @method \Drupal\Component\Utility\Random getRandom()
+ * @method Random getRandom()
  */
 class RawTqContext extends RawPageContext implements TqContextInterface
 {
@@ -82,18 +83,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
             }
         }
 
-        throw new \Exception(sprintf('Method %s does not exist', $method));
-    }
-
-    /**
-     * @param array $variables
-     *   An associative array where key is a variable name and a value - value.
-     */
-    public static function setDrupalVariables(array $variables)
-    {
-        foreach ($variables as $name => $value) {
-            variable_set($name, $value);
-        }
+        throw new \Exception(sprintf('Method "%s" does not exist', $method));
     }
 
     /**
@@ -125,7 +115,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     public function getDrupalText($name)
     {
         // Make text selectors translatable.
-        return t(parent::getDrupalText($name));
+        return \DrupalKernelPlaceholder::t(parent::getDrupalText($name));
     }
 
     /**
@@ -224,44 +214,12 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function executeJs($javascript, array $args = [])
     {
-        $javascript = format_string($javascript, $args);
+        $javascript = \DrupalKernelPlaceholder::formatString($javascript, $args);
 
         $this->processJavaScript($javascript);
         self::debug([$javascript]);
 
         return $this->getSession()->evaluateScript($javascript);
-    }
-
-    /**
-     * @param string $file
-     *   Existing file from "src/JavaScript" without ".js" extension.
-     * @param bool $delete
-     *   Whether injection should be deleted.
-     */
-    protected static function injectCustomJavascript($file, $delete = false)
-    {
-        $file .= '.js';
-        $modulePath = drupal_get_filename('module', 'system');
-        $destination = dirname($modulePath) . '/' . $file;
-        $injection = "\ndrupal_add_js('$destination', array('every_page' => TRUE));";
-
-        if ($delete) {
-            file_unmanaged_delete("$destination");
-
-            $search = $injection;
-            $replace = '';
-        } else {
-            file_unmanaged_copy(
-                str_replace('Context', 'JavaScript', __DIR__) . '/' . $file,
-                $destination,
-                FILE_EXISTS_REPLACE
-            );
-
-            $search = 'system_add_module_assets();';
-            $replace = $search . $injection;
-        }
-
-        file_put_contents($modulePath, str_replace($search, $replace, file_get_contents($modulePath)));
     }
 
     /**
@@ -273,7 +231,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public static function isStepImpliesJsEvent(StepScope $event)
     {
-        return preg_match('/(follow|press|click|submit)/i', $event->getStep()->getText());
+        return self::hasTag('javascript') && preg_match('/(follow|press|click|submit)/i', $event->getStep()->getText());
     }
 
     /**
@@ -289,8 +247,11 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function waitAjaxAndAnimations()
     {
-        $this->getSession()
-             ->wait(1000, "window.__behatAjax === false && !jQuery(':animated').length && !jQuery.active");
+        $script = "!window.__behatAjax && !$(':animated').length && !$.active";
+
+        static::processJavaScript($script);
+
+        $this->getSession()->wait(1000, $script);
     }
 
     /**
@@ -304,10 +265,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @param string $name
-     *   The name of parameter from behat.yml.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getTqParameter($name)
     {
@@ -324,7 +282,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
             $path = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($path, '/');
         }
 
-        $url = parse_url($path);
+        $url = parse_url(strtolower($path));
 
         if (!isset($url['host'])) {
             throw new \InvalidArgumentException(sprintf('Incorrect URL: %s', func_get_arg(0)));
@@ -334,7 +292,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         if (isset($url['scheme'])) {
             // Check scheme.
             if (!in_array($url['scheme'], ['http', 'https'])) {
-                throw new \InvalidArgumentException(sprintf('%s is not valid scheme.', $url['scheme']));
+                throw new \InvalidArgumentException(sprintf('%s - is not valid scheme.', $url['scheme']));
             }
 
             $path = $url['scheme'] . ':';
