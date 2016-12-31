@@ -131,10 +131,6 @@ switch (DRUPAL_CORE) {
         break;
 }
 
-foreach (['base', DRUPAL_CORE] as $filename) {
-    require_once PACKAGE_ROOT . "/src/Cores/$filename.php";
-}
-
 // Initialize Behat configuration.
 behat_config();
 
