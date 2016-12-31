@@ -134,6 +134,14 @@ final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
     /**
      * {@inheritdoc}
      */
+    public static function getDatabaseConnectionInfo($connection)
+    {
+        return \Database::getConnectionInfo($connection);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function entityLoad($entityType, $id)
     {
         return entity_metadata_wrapper($entityType, $id);

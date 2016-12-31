@@ -69,6 +69,18 @@ interface DrupalKernelPlaceholderInterface
     public static function getFieldDefinitions($entityType, $bundle);
 
     /**
+     * Get information about database connections.
+     *
+     * Impossible to use $GLOBALS['databases'] in Drupal 8 since {@link https://www.drupal.org/node/2176621}.
+     *
+     * @param string $connection
+     *   Connection name.
+     *
+     * @return array[]
+     */
+    public static function getDatabaseConnectionInfo($connection);
+
+    /**
      * @param string $entityType
      * @param int $id
      *

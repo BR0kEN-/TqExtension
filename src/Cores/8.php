@@ -7,6 +7,7 @@ use Behat\Behat\Hook\Scope\BeforeFeatureScope;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Database\Database;
 use Drupal\Core\Database\Query\Select;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Component\Render\FormattableMarkup;
@@ -135,6 +136,14 @@ final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
         }
 
         return $definitions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getDatabaseConnectionInfo($connection)
+    {
+        return Database::getConnectionInfo($connection);
     }
 
     /**
