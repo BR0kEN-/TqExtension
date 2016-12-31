@@ -9,6 +9,7 @@ code in this repository extends an integration layer provided by [DrupalExtensio
 [![Coding standards](https://styleci.io/repos/41793357/shield?branch=master)](https://styleci.io/repos/41793357)
 [![Total Downloads](https://img.shields.io/packagist/dt/drupal/tqextension.svg?style=flat-square)](https://packagist.org/packages/drupal/tqextension)
 [![Latest Stable Version](https://poser.pugx.org/drupal/tqextension/v/stable?format=flat-square)](https://packagist.org/packages/drupal/tqextension)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.5-8892BF.svg?style=flat-square)](https://php.net)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://packagist.org/packages/drupal/tqextension)
 
 ## Installation
