@@ -7,7 +7,7 @@ use Behat\Behat\Hook\Scope\BeforeFeatureScope;
 use Drupal\TqExtension\Context\TqContext;
 
 // @codingStandardsIgnoreStart
-abstract class DrupalKernelPlaceholderBase
+interface DrupalKernelPlaceholderInterface
 // @codingStandardsIgnoreEnd
 {
     /**
@@ -17,21 +17,21 @@ abstract class DrupalKernelPlaceholderBase
      *
      * @see TqContext::beforeFeature()
      */
-    abstract public static function beforeFeature(BeforeFeatureScope $scope);
+    public static function beforeFeature(BeforeFeatureScope $scope);
 
-    abstract public static function t($string, array $args = [], array $options = []);
+    public static function t($string, array $args = [], array $options = []);
 
-    abstract public static function arg();
+    public static function arg();
 
-    abstract public static function formatString($string, array $args = []);
+    public static function formatString($string, array $args = []);
 
-    abstract public static function tokenReplace($text, array $data = [], array $options = []);
+    public static function tokenReplace($text, array $data = [], array $options = []);
 
-    abstract public static function sitePath();
+    public static function sitePath();
 
-    abstract public static function jsonEncode($data);
+    public static function jsonEncode($data);
 
-    abstract public static function setCurrentUser($user);
+    public static function setCurrentUser($user);
 
     /**
      * Locate user ID by its name.
@@ -40,12 +40,12 @@ abstract class DrupalKernelPlaceholderBase
      *
      * @return int
      */
-    abstract public static function getUidByName($username);
+    public static function getUidByName($username);
 
     /**
      * @param int $user_id
      */
-    abstract public static function deleteUser($user_id);
+    public static function deleteUser($user_id);
 
     /**
      * @param string $table
@@ -54,7 +54,7 @@ abstract class DrupalKernelPlaceholderBase
      *
      * @return object
      */
-    abstract public static function selectQuery($table, $alias = null, array $options = []);
+    public static function selectQuery($table, $alias = null, array $options = []);
 
     /**
      * @param string $entityType
@@ -64,7 +64,7 @@ abstract class DrupalKernelPlaceholderBase
      *   An associative array where key - machine-name of a field and
      *   value - an array with two keys: "label" and "required".
      */
-    abstract public static function getFieldDefinitions($entityType, $bundle);
+    public static function getFieldDefinitions($entityType, $bundle);
 
     /**
      * @param string $entityType
@@ -72,7 +72,7 @@ abstract class DrupalKernelPlaceholderBase
      *
      * @return object
      */
-    abstract public static function entityLoad($entityType, $id);
+    public static function entityLoad($entityType, $id);
 
     /**
      * @param object $entity
@@ -80,7 +80,7 @@ abstract class DrupalKernelPlaceholderBase
      *
      * @return bool
      */
-    abstract public static function entityHasField($entity, $fieldName);
+    public static function entityHasField($entity, $fieldName);
 
     /**
      * @param object $entity
@@ -88,7 +88,7 @@ abstract class DrupalKernelPlaceholderBase
      *
      * @return mixed
      */
-    abstract public static function entityFieldValue($entity, $fieldName);
+    public static function entityFieldValue($entity, $fieldName);
 
     /**
      * Switching the mail system.
@@ -96,14 +96,14 @@ abstract class DrupalKernelPlaceholderBase
      * @param bool $useTesting
      *   Whether testing or standard mail system should be used.
      */
-    abstract public static function switchMailSystem($useTesting);
+    public static function switchMailSystem($useTesting);
 
     /**
      * Get a list of emails, collected by testing mail system.
      *
      * @return array
      */
-    abstract public static function getEmailMessages();
+    public static function getEmailMessages();
 
     /**
      * Check existence of the content type by its machine name or title.
@@ -114,7 +114,7 @@ abstract class DrupalKernelPlaceholderBase
      * @return string
      *   Machine name.
      */
-    abstract public static function getContentTypeName($contentType);
+    public static function getContentTypeName($contentType);
 
     /**
      * @param string $file
@@ -122,8 +122,13 @@ abstract class DrupalKernelPlaceholderBase
      * @param bool $delete
      *   Whether injection should be deleted.
      */
-    abstract public static function injectCustomJavascript($file, $delete = false);
+    public static function injectCustomJavascript($file, $delete = false);
+}
 
+// @codingStandardsIgnoreStart
+abstract class DrupalKernelPlaceholderBase implements DrupalKernelPlaceholderInterface
+// @codingStandardsIgnoreEnd
+{
     public static function drupalGetFilename($type, $name, $filename = null)
     {
         return drupal_get_filename($type, $name, $filename);
