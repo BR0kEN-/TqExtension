@@ -308,10 +308,7 @@ class TqContext extends RawTqContext
         // No need to keep working element between scenarios.
         $this->unsetWorkingElement();
         // Any page should be visited due to using jQuery and checking the cookies.
-        $this->visitPath('/');
-        // By "Goutte" session we need to visit any page to be able to set a cookie
-        // for this session and use it for checking request status codes.
-        $this->visitPath('/', 'goutte');
+        $this->getRedirectContext()->visitPage('/');
     }
 
     /**
@@ -346,9 +343,7 @@ class TqContext extends RawTqContext
     {
         self::$pageUrl = $this->getCurrentUrl();
         // To allow Drupal use its internal, web-based functionality, such as "arg()" or "current_path()" etc.
-        // "$_GET['q']" must be here for Drupal 7 support!
-        // @todo Find a way to imitate the path for Drupal 8.
-        $_GET['q'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
+        \DrupalKernelPlaceholder::setCurrentPath(ltrim(parse_url(static::$pageUrl)['path'], '/'));
     }
 
     /**

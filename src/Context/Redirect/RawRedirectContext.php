@@ -20,7 +20,10 @@ class RawRedirectContext extends RawTqContext
     public function assertStatusCode($path, $code)
     {
         // The "Goutte" session should be used because it provide the request status codes.
-        $this->visitPath($path, 'goutte');
+        if ('goutte' !== $this->getMink()->getDefaultSessionName()) {
+            $this->visitPath($path, 'goutte');
+        }
+
         $responseCode = $this->getSession('goutte')->getStatusCode();
 
         self::debug(['HTTP code is: %s'], [$responseCode]);

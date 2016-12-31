@@ -85,6 +85,14 @@ final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
     /**
      * {@inheritdoc}
      */
+    public static function setCurrentPath($path)
+    {
+        \Drupal::service('path.current')->setPath($path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function getUidByName($username)
     {
         return (int) (new FetchField('users_field_data', 'uid'))

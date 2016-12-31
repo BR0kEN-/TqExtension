@@ -33,6 +33,8 @@ interface DrupalKernelPlaceholderInterface
 
     public static function setCurrentUser($user);
 
+    public static function setCurrentPath($path);
+
     /**
      * Locate user ID by its name.
      *

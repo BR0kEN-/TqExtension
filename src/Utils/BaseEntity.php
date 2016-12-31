@@ -69,6 +69,10 @@ trait BaseEntity
             throw new \RuntimeException('An ID cannot be zero.');
         }
 
-        return $this->entityType() . "/$id/$operation";
+        if ('' !== $operation) {
+            $operation = "/$operation";
+        }
+
+        return $this->entityType() . "/$id$operation";
     }
 }

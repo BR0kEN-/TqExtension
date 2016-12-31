@@ -99,12 +99,12 @@ class RedirectContext extends RawRedirectContext
      */
     public function visitPage($path, $code = 200)
     {
-        if (!$this->assertStatusCode($path, $code)) {
-            throw new \Exception(sprintf('The page "%s" is not accessible!', $path));
-        }
+        $this->visitPath($path);
 
         self::debug(['Visited page: %s'], [$path]);
 
-        $this->visitPath($path);
+        if (!$this->assertStatusCode($path, $code)) {
+            throw new \Exception(sprintf('The page "%s" is not accessible!', $path));
+        }
     }
 }
