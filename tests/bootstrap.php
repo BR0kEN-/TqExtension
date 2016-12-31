@@ -131,6 +131,12 @@ switch (DRUPAL_CORE) {
         break;
 }
 
+if (!class_exists('DrupalKernelPlaceholder')) {
+    foreach (['base', DRUPAL_CORE] as $filename) {
+        require_once PACKAGE_ROOT . "/src/Cores/$filename.php";
+    }
+}
+
 // Initialize Behat configuration.
 behat_config();
 

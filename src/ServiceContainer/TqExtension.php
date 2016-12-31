@@ -57,8 +57,10 @@ class TqExtension implements Extension
             define('DRUPAL_CORE', (int) $drupalDriver->version);
         }
 
-        foreach (['base', DRUPAL_CORE] as $filename) {
-            require_once "$sourceDir/Cores/$filename.php";
+        if (!class_exists('DrupalKernelPlaceholder')) {
+            foreach (['base', DRUPAL_CORE] as $filename) {
+                require_once "$sourceDir/Cores/$filename.php";
+            }
         }
 
         $loader = new EnvironmentLoader($this, $container, $config);
