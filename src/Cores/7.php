@@ -196,9 +196,15 @@ final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
     /**
      * {@inheritdoc}
      */
-    public static function isContentTypeExists($contentType)
+    public static function getContentTypeName($contentType)
     {
-        return isset(node_type_get_types()[$contentType]);
+        if (isset(node_type_get_types()[$contentType])) {
+            return $contentType;
+        }
+
+        return (string) (new FetchField('node_type', 'type'))
+            ->condition('name', $contentType)
+            ->execute();
     }
 
     /**

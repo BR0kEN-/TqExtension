@@ -54,8 +54,12 @@ trait BaseEntity
      */
     public function entityUrl($operation, $argument1 = '', $argument2 = '')
     {
-        if ('visit' === $operation) {
-            $operation = 'view';
+        // Drupal 8 don't have the "entity/{id}/view" local action instead of Drupal 7. So,
+        // to support both of versions, assume that "entity/{id}" is correct for "view" operation
+        // in each case.
+        // @todo Maybe we should use "DRUPAL_CORE > 7 ? '' : 'view'"?
+        if (in_array($operation, ['visit', 'view'])) {
+            $operation = '';
         }
 
         // An empty string could be passed when currently viewing entity expected.

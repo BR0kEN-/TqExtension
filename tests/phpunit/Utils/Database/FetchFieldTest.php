@@ -21,9 +21,9 @@ class FetchFieldTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
-        $this->fetcher = new FetchField('users', 'language');
+        $this->fetcher = new FetchField('users', DRUPAL_CORE > 7 ? 'langcode' : 'language');
     }
 
     public function test()

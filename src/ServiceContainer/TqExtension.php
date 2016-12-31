@@ -53,7 +53,11 @@ class TqExtension implements Extension
         $drupalDriver = $container->get('drupal.driver.drupal');
         $drupalDriver->setCoreFromVersion();
 
-        foreach (['base', $drupalDriver->version] as $filename) {
+        if (!defined('DRUPAL_CORE')) {
+            define('DRUPAL_CORE', (int) $drupalDriver->version);
+        }
+
+        foreach (['base', DRUPAL_CORE] as $filename) {
             require_once "$sourceDir/Cores/$filename.php";
         }
 

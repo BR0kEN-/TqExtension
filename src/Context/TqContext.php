@@ -251,21 +251,17 @@ class TqContext extends RawTqContext
      */
     public function assertElementAttribute($selector, $attribute, $expectedValue)
     {
-        $actualValue = $this->element('*', $selector)->getAttribute($attribute);
-
-        if (null === $actualValue) {
-            throw new \InvalidArgumentException(sprintf(
-                'Element does not contain the "%s" attribute.',
-                $attribute
-            ));
-        } elseif ($actualValue !== $expectedValue) {
-            throw new \Exception(sprintf(
-                'Attribute "%s" have the "%s" value which is not equal to "%s".',
-                $attribute,
-                $actualValue,
-                $expectedValue
-            ));
+        foreach ($this->findAll($selector) as $element) {
+            if ($element->getAttribute($attribute) === $expectedValue) {
+                return;
+            }
         }
+
+        throw new \InvalidArgumentException(sprintf(
+            'No elements with "%s" attribute have been found by "%s" selector.',
+            $attribute,
+            $selector
+        ));
     }
 
     /**
@@ -350,7 +346,9 @@ class TqContext extends RawTqContext
     {
         self::$pageUrl = $this->getCurrentUrl();
         // To allow Drupal use its internal, web-based functionality, such as "arg()" or "current_path()" etc.
-        $_SERVER['REQUEST_URI'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
+        // "$_GET['q']" must be here for Drupal 7 support!
+        // @todo Find a way to imitate the path for Drupal 8.
+        $_GET['q'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
     }
 
     /**

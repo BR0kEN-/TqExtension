@@ -46,6 +46,30 @@ class RawPageContext extends RawDrupalContext
     }
 
     /**
+     * Find all elements matching CSS selector, name of region from config or inaccurate text.
+     *
+     * @param string $selector
+     *   CSS selector, region name or inaccurate text.
+     *
+     * @return NodeElement[]
+     *   List of nodes.
+     */
+    public function findAll($selector)
+    {
+        $element = $this->getWorkingElement();
+
+        $elements = $element
+            ->findAll($this->computeSelectorType($selector), $selector);
+
+        if (empty($elements)) {
+            $elements = $this->inaccurateText('*', $selector, $element)
+                ->findAll();
+        }
+
+        return (array) $elements;
+    }
+
+    /**
      * @param string $selector
      *
      * @return NodeElement
@@ -53,7 +77,7 @@ class RawPageContext extends RawDrupalContext
     public function findByCss($selector)
     {
         return $this->getWorkingElement()
-            ->find(empty($this->getDrupalParameter('region_map')[$selector]) ? 'css' : 'region', $selector);
+            ->find($this->computeSelectorType($selector), $selector);
     }
 
     /**
@@ -91,8 +115,7 @@ class RawPageContext extends RawDrupalContext
         $element = $this->getWorkingElement();
 
         // Search inside of: "id", "name", "title", "alt" and "value" attributes.
-        return $element->findButton($selector)
-            ?: (new XPath\InaccurateText('//button', $element))->text($selector)->find();
+        return $element->findButton($selector) ?: $this->inaccurateText('button', $selector, $element)->find();
     }
 
     /**
@@ -102,7 +125,7 @@ class RawPageContext extends RawDrupalContext
      */
     public function findByText($text)
     {
-        return (new XPath\InaccurateText('//*', $this->getWorkingElement()))->text($text)->find();
+        return $this->inaccurateText('*', $text)->find();
     }
 
     /**
@@ -131,10 +154,9 @@ class RawPageContext extends RawDrupalContext
      */
     public function findLabels($text)
     {
-        $xpath = new XPath\InaccurateText('//label[@for]', $this->getWorkingElement());
         $labels = [];
 
-        foreach ($xpath->text($text)->findAll() as $label) {
+        foreach ($this->inaccurateText('label[@for]', $text)->findAll() as $label) {
             $labels[$label->getAttribute('for')] = $label;
         }
 
@@ -192,5 +214,27 @@ class RawPageContext extends RawDrupalContext
         $this->throwNoSuchElementException($selector, $element);
 
         return $element;
+    }
+
+    /**
+     * @param string $query
+     * @param string $text
+     * @param NodeElement $parent
+     *
+     * @return XPath\InaccurateText
+     */
+    private function inaccurateText($query, $text, NodeElement $parent = null)
+    {
+        return (new XPath\InaccurateText("//$query", $parent ?: $this->getWorkingElement()))->text($text);
+    }
+
+    /**
+     * @param string $selector
+     *
+     * @return string
+     */
+    private function computeSelectorType($selector)
+    {
+        return empty($this->getDrupalParameter('region_map')[$selector]) ? 'css' : 'region';
     }
 }

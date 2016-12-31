@@ -195,9 +195,21 @@ final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
     /**
      * {@inheritdoc}
      */
-    public static function isContentTypeExists($contentType)
+    public static function getContentTypeName($contentType)
     {
-        return (bool) \Drupal::entityTypeManager()->getStorage('node_type')->load($contentType);
+        $nodeTypeStorage = \Drupal::entityTypeManager()
+            ->getStorage('node_type');
+
+        if ($nodeTypeStorage->load($contentType)) {
+            return $contentType;
+        }
+
+        // The result will be like: ['article' => 'article'].
+        $result = $nodeTypeStorage->getQuery()
+            ->condition('name', $contentType)
+            ->execute();
+
+        return empty($result) ? '' : reset($result);
     }
 
     /**

@@ -106,11 +106,15 @@ abstract class DrupalKernelPlaceholderBase
     abstract public static function getEmailMessages();
 
     /**
-     * @param string $contentType
+     * Check existence of the content type by its machine name or title.
      *
-     * @return bool
+     * @param string $contentType
+     *   Machine name or title of the content type.
+     *
+     * @return string
+     *   Machine name.
      */
-    abstract public static function isContentTypeExists($contentType);
+    abstract public static function getContentTypeName($contentType);
 
     /**
      * @param string $file

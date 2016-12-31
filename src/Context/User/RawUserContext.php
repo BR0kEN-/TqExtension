@@ -130,18 +130,21 @@ class RawUserContext extends RawTqContext
     public function isLoggedIn()
     {
         $cookieName = session_name();
+        $baseUrl = parse_url($this->locatePath());
 
         // When "base_url" has "https" scheme, then secure cookie (SSESS) will be set to
         // mark authentication. "session_name()" will return unsecure name (SESS) since it
         // run programmatically. Correct a cookie name if Behat configured for using secure
         // URL and name is not "secure".
-        if (strpos($cookieName, 'SS') !== 0 && 'https' === parse_url($this->locatePath())['scheme']) {
+        // "scheme" may not exist in case if, for instance, "127.0.0.1:1234" used as base URL.
+        if (strpos($cookieName, 'SS') !== 0 && isset($baseUrl['scheme']) && 'https' === $baseUrl['scheme']) {
             $cookieName = "S$cookieName";
         }
 
         $cookie = $this->getSession()->getCookie($cookieName);
 
         if (null !== $cookie) {
+            // "goutte" session using for checking HTTP status codes.
             $this->getSession('goutte')->setCookie($cookieName, $cookie);
 
             return true;

@@ -6,6 +6,7 @@
 use Drupal\Core\DrupalKernel;
 use Symfony\Component\HttpFoundation\Request;
 
+define('PACKAGE_ROOT', dirname(__DIR__));
 // Drupal configuration.
 define('DRUPAL_CORE', (int) getenv('DRUPAL_CORE') ?: 7);
 define('DRUPAL_BASE', __DIR__ . '/drupal_tqextension_phpunit_' . DRUPAL_CORE);
@@ -97,31 +98,41 @@ if (!file_exists(ROUTER_FILE)) {
     file_put_contents($index, str_replace('getcwd()', "'" . DRUPAL_BASE . "'", file_get_contents($index)));
 }
 
-// Run built-in PHP web-server.
-$processId = shell_exec(sprintf(
-    'php -S %s -t %s %s >/dev/null 2>&1 & echo $!',
-    DRUPAL_HOST,
-    DRUPAL_BASE,
-    ROUTER_FILE
-));
+$phpServer = sprintf('php -S %s -t %s %s', DRUPAL_HOST, DRUPAL_BASE, ROUTER_FILE);
+// Check for previously launched server. It may stay alive after tests fail.
+$processId = (int) shell_exec("ps | grep -v grep | grep '$phpServer' | head -n1 | awk '{print $1}'");
 
-// Bootstrap Drupal to make available an API.
+if (0 === $processId) {
+    // Run built-in PHP web-server.
+    $processId = shell_exec("$phpServer >/dev/null 2>&1 & echo $!");
+}
+
+// Bootstrap Drupal to make an API available.
 $_SERVER['REMOTE_ADDR'] = 'localhost';
+// Change working directory to the Drupal root to programmatically bootstrap the API.
+chdir(DRUPAL_BASE);
 
 switch (DRUPAL_CORE) {
     case 7:
+        // Needs to be defined here since everywhere used in "bootstrap.inc".
+        // Drupal 7 defines this constant in "index.php".
+        define('DRUPAL_ROOT', DRUPAL_BASE);
+
         require_once DRUPAL_BASE . '/includes/bootstrap.inc';
         drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
         break;
 
     case 8:
+        // No need to define "DRUPAL_ROOT" for Drupal 8 since it defined in "bootstrap.inc"
+        // which will be included by "DrupalKernel::bootEnvironment()".
         $autoloader = require_once DRUPAL_BASE . '/autoload.php';
         $kernel = new DrupalKernel('prod', $autoloader);
-        $request = Request::createFromGlobals();
-        $response = $kernel->handle($request);
-        $response->send();
-        $kernel->terminate($request, $response);
+        $kernel->handle(Request::createFromGlobals());
         break;
+}
+
+foreach (['base', DRUPAL_CORE] as $filename) {
+    require_once PACKAGE_ROOT . "/src/Cores/$filename.php";
 }
 
 // Initialize Behat configuration.

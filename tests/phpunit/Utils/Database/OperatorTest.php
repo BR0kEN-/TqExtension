@@ -21,7 +21,7 @@ class OperatorTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
         $this->db = new Operator(DRUPAL_DB_USER, DRUPAL_DB_PASS, DRUPAL_DB_HOST);
     }
