@@ -15,6 +15,10 @@ services:
 before_script:
   - travis_retry composer self-update
   - travis_retry composer update $COMPOSER_OPTS
+  - sh -e /etc/init.d/xvfb start
+  - wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar
+  - java -jar selenium-server-standalone-2.53.1.jar > /dev/null &
+  - sleep 6
 
 script:
   - DRUPAL_CORE=7 bin/phpunit --coverage-text --coverage-clover=coverage.clover
