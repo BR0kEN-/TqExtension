@@ -1,4 +1,4 @@
-@api
+@api @debug
 Feature: Tq Context
   Scenario: Test "assertElementAttribute" method
     Given I am on the "/" page
