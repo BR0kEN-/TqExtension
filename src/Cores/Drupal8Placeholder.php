@@ -27,17 +27,17 @@ final class Drupal8Placeholder extends DrupalKernelPlaceholder
     /**
      * {@inheritdoc}
      */
-    public static function t($string, array $args = [], array $options = [])
+    public static function t($string, array $arguments = [], array $options = [])
     {
-        return (string) new TranslatableMarkup($string, $args, $options);
+        return (string) new TranslatableMarkup($string, $arguments, $options);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function formatString($string, array $args = [])
+    public static function formatString($string, array $arguments = [])
     {
-        return (string) new FormattableMarkup($string, $args);
+        return (string) new FormattableMarkup($string, $arguments);
     }
 
     /**
@@ -70,6 +70,16 @@ final class Drupal8Placeholder extends DrupalKernelPlaceholder
     public static function jsonEncode($data)
     {
         return Json::encode($data);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return AccountInterface
+     */
+    public static function getCurrentUser()
+    {
+        return \Drupal::currentUser()->getAccount();
     }
 
     /**

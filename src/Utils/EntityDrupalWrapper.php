@@ -59,7 +59,7 @@ final class EntityDrupalWrapper
     public function load($id)
     {
         if (null === $this->entity) {
-            $this->entity = DrupalKernelPlaceholder::entityLoad($this->type, $id);
+            $this->entity = entity_metadata_wrapper($this->type, DrupalKernelPlaceholder::entityLoad($this->type, $id));
         }
 
         return $this->entity;

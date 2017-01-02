@@ -22,17 +22,17 @@ final class Drupal7Placeholder extends DrupalKernelPlaceholder
     /**
      * {@inheritdoc}
      */
-    public static function t($string, array $args = [], array $options = [])
+    public static function t($string, array $arguments = [], array $options = [])
     {
-        return t($string, $args, $options);
+        return t($string, $arguments, $options);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function formatString($string, array $args = [])
+    public static function formatString($string, array $arguments = [])
     {
-        return format_string($string, $args);
+        return format_string($string, $arguments);
     }
 
     /**
@@ -65,6 +65,16 @@ final class Drupal7Placeholder extends DrupalKernelPlaceholder
     public static function jsonEncode($data)
     {
         return drupal_json_encode($data);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return \stdClass
+     */
+    public static function getCurrentUser()
+    {
+        return $GLOBALS['user'];
     }
 
     /**
@@ -143,13 +153,13 @@ final class Drupal7Placeholder extends DrupalKernelPlaceholder
      */
     public static function entityLoad($entityType, $id)
     {
-        return entity_metadata_wrapper($entityType, $id);
+        $entities = entity_load($entityType, [$id]);
+
+        return empty($entities) ? null : reset($entities);
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @param \EntityDrupalWrapper $entity
      */
     public static function entityHasField($entity, $fieldName)
     {

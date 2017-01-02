@@ -86,6 +86,14 @@ class DrupalKernelPlaceholder
         return self::requireContext(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @return object
+     */
+    public static function getCurrentUser()
+    {
+        return self::requireContext(__FUNCTION__, func_get_args());
+    }
+
     public static function setCurrentUser($user)
     {
         self::requireContext(__FUNCTION__, func_get_args());
@@ -160,7 +168,7 @@ class DrupalKernelPlaceholder
      * @param string $entityType
      * @param int $id
      *
-     * @return object
+     * @return object|null
      */
     public static function entityLoad($entityType, $id)
     {

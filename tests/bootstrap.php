@@ -117,6 +117,8 @@ switch (DRUPAL_CORE) {
         // Drupal 7 defines this constant in "index.php".
         define('DRUPAL_ROOT', DRUPAL_BASE);
 
+        // Required for using metadata wrappers.
+        drush('en entity -y');
         require_once DRUPAL_BASE . '/includes/bootstrap.inc';
         drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
         break;
