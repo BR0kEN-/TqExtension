@@ -101,6 +101,8 @@ class RedirectContext extends RawRedirectContext
     {
         $this->visitPath($path);
 
+        var_dump($this->getSession()->getPage()->getOuterHtml());
+
         self::debug(['Visited page: %s'], [$path]);
 
         if (!$this->assertStatusCode($path, $code)) {
