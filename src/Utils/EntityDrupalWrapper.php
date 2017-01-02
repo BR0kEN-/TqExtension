@@ -41,10 +41,7 @@ final class EntityDrupalWrapper
     public function __construct($entityType, $bundle = '')
     {
         $this->type = $entityType;
-
-        if (empty($bundle)) {
-            $this->bundle = $this->type;
-        }
+        $this->bundle = $bundle ?: $this->type;
 
         // The fields in "locators" array stored by machine name of a field and duplicated by field label.
         foreach (DrupalKernelPlaceholder::getFieldDefinitions($this->type, $this->bundle) as $name => $definition) {
@@ -59,7 +56,17 @@ final class EntityDrupalWrapper
     public function load($id)
     {
         if (null === $this->entity) {
-            $this->entity = entity_metadata_wrapper($this->type, DrupalKernelPlaceholder::entityLoad($this->type, $id));
+            $this->entity = DrupalKernelPlaceholder::entityLoad($this->type, $id);
+
+            /**
+             * Metadata wrapper needed since placeholder for Drupal 7 requires
+             * \EntityDrupalWrapper as an argument.
+             *
+             * @see \Drupal\TqExtension\Cores\Drupal7Placeholder::entityFieldValue()
+             */
+            if (DRUPAL_CORE < 8) {
+                $this->entity = entity_metadata_wrapper($this->type, $this->entity);
+            }
         }
 
         return $this->entity;
@@ -82,14 +89,14 @@ final class EntityDrupalWrapper
     }
 
     /**
-     * @param string $field_name
+     * @param string $fieldName
      *   Machine name or label of a field.
      *
      * @return string
      */
-    public function getFieldNameByLocator($field_name)
+    public function getFieldNameByLocator($fieldName)
     {
-        return isset($this->fields['locators'][$field_name]) ? $this->fields['locators'][$field_name] : '';
+        return isset($this->fields['locators'][$fieldName]) ? $this->fields['locators'][$fieldName] : '';
     }
 
     /**
