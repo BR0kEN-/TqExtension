@@ -61,9 +61,9 @@ class Url
     private function setUrl($url)
     {
         $this->url = $url;
-        $this->components = parse_url(strtolower($url));
+        $this->components = parse_url(strtolower($this->url));
 
-        if (!isset($this->components['host'])) {
+        if (false === $this->components || !isset($this->components['host'])) {
             throw new \InvalidArgumentException(sprintf('%s - incorrect URL.', $this->url));
         }
 
