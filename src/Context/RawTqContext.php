@@ -19,6 +19,7 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 // Utils.
+use Drupal\TqExtension\Utils\Url;
 use Drupal\TqExtension\Utils\Tags;
 use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
@@ -278,51 +279,12 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function locatePath($path = '')
     {
-        // Obtain base URL when path is empty, or not starts from "//" or "http".
-        if (empty($path) || strpos($path, '//') !== 0 && strpos($path, 'http') !== 0) {
-            $path = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($path, '/');
-        }
-
-        $url = parse_url(strtolower($path));
-
-        if (!isset($url['host'])) {
-            throw new \InvalidArgumentException(sprintf('Incorrect URL: %s', func_get_arg(0)));
-        }
-
-        $url += [
-          // When URL starts from "//" the "scheme" key will not exists.
-          'scheme' => 'http',
-        ];
-
-        // Check scheme.
-        if (!in_array($url['scheme'], ['http', 'https'])) {
-            throw new \InvalidArgumentException(sprintf('%s - is not valid scheme.', $url['scheme']));
-        }
-
-        $path = $url['scheme'] . '://';
-
-        if (isset($url['user'], $url['pass'])) {
-            // Encode special characters in username and password. Useful
-            // when some item contain something like "@" symbol.
-            foreach (['user' => ':', 'pass' => '@'] as $part => $suffix) {
-                $path .= rawurlencode($url[$part]) . $suffix;
-            }
-        }
-
-        $path .= $url['host'];
-
-        // Append additional URL components.
-        foreach (['port' => ':', 'path' => '', 'query' => '?', 'fragment' => '#'] as $part => $prefix) {
-            if (isset($url[$part])) {
-                $path .= $prefix . $url[$part];
-            }
-        }
-
-        return $path;
+        return (string) new Url($this->getMinkParameter('base_url'), $path);
     }
 
     /**
      * @return string
+     *   Absolute URL.
      */
     public function getCurrentUrl()
     {
