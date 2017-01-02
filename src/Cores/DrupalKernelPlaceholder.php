@@ -69,14 +69,6 @@ class DrupalKernelPlaceholder
     }
 
     /**
-     * @return string
-     */
-    public static function sitePath()
-    {
-        return self::requireContext(__FUNCTION__, func_get_args());
-    }
-
-    /**
      * @param mixed $data
      *
      * @return string
@@ -161,7 +153,7 @@ class DrupalKernelPlaceholder
      */
     public static function getDatabaseConnectionInfo($connection)
     {
-        return self::requireContext(__FUNCTION__, func_get_args());
+        return (array) self::requireContext(__FUNCTION__, func_get_args());
     }
 
     /**

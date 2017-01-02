@@ -59,14 +59,6 @@ final class Drupal8Placeholder extends DrupalKernelPlaceholder
     /**
      * {@inheritdoc}
      */
-    public static function sitePath()
-    {
-        return \Drupal::service('site.path');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public static function jsonEncode($data)
     {
         return Json::encode($data);

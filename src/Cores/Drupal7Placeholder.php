@@ -54,14 +54,6 @@ final class Drupal7Placeholder extends DrupalKernelPlaceholder
     /**
      * {@inheritdoc}
      */
-    public static function sitePath()
-    {
-        return conf_path();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public static function jsonEncode($data)
     {
         return drupal_json_encode($data);

@@ -46,15 +46,13 @@ class Database
             throw new \RuntimeException('Drupal is not bootstrapped.');
         }
 
-        $databases = [];
+        $database = DrupalKernelPlaceholder::getDatabaseConnectionInfo($connection);
 
-        require sprintf('%s/%s/settings.php', DRUPAL_ROOT, DrupalKernelPlaceholder::sitePath());
-
-        if (empty($databases[$connection])) {
+        if (empty($database)) {
             throw new \InvalidArgumentException(sprintf('The "%s" database connection does not exist.', $connection));
         }
 
-        $db = $databases[$connection]['default'];
+        $db = $database['default'];
 
         $this->db = new Operator($db['username'], $db['password'], $db['host'], $db['port']);
         $this->source = $db['database'];
