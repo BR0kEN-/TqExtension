@@ -7,8 +7,9 @@ namespace Drupal\TqExtension\Context\Node;
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
 // Utils.
-use Drupal\TqExtension\Utils\Database\FetchField;
 use Drupal\TqExtension\Utils\BaseEntity;
+use Drupal\TqExtension\Utils\Database\FetchField;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class RawNodeContext extends RawTqContext
 {
@@ -39,7 +40,7 @@ class RawNodeContext extends RawTqContext
 
         // Try to recognize node type by its title if content type specified and does not exist.
         if ('' !== $contentType) {
-            $contentType = \DrupalKernelPlaceholder::getContentTypeName($contentType);
+            $contentType = DrupalKernelPlaceholder::getContentTypeName($contentType);
 
             if ('' === $contentType) {
                 throw new \InvalidArgumentException('Content type with such name does not exist!');

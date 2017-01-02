@@ -4,6 +4,8 @@
  */
 namespace Drupal\TqExtension\Utils;
 
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
+
 /**
  * Trait BaseEntity.
  *
@@ -36,7 +38,7 @@ trait BaseEntity
     public function getCurrentId()
     {
         // We have programmatically bootstrapped Drupal core, so able to use such functionality.
-        $args = \DrupalKernelPlaceholder::arg();
+        $args = DrupalKernelPlaceholder::arg();
 
         return count($args) > 1 && $this->entityType() === $args[0] && $args[1] > 0 ? (int) $args[1] : 0;
     }
@@ -60,6 +62,8 @@ trait BaseEntity
         // @todo Maybe we should use "DRUPAL_CORE > 7 ? '' : 'view'"?
         if (in_array($operation, ['visit', 'view'])) {
             $operation = '';
+        } else {
+            $operation = "/$operation";
         }
 
         // An empty string could be passed when currently viewing entity expected.
@@ -67,10 +71,6 @@ trait BaseEntity
 
         if (0 === $id) {
             throw new \RuntimeException('An ID cannot be zero.');
-        }
-
-        if ('' !== $operation) {
-            $operation = "/$operation";
         }
 
         return $this->entityType() . "/$id$operation";

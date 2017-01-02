@@ -6,7 +6,6 @@
 use Drupal\Core\DrupalKernel;
 use Symfony\Component\HttpFoundation\Request;
 
-define('PACKAGE_ROOT', dirname(__DIR__));
 // Drupal configuration.
 define('DRUPAL_CORE', (int) getenv('DRUPAL_CORE') ?: 7);
 define('DRUPAL_BASE', __DIR__ . '/drupal_tqextension_phpunit_' . DRUPAL_CORE);
@@ -129,12 +128,6 @@ switch (DRUPAL_CORE) {
         $kernel = new DrupalKernel('prod', $autoloader);
         $kernel->handle(Request::createFromGlobals());
         break;
-}
-
-if (!class_exists('DrupalKernelPlaceholder')) {
-    foreach (['base', DRUPAL_CORE] as $filename) {
-        require_once PACKAGE_ROOT . "/src/Cores/$filename.php";
-    }
 }
 
 // Initialize Behat configuration.

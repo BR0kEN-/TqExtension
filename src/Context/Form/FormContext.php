@@ -16,6 +16,7 @@ use Behat\Mink\Element\NodeElement;
 use Drupal\TqExtension\Utils\DatePicker;
 use Drupal\TqExtension\Utils\FormValueAssertion;
 use Drupal\TqExtension\Utils\EntityDrupalWrapper;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class FormContext extends RawFormContext
 {
@@ -53,7 +54,7 @@ class FormContext extends RawFormContext
         // Syn - a Standalone Synthetic Event Library, provided by Selenium.
         $this->executeJsOnElement(
             $field,
-            sprintf("Syn.type({{ELEMENT}}, '%s')", \DrupalKernelPlaceholder::tokenReplace($value))
+            sprintf("Syn.type({{ELEMENT}}, '%s')", DrupalKernelPlaceholder::tokenReplace($value))
         );
 
         $this->waitAjaxAndAnimations();
@@ -211,7 +212,7 @@ class FormContext extends RawFormContext
      */
     public function fillField($selector, $value)
     {
-        $this->element('field', $selector)->setValue(\DrupalKernelPlaceholder::tokenReplace($value));
+        $this->element('field', $selector)->setValue(DrupalKernelPlaceholder::tokenReplace($value));
     }
 
     /**

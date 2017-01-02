@@ -6,6 +6,8 @@ namespace Drupal\TqExtension\Utils\Wysiwyg;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
+// Utils.
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 abstract class Wysiwyg
 {
@@ -126,7 +128,7 @@ abstract class Wysiwyg
         return $this->context->executeJs("return !object.$method(!args);", [
             '!object' => $this->getInstance($selector),
             // Remove "[" character from start and "]" from the end of string.
-            '!args' => substr(\DrupalKernelPlaceholder::jsonEncode($arguments), 1, -1),
+            '!args' => substr(DrupalKernelPlaceholder::jsonEncode($arguments), 1, -1),
         ]);
     }
 

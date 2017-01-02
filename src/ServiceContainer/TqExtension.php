@@ -49,18 +49,11 @@ class TqExtension implements Extension
         }
 
         /** @var DrupalDriver $drupalDriver */
-        $sourceDir = dirname(__DIR__);
         $drupalDriver = $container->get('drupal.driver.drupal');
         $drupalDriver->setCoreFromVersion();
 
         if (!defined('DRUPAL_CORE')) {
             define('DRUPAL_CORE', (int) $drupalDriver->version);
-        }
-
-        if (!class_exists('DrupalKernelPlaceholder')) {
-            foreach (['base', DRUPAL_CORE] as $filename) {
-                require_once "$sourceDir/Cores/$filename.php";
-            }
         }
 
         $loader = new EnvironmentLoader($this, $container, $config);

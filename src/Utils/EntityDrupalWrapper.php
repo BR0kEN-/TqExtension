@@ -4,6 +4,8 @@
  */
 namespace Drupal\TqExtension\Utils;
 
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
+
 final class EntityDrupalWrapper
 {
     /**
@@ -45,7 +47,7 @@ final class EntityDrupalWrapper
         }
 
         // The fields in "locators" array stored by machine name of a field and duplicated by field label.
-        foreach (\DrupalKernelPlaceholder::getFieldDefinitions($this->type, $this->bundle) as $name => $definition) {
+        foreach (DrupalKernelPlaceholder::getFieldDefinitions($this->type, $this->bundle) as $name => $definition) {
             $this->fields['locators'][$definition['label']] = $this->fields['locators'][$name] = $name;
 
             if ($definition['required']) {
@@ -57,7 +59,7 @@ final class EntityDrupalWrapper
     public function load($id)
     {
         if (null === $this->entity) {
-            $this->entity = \DrupalKernelPlaceholder::entityLoad($this->type, $id);
+            $this->entity = DrupalKernelPlaceholder::entityLoad($this->type, $id);
         }
 
         return $this->entity;
@@ -65,7 +67,7 @@ final class EntityDrupalWrapper
 
     public function hasField($fieldName)
     {
-        return \DrupalKernelPlaceholder::entityHasField(
+        return DrupalKernelPlaceholder::entityHasField(
             $this->getEntity(),
             $this->getFieldNameByLocator($fieldName)
         );
@@ -73,7 +75,7 @@ final class EntityDrupalWrapper
 
     public function getFieldValue($fieldName)
     {
-        return \DrupalKernelPlaceholder::entityFieldValue(
+        return DrupalKernelPlaceholder::entityFieldValue(
             $this->getEntity(),
             $this->getFieldNameByLocator($fieldName)
         );

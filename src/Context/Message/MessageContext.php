@@ -7,6 +7,8 @@ namespace Drupal\TqExtension\Context\Message;
 // Helpers.
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
+// Utils.
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class MessageContext extends RawMessageContext
 {
@@ -78,7 +80,7 @@ class MessageContext extends RawMessageContext
             $args = $args->getRowsHash();
         }
 
-        $translated = \DrupalKernelPlaceholder::t($message, $args);
+        $translated = DrupalKernelPlaceholder::t($message, $args);
 
         self::debug(['Input: %s', 'Translated: %s'], [$message, $translated]);
 

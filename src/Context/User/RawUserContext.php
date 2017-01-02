@@ -8,8 +8,9 @@ namespace Drupal\TqExtension\Context\User;
 use Drupal\TqExtension\Context\RawTqContext;
 // Utils.
 use Drupal\TqExtension\Utils\BaseEntity;
-use Drupal\TqExtension\Utils\Database\FetchField;
 use Drupal\TqExtension\Utils\EntityDrupalWrapper;
+use Drupal\TqExtension\Utils\Database\FetchField;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class RawUserContext extends RawTqContext
 {
@@ -116,7 +117,7 @@ class RawUserContext extends RawTqContext
 
         $this->user = user_load_by_name($props['username']);
 
-        \DrupalKernelPlaceholder::setCurrentUser($this->user);
+        DrupalKernelPlaceholder::setCurrentUser($this->user);
     }
 
     /**
@@ -207,11 +208,11 @@ class RawUserContext extends RawTqContext
         }
 
         $user = (object) $user;
-        $userId = \DrupalKernelPlaceholder::getUidByName($user->name);
+        $userId = DrupalKernelPlaceholder::getUidByName($user->name);
 
         // User is already exists, remove it to create again.
         if ($userId > 0) {
-            \DrupalKernelPlaceholder::deleteUser($userId);
+            DrupalKernelPlaceholder::deleteUser($userId);
         }
 
         // $this->user always exist but when no user created it has "false" as a value.

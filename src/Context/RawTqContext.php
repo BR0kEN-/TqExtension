@@ -20,6 +20,7 @@ use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 // Utils.
 use Drupal\TqExtension\Utils\Tags;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 /**
  * @see RawTqContext::__call()
@@ -115,7 +116,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     public function getDrupalText($name)
     {
         // Make text selectors translatable.
-        return \DrupalKernelPlaceholder::t(parent::getDrupalText($name));
+        return DrupalKernelPlaceholder::t(parent::getDrupalText($name));
     }
 
     /**
@@ -214,7 +215,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function executeJs($javascript, array $args = [])
     {
-        $javascript = \DrupalKernelPlaceholder::formatString($javascript, $args);
+        $javascript = DrupalKernelPlaceholder::formatString($javascript, $args);
 
         $this->processJavaScript($javascript);
         self::debug([$javascript]);

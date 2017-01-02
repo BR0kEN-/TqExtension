@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope;
 // Utils.
 use Drupal\TqExtension\Utils\Database\Database;
 use Drupal\TqExtension\Utils\LogicalAssertion;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class TqContext extends RawTqContext
 {
@@ -279,8 +280,8 @@ class TqContext extends RawTqContext
             self::$database = clone new Database(self::getTag('clonedb', 'default'));
         }
 
-        \DrupalKernelPlaceholder::beforeFeature($scope);
-        \DrupalKernelPlaceholder::injectCustomJavascript('CatchErrors');
+        DrupalKernelPlaceholder::beforeFeature($scope);
+        DrupalKernelPlaceholder::injectCustomJavascript('CatchErrors');
     }
 
     /**
@@ -292,7 +293,7 @@ class TqContext extends RawTqContext
         self::$database = null;
 
         // Remove injected script.
-        \DrupalKernelPlaceholder::injectCustomJavascript('CatchErrors', true);
+        DrupalKernelPlaceholder::injectCustomJavascript('CatchErrors', true);
     }
 
     /**
@@ -343,7 +344,7 @@ class TqContext extends RawTqContext
     {
         self::$pageUrl = $this->getCurrentUrl();
         // To allow Drupal use its internal, web-based functionality, such as "arg()" or "current_path()" etc.
-        \DrupalKernelPlaceholder::setCurrentPath(ltrim(parse_url(static::$pageUrl)['path'], '/'));
+        DrupalKernelPlaceholder::setCurrentPath(ltrim(parse_url(static::$pageUrl)['path'], '/'));
     }
 
     /**

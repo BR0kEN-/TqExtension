@@ -9,6 +9,7 @@ use Drupal\TqExtension\Context\RawTqContext;
 // Utils.
 use Behat\DebugExtension\Message;
 use Drupal\TqExtension\Utils\Imap;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class RawEmailContext extends RawTqContext
 {
@@ -115,7 +116,7 @@ class RawEmailContext extends RawTqContext
 
     private function getMessagesFromDb()
     {
-        $result = \DrupalKernelPlaceholder::getEmailMessages();
+        $result = DrupalKernelPlaceholder::getEmailMessages();
 
         self::debug(['Emails from the database: %s'], [var_export($result, true)]);
 

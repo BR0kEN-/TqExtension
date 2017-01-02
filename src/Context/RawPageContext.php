@@ -12,6 +12,7 @@ use WebDriver\Exception\NoSuchElement;
 use Behat\Mink\Element\NodeElement;
 // Utils.
 use Drupal\TqExtension\Utils\XPath;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class RawPageContext extends RawDrupalContext
 {
@@ -209,7 +210,7 @@ class RawPageContext extends RawDrupalContext
             throw new \RuntimeException(sprintf('Locator "%s" is not available.', $locator));
         }
 
-        $selector = \DrupalKernelPlaceholder::t($selector);
+        $selector = DrupalKernelPlaceholder::t($selector);
         $element = $this->{'find' . $map[$locator]}($selector);
         $this->throwNoSuchElementException($selector, $element);
 

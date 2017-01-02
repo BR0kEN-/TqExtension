@@ -2,13 +2,12 @@
 /**
  * @author Sergii Bondarenko, <sb@firstvector.org>
  */
+namespace Drupal\TqExtension\Cores;
 
 use Behat\Behat\Hook\Scope\BeforeFeatureScope;
 use Drupal\TqExtension\Utils\Database\FetchField;
 
-// @codingStandardsIgnoreStart
-final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
-  // @codingStandardsIgnoreEnd
+final class Drupal7Placeholder extends DrupalKernelPlaceholder
 {
     /**
      * {@inheritdoc}
@@ -31,17 +30,17 @@ final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
     /**
      * {@inheritdoc}
      */
-    public static function arg()
+    public static function formatString($string, array $args = [])
     {
-        return arg();
+        return format_string($string, $args);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function formatString($string, array $args = [])
+    public static function arg()
     {
-        return format_string($string, $args);
+        return arg();
     }
 
     /**

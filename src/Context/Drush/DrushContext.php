@@ -4,6 +4,8 @@
  */
 namespace Drupal\TqExtension\Context\Drush;
 
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
+
 class DrushContext extends RawDrushContext
 {
     /**
@@ -40,7 +42,7 @@ class DrushContext extends RawDrushContext
             // session. It must be set to be able to check status codes for the HTTP requests.
             !$userContext->isLoggedIn() &&
             !preg_match(
-                sprintf("/%s/i", \DrupalKernelPlaceholder::t('You have just used your one-time login link.')),
+                sprintf("/%s/i", DrupalKernelPlaceholder::t('You have just used your one-time login link.')),
                 $this->getWorkingElement()->getText()
             )
         ) {

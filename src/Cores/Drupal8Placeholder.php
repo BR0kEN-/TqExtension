@@ -2,6 +2,7 @@
 /**
  * @author Sergii Bondarenko, <sb@firstvector.org>
  */
+namespace Drupal\TqExtension\Cores;
 
 use Behat\Behat\Hook\Scope\BeforeFeatureScope;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -14,9 +15,7 @@ use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Serialization\Json;
 use Drupal\TqExtension\Utils\Database\FetchField;
 
-// @codingStandardsIgnoreStart
-final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
-// @codingStandardsIgnoreEnd
+final class Drupal8Placeholder extends DrupalKernelPlaceholder
 {
     /**
      * {@inheritdoc}
@@ -36,17 +35,17 @@ final class DrupalKernelPlaceholder extends DrupalKernelPlaceholderBase
     /**
      * {@inheritdoc}
      */
-    public static function arg()
+    public static function formatString($string, array $args = [])
     {
-        return explode('/', \Drupal::service('path.current')->getPath());
+        return (string) new FormattableMarkup($string, $args);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function formatString($string, array $args = [])
+    public static function arg()
     {
-        return (string) new FormattableMarkup($string, $args);
+        return explode('/', \Drupal::service('path.current')->getPath());
     }
 
     /**

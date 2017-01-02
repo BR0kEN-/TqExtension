@@ -21,6 +21,8 @@ class BaseEntityTest extends TraitTest
     const FQN = BaseEntity::class;
 
     /**
+     * @covers ::entityType
+     * @covers ::getIdByArguments
      * @covers ::entityUrl
      */
     public function testGetCurrentId()

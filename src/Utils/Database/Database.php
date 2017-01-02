@@ -4,6 +4,8 @@
  */
 namespace Drupal\TqExtension\Utils\Database;
 
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
+
 /**
  * Class Database.
  *
@@ -46,7 +48,7 @@ class Database
 
         $databases = [];
 
-        require sprintf('%s/%s/settings.php', DRUPAL_ROOT, \DrupalKernelPlaceholder::sitePath());
+        require sprintf('%s/%s/settings.php', DRUPAL_ROOT, DrupalKernelPlaceholder::sitePath());
 
         if (empty($databases[$connection])) {
             throw new \InvalidArgumentException(sprintf('The "%s" database connection does not exist.', $connection));

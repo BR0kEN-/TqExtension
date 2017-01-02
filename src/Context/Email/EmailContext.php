@@ -194,7 +194,7 @@ class EmailContext extends RawEmailContext
             "This is the good choice, because you testing the application, not web-server.\n",
         ]);
 
-        \DrupalKernelPlaceholder::switchMailSystem(true);
+        DrupalKernelPlaceholder::switchMailSystem(true);
     }
 
     /**
@@ -202,7 +202,7 @@ class EmailContext extends RawEmailContext
      */
     public function afterScenarioEmailApi()
     {
-        \DrupalKernelPlaceholder::switchMailSystem(false);
+        DrupalKernelPlaceholder::switchMailSystem(false);
     }
 
     /**

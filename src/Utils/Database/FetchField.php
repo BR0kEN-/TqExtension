@@ -6,6 +6,7 @@ namespace Drupal\TqExtension\Utils\Database;
 
 // Utils.
 use Behat\DebugExtension\Debugger;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class FetchField
 {
@@ -24,7 +25,7 @@ class FetchField
      */
     public function __construct($table, $field)
     {
-        $this->query = \DrupalKernelPlaceholder::selectQuery($table);
+        $this->query = DrupalKernelPlaceholder::selectQuery($table);
         $this->query->fields($table, [$field]);
     }
 
