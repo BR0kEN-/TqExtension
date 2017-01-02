@@ -101,7 +101,22 @@ class RedirectContext extends RawRedirectContext
     {
         $this->visitPath($path);
 
-        var_dump($this->getSession()->getPage()->getOuterHtml());
+        if (DRUPAL_CORE > 7) {
+            $entries = \Drupal::database()
+                ->select('watchdog', 'w')
+                ->fields('w', ['message', 'variables'])
+                ->condition('type', ['php'], 'IN')
+                ->range(0, 10)
+                ->execute()
+                ->fetchAll();
+
+            foreach ($entries as $entry) {
+                $entry->variables = unserialize($entry->variables);
+
+                var_dump((string) format_string($entry->message, $entry->variables));
+                var_dump($entry->variables);
+            }
+        }
 
         self::debug(['Visited page: %s'], [$path]);
 
