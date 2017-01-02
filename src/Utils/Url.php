@@ -4,6 +4,11 @@
  */
 namespace Drupal\TqExtension\Utils;
 
+/**
+ * Class Url.
+ *
+ * @package Drupal\TqExtension\Utils
+ */
 class Url
 {
     /**
@@ -29,9 +34,8 @@ class Url
      */
     public function __construct($baseUrl, $path = '')
     {
-        // @todo Check URL validity.
         if (empty($baseUrl)) {
-            throw new \RuntimeException('Set base URL before continue.');
+            throw new \InvalidArgumentException('Set base URL before continue.');
         }
 
         // Start with base URL when path is empty, or not starts from "//" or "http".

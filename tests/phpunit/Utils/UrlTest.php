@@ -9,7 +9,7 @@ use Drupal\TqExtension\Utils\Url;
 class UrlTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @dataProvider dataProvider
+     * @dataProvider validData
      *
      * @param string $baseUrl
      * @param string $path
@@ -20,7 +20,19 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         static::assertSame($expected, (string) new Url($baseUrl, $path));
     }
 
-    public function dataProvider()
+    /**
+     * @dataProvider invalidData
+     *
+     * @expectedException \InvalidArgumentException
+     *
+     * @param string $baseUrl
+     */
+    public function testInvalidBaseUrl($baseUrl)
+    {
+        new Url($baseUrl);
+    }
+
+    public function validData()
     {
         return [
             // Relative URL.
@@ -59,6 +71,16 @@ class UrlTest extends \PHPUnit_Framework_TestCase
                 'path/to/page?test=value#fragment',
                 'http://user:pass@example.com:8080/path/to/page?test=value#fragment',
             ],
+        ];
+    }
+
+    public function invalidData()
+    {
+        return [
+            [0],
+            [''],
+            [null],
+            [false],
         ];
     }
 }
