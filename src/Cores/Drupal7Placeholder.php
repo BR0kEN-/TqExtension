@@ -128,12 +128,19 @@ final class Drupal7Placeholder extends DrupalKernelPlaceholder
      */
     public static function getFieldDefinitions($entityType, $bundle)
     {
+        // Load entity properties because in Drupal 8 they are assumed as regular fields.
+        $entityProperties = entity_get_property_info($entityType);
+        $fieldInstances = field_info_instances($entityType, $bundle);
         $definitions = [];
 
-        foreach (field_info_instances($entityType, $bundle) as $name => $definition) {
+        if (!empty($entityProperties['properties'])) {
+            $fieldInstances += $entityProperties['properties'];
+        }
+
+        foreach ($fieldInstances as $name => $definition) {
             $definitions[$name] = [
                 'label' => $definition['label'],
-                'required' => $definition['required'],
+                'required' => !empty($definition['required']),
             ];
         }
 
@@ -146,6 +153,19 @@ final class Drupal7Placeholder extends DrupalKernelPlaceholder
     public static function getDatabaseConnectionInfo($connection)
     {
         return \Database::getConnectionInfo($connection);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function entityCreate($entityType, array $values)
+    {
+        $entity = entity_create($entityType, $values);
+
+        entity_save($entityType, $entity);
+        list($entityId, , $bundle) = entity_extract_ids($entityType, $entity);
+
+        return [$entityId, $entityType, $bundle];
     }
 
     /**
@@ -173,7 +193,15 @@ final class Drupal7Placeholder extends DrupalKernelPlaceholder
      */
     public static function entityFieldValue($entity, $fieldName)
     {
-        return $entity->{$fieldName}->value();
+        if ($entity instanceof \EntityDrupalWrapper) {
+            return $entity->{$fieldName}->value();
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            'First argument for "%s" method must be of "%s" type.',
+            __METHOD__,
+            \EntityDrupalWrapper::class
+        ));
     }
 
     /**
