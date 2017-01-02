@@ -88,6 +88,14 @@ class DrupalKernelPlaceholderTest extends \PHPUnit_Framework_TestCase
         static::assertSame($expected, DrupalKernelPlaceholder::getContentTypeName($contentType));
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testEntityFieldValueException()
+    {
+        DrupalKernelPlaceholder::entityFieldValue(new \stdClass(), 'uid');
+    }
+
     public function contentTypeNameProvider()
     {
         return [
