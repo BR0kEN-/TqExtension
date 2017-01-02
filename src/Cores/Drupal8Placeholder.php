@@ -158,6 +158,20 @@ final class Drupal8Placeholder extends DrupalKernelPlaceholder
     /**
      * {@inheritdoc}
      */
+    public static function entityCreate($entityType, array $values)
+    {
+        $entity = \Drupal::entityTypeManager()
+            ->getStorage($entityType)
+            ->create($values);
+
+        $entity->save();
+
+        return [$entity->id(), $entityType, $entity->bundle()];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function entityLoad($entityType, $id)
     {
         return \Drupal::entityTypeManager()->getStorage($entityType)->load($id);
@@ -180,7 +194,15 @@ final class Drupal8Placeholder extends DrupalKernelPlaceholder
      */
     public static function entityFieldValue($entity, $fieldName)
     {
-        return $entity->get($fieldName)->value;
+        if ($entity instanceof FieldableEntityInterface) {
+            return $entity->get($fieldName)->value;
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            'First argument for "%s" method must be of "%s" type.',
+            __METHOD__,
+            FieldableEntityInterface::class
+        ));
     }
 
     /**
