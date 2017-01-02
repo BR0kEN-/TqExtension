@@ -127,8 +127,10 @@ switch (DRUPAL_CORE) {
         // No need to define "DRUPAL_ROOT" for Drupal 8 since it defined in "bootstrap.inc"
         // which will be included by "DrupalKernel::bootEnvironment()".
         $autoloader = require_once DRUPAL_BASE . '/autoload.php';
-        $kernel = new DrupalKernel('prod', $autoloader);
-        $kernel->handle(Request::createFromGlobals());
+        $request = Request::createFromGlobals();
+
+        /** @see \Drupal\Driver\Cores\Drupal8::bootstrap() */
+        DrupalKernel::createFromRequest($request, $autoloader, 'prod')->prepareLegacyRequest($request);
         break;
 }
 
