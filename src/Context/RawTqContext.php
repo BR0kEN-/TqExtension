@@ -13,11 +13,15 @@ use Behat\DebugExtension\Debugger;
 // Helpers.
 use WebDriver\Session;
 use Drupal\Driver\DrushDriver;
+use Drupal\Driver\DriverInterface as DrupalDriverInterface;
 use Drupal\Component\Utility\Random;
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Driver\GoutteDriver;
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Driver\DriverInterface as SessionDriverInterface;
 use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
+use Behat\Testwork\Environment\Environment;
 // Utils.
 use Drupal\TqExtension\Utils\Url;
 use Drupal\TqExtension\Utils\Tags;
@@ -146,7 +150,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @return InitializedContextEnvironment
+     * @return Environment|InitializedContextEnvironment
      */
     public function getEnvironment()
     {
@@ -154,7 +158,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @return Selenium2Driver
+     * @return SessionDriverInterface|Selenium2Driver|GoutteDriver
      */
     public function getSessionDriver()
     {
@@ -237,7 +241,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @return DrushDriver
+     * @return DrupalDriverInterface|DrushDriver
      */
     public function getDrushDriver()
     {

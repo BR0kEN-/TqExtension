@@ -7,6 +7,8 @@ namespace Drupal\TqExtension\Context\Redirect;
 // Helpers.
 use Behat\DebugExtension\Message;
 use Behat\Gherkin\Node\TableNode;
+// Utils.
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class RedirectContext extends RawRedirectContext
 {
@@ -66,7 +68,7 @@ class RedirectContext extends RawRedirectContext
         $fails = [];
 
         foreach (array_keys($paths->getRowsHash()) as $path) {
-            if (!$this->assertStatusCode($path, $code)) {
+            if ($this->getStatusCode($path) !== $code) {
                 $fails[] = $path;
             }
         }
@@ -89,39 +91,30 @@ class RedirectContext extends RawRedirectContext
      *
      * @param string $path
      *   Path to visit.
-     * @param string|int $code
+     * @param string|int $expectedCode
      *   Expected HTTP status code.
      *
      * @throws \Exception
      *
-     * @Given /^I am on the "([^"]*)" page(?:| and HTTP code is "([^"]*)")$/
-     * @Given /^(?:|I )visit the "([^"]*)" page(?:| and HTTP code is "([^"]*)")$/
+     * @Given /^I am on the "([^"]*)" page(?:| and HTTP code is "(\d+)")$/
+     * @Given /^(?:|I )visit the "([^"]*)" page(?:| and HTTP code is "(\d+)")$/
      */
-    public function visitPage($path, $code = 200)
+    public function visitPage($path, $expectedCode = 200)
     {
         $this->visitPath($path);
 
-        if (DRUPAL_CORE > 7) {
-            $entries = \Drupal::database()
-                ->select('watchdog', 'w')
-                ->fields('w', ['message', 'variables'])
-                ->condition('type', ['php'], 'IN')
-                ->range(0, 10)
-                ->execute()
-                ->fetchAll();
+        self::debug(['Visited page: %s'], [$path]);
 
-            foreach ($entries as $entry) {
-                $entry->variables = unserialize($entry->variables);
+        $actualCode = $this->getStatusCode($path);
 
-                var_dump((string) format_string($entry->message, $entry->variables));
-                var_dump($entry->variables);
+        if ($actualCode >= 500) {
+            foreach (DrupalKernelPlaceholder::getWatchdogStackTrace() as $item) {
+                self::debug(['5xx stack trace: %s'], [var_export($item, true)]);
             }
         }
 
-        self::debug(['Visited page: %s'], [$path]);
-
-        if (!$this->assertStatusCode($path, $code)) {
-            throw new \Exception(sprintf('The page "%s" is not accessible!', $path));
+        if ($actualCode !== (int) $expectedCode) {
+            throw new \Exception(sprintf('Expected status is "%s", but "%s" returned.', $expectedCode, $actualCode));
         }
     }
 }

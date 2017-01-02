@@ -6,28 +6,29 @@ namespace Drupal\TqExtension\Context\Redirect;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
+// Utils.
+use Behat\Mink\Driver\GoutteDriver;
 
 class RawRedirectContext extends RawTqContext
 {
     /**
      * @param string $path
-     *   Relative URL.
-     * @param string|int $code
-     *   HTTP response code.
+     *   An URL to visit (relative or absolute).
      *
-     * @return bool
+     * @return int
      */
-    public function assertStatusCode($path, $code)
+    public function getStatusCode($path)
     {
-        // The "Goutte" session should be used because it provide the request status codes.
-        if ('goutte' !== $this->getMink()->getDefaultSessionName()) {
+        // The "Goutte" session should be used because it provides HTTP status codes.
+        // Visit path once again if current session driver is not Goutte.
+        if (!($this->getSessionDriver() instanceof GoutteDriver)) {
             $this->visitPath($path, 'goutte');
         }
 
-        $responseCode = $this->getSession('goutte')->getStatusCode();
+        $statusCode = (int) $this->getSession('goutte')->getStatusCode();
 
-        self::debug(['HTTP code is: %s'], [$responseCode]);
+        self::debug(['HTTP status code: %s'], [$statusCode]);
 
-        return $responseCode == $code;
+        return $statusCode;
     }
 }

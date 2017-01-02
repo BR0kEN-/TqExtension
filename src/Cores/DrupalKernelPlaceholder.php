@@ -275,6 +275,24 @@ class DrupalKernelPlaceholder
     }
 
     /**
+     * @param int $count
+     *   Number of entries to fetch.
+     * @param string[] $types
+     *   Any set of Watchdog error types.
+     *
+     * @return array[]
+     */
+    public static function getWatchdogStackTrace($count = 10, array $types = ['php'])
+    {
+        return array_map('unserialize', static::selectQuery('watchdog', 'w')
+            ->fields('w', ['variables'])
+            ->condition('type', $types, 'IN')
+            ->range(0, $count)
+            ->execute()
+            ->fetchCol());
+    }
+
+    /**
      * Require method execution from context.
      *
      * @param string $method
