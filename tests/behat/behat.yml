@@ -19,6 +19,7 @@ default:
       selenium2: ~
       base_url: <DRUPAL_HOST>
       files_path: resources
+      default_session: selenium2
     Drupal\DrupalExtension:
       blackbox: ~
       api_driver: drupal

@@ -289,20 +289,17 @@ class RawTqContext extends RawPageContext implements TqContextInterface
             throw new \InvalidArgumentException(sprintf('Incorrect URL: %s', func_get_arg(0)));
         }
 
-        // When URL starts from "//" the "scheme" key will not exists.
-        if (isset($url['scheme'])) {
-            // Check scheme.
-            if (!in_array($url['scheme'], ['http', 'https'])) {
-                throw new \InvalidArgumentException(sprintf('%s - is not valid scheme.', $url['scheme']));
-            }
+        $url += [
+          // When URL starts from "//" the "scheme" key will not exists.
+          'scheme' => 'http',
+        ];
 
-            $path = $url['scheme'] . ':';
-        } else {
-            // Process "//" at the start.
-            $path = '';
+        // Check scheme.
+        if (!in_array($url['scheme'], ['http', 'https'])) {
+            throw new \InvalidArgumentException(sprintf('%s - is not valid scheme.', $url['scheme']));
         }
 
-        $path .= '//';
+        $path = $url['scheme'] . '://';
 
         if (isset($url['user'], $url['pass'])) {
             // Encode special characters in username and password. Useful
