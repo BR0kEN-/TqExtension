@@ -166,6 +166,21 @@ class DrupalKernelPlaceholder
 
     /**
      * @param string $entityType
+     *   The type of entity.
+     * @param array $values
+     *   Values for entity creation.
+     *
+     * @return string[]
+     *   List with three items in order: entity ID, type and bundle.
+     */
+    public static function entityCreate($entityType, array $values)
+    {
+        return self::requireContext(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $entityType
+     *   The type of entity.
      * @param int $id
      *
      * @return object|null
