@@ -124,6 +124,7 @@ switch (DRUPAL_CORE) {
         break;
 
     case 8:
+        drush('cr');
         // No need to define "DRUPAL_ROOT" for Drupal 8 since it defined in "bootstrap.inc"
         // which will be included by "DrupalKernel::bootEnvironment()".
         $autoloader = require_once DRUPAL_BASE . '/autoload.php';
