@@ -4,6 +4,7 @@
  */
 
 use Drupal\Core\DrupalKernel;
+use Drupal\TqExtension\Utils\Database\Operator;
 use Symfony\Component\HttpFoundation\Request;
 
 // Drupal configuration.
@@ -68,8 +69,7 @@ function behat_config($restore = false)
 }
 
 // Drop and create database.
-(new Drupal\TqExtension\Utils\Database\Operator(DRUPAL_DB_USER, DRUPAL_DB_PASS, DRUPAL_DB_HOST))
-    ->clear(DRUPAL_DB_NAME);
+(new Operator(DRUPAL_DB_USER, DRUPAL_DB_PASS, DRUPAL_DB_HOST))->clear(DRUPAL_DB_NAME);
 
 // Download Drupal and rename the folder.
 if (!file_exists(DRUPAL_BASE)) {
@@ -131,6 +131,7 @@ switch (DRUPAL_CORE) {
 
         /** @see \Drupal\Driver\Cores\Drupal8::bootstrap() */
         DrupalKernel::createFromRequest($request, $autoloader, 'prod')->prepareLegacyRequest($request);
+        Drupal::service('session_manager')->start();
         break;
 }
 
