@@ -131,7 +131,6 @@ switch (DRUPAL_CORE) {
 
         /** @see \Drupal\Driver\Cores\Drupal8::bootstrap() */
         DrupalKernel::createFromRequest($request, $autoloader, 'prod')->prepareLegacyRequest($request);
-        Drupal::service('session_manager')->start();
         break;
 }
 
