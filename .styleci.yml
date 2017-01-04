@@ -4,6 +4,6 @@ linting: true
 finder:
   exclude:
     - "behat/features/bootstrap"
-    - "behat/modules"
+    - "tests/modules"
   name:
     - "*.php"
