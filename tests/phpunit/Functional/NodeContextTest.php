@@ -18,7 +18,6 @@ class NodeContextTest extends BehatTest
      */
     public function test()
     {
-        drush('cr');
         $this->runFeaturesGroup('NodeContext');
     }
 }
