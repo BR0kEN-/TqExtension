@@ -86,7 +86,7 @@ And scroll to "Meta tags" element
 ```
 
 ```gherkin
-Then check that "TypeError: cell[0] is undefined" JS error( not) appears in "misc/tabledrag.js" file
+Then check that "TypeError: cell[0] is undefined" JS error( not) appears (in "misc/tabledrag.js" file|on the page)
 ```
 
 ```gherkin

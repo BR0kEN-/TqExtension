@@ -196,12 +196,13 @@ class TqContext extends RawTqContext
      *
      * @example
      * Then check that "TypeError: cell[0] is undefined" JS error appears in "misc/tabledrag.js" file
+     * Then check that "TypeError: cell[0] is undefined" JS error appears on the page
      *
-     * @Then /^check that "([^"]*)" JS error(| not) appears in "([^"]*)" file$/
+     * @Then /^check that "([^"]*)" JS error(| not) appears (?:in "([^"]*)" file|on the page)$/
      *
      * @javascript
      */
-    public function checkJavaScriptError($message, $negate, $file)
+    public function checkJavaScriptError($message, $negate, $file = '')
     {
         $errors = $this->getSession()->evaluateScript('return JSON.stringify(window.errors);');
         $negate = (bool) $negate;
@@ -217,22 +218,14 @@ class TqContext extends RawTqContext
                 $error->location = str_replace($base_url, '', $error->location);
 
                 switch (static::assertion(
-                    strpos($error->message, $message) === 0 && strpos($error->location, $file) === 0,
+                    strpos($error->message, $message) === 0 && ('' === $file ?: strpos($error->location, $file) === 0),
                     $negate
                 )) {
                     case 1:
-                        throw new \Exception(sprintf(
-                            'The "%s" error found in "%s" file, but should not be.',
-                            $message,
-                            $file
-                        ));
+                        throw new \Exception(sprintf('The "%s" error found, but should not be.', $message));
 
                     case 2:
-                        throw new \Exception(sprintf(
-                            'The "%s" error not found in "%s" file, but should be.',
-                            $message,
-                            $file
-                        ));
+                        throw new \Exception(sprintf('The "%s" error not found, but should be.', $message));
                 }
             }
         }
