@@ -116,16 +116,18 @@ if (!file_exists(ROUTER_FILE)) {
     file_put_contents($index, str_replace('getcwd()', "'" . DRUPAL_BASE . "'", file_get_contents($index)));
 }
 
-$phpServer = sprintf('php -S %s -t %s %s', DRUPAL_HOST, DRUPAL_BASE, ROUTER_FILE);
 // Check for previously launched server. It may stay alive after tests fail.
-$processId = (int) shellExec("ps | grep -v grep | grep '$phpServer' | head -n1 | awk '{print $1}'");
+$processId = (int) shellExec("lsof -Pni4 | grep '%s' | awk '{print $2}'", [DRUPAL_HOST]);
+
+// Kill previously launched server to run it again.
+if ($processId > 0) {
+    shellExec("kill $processId > /dev/null 2>&1");
+}
+
+// Run built-in PHP web-server.
+$processId = shellExec('php -S %s -t %s %s >/dev/null 2>&1 & echo $!', [DRUPAL_HOST, DRUPAL_BASE, ROUTER_FILE]);
 // Get the list of modules for enabling.
 $modulesList = explode("\n", shellExec('ls -D %s', [DRUPAL_MODULES_SOURCE]));
-
-if (0 === $processId) {
-    // Run built-in PHP web-server.
-    $processId = shellExec("$phpServer >/dev/null 2>&1 & echo $!");
-}
 
 // Bootstrap Drupal to make an API available.
 $_SERVER['REMOTE_ADDR'] = 'localhost';
