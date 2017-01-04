@@ -26,6 +26,8 @@ abstract class BehatTest extends \PHPUnit_Framework_TestCase
         // Save CWD before changing for further restoring.
         $this->cwd = getcwd();
 
+        drush(DRUPAL_CORE > 7 ? 'cr' : 'cc all');
+
         chdir(dirname(CONFIG_FILE));
     }
 

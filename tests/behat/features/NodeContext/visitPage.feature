@@ -1,8 +1,7 @@
 @api @debug
 Feature: Node Context
   Scenario: Test "visitPage" method
-    Given I am on the "/" page and HTTP code is "200"
-    Then "article" content:
+    Given "article" content:
       | title | status  |
       | A1    | 1       |
       | A2    | 1       |
