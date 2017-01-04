@@ -1,16 +1,6 @@
 <?php
 // @codingStandardsIgnoreFile
 
-/**
- * @file
- * Page with JavaScript errors.
- */
-
-/**
- * {@inheritdoc}
- *
- * @see tqextension_menu()
- */
 function tqextension_page_js_errors() {
   $page = [];
 
