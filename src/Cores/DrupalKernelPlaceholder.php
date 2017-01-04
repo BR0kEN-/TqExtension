@@ -240,41 +240,6 @@ class DrupalKernelPlaceholder
     }
 
     /**
-     * @param string $file
-     *   Existing file from "src/JavaScript" without ".js" extension.
-     * @param bool $delete
-     *   Whether injection should be deleted.
-     */
-    public static function injectCustomJavascript($file, $delete = false)
-    {
-        self::requireContext(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function drupalGetFilename($type, $name, $filename = null)
-    {
-        return drupal_get_filename($type, $name, $filename);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function fileUnmanagedDelete($path)
-    {
-        return file_unmanaged_delete($path);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function fileUnmanagedCopy($source, $destination = null, $replace = FILE_EXISTS_RENAME)
-    {
-        return file_unmanaged_copy($source, $destination, $replace);
-    }
-
-    /**
      * @param int $count
      *   Number of entries to fetch.
      * @param string[] $types
@@ -290,6 +255,57 @@ class DrupalKernelPlaceholder
             ->range(0, $count)
             ->execute()
             ->fetchCol());
+    }
+
+    /**
+     * @param string $file
+     *   Existing file from "src/JavaScript" without ".js" extension.
+     * @param bool $delete
+     *   Whether injection should be deleted.
+     */
+    final public static function injectCustomJavascript($file, $delete = false)
+    {
+        // Append extension.
+        $file .= '.js';
+        // Do manipulations with "system" module.
+        $moduleName = 'system';
+        // Get the relative path to module.
+        $modulePath = drupal_get_path('module', $moduleName);
+        // Put custom JS directly in the module folder.
+        $destination = "$modulePath/$file";
+
+        if (DRUPAL_CORE > 7) {
+            // Find an unique line.
+            $search = 'js/system.js: {}';
+            // Insert after unique line.
+            $injection = "    $file: {}";
+            // Do injection in the "system.*?" file.
+            $extension = 'libraries.yml';
+        } else {
+            $search = 'system_add_module_assets();';
+            $injection = "drupal_add_js('$destination', ['every_page' => TRUE]);";
+            $extension = 'module';
+        }
+
+        // Do an insertion on a new line.
+        $injection = "\n$injection";
+        // Form the filename for manipulations.
+        $target = "$modulePath/$moduleName.$extension";
+
+        if ($delete) {
+            // Remove the file.
+            unlink($destination);
+            // Find an injection and replace it by emptiness.
+            $search = $injection;
+            $replace = '';
+        } else {
+            // Copy the file.
+            copy(str_replace('Cores', 'JavaScript', __DIR__) . '/' . $file, $destination);
+            // Find an unique line and append injection.
+            $replace = $search . $injection;
+        }
+
+        file_put_contents($target, str_replace($search, $replace, file_get_contents($target)));
     }
 
     /**

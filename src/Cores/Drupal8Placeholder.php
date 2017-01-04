@@ -251,12 +251,4 @@ final class Drupal8Placeholder extends DrupalKernelPlaceholder
 
         return empty($result) ? '' : reset($result);
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function injectCustomJavascript($file, $delete = false)
-    {
-        // @todo
-    }
 }
