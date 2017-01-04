@@ -18,7 +18,6 @@ class NodeContextTest extends BehatTest
      */
     public function test()
     {
-        static::assertTrue(true);
-//        $this->runFeaturesGroup('NodeContext');
+        $this->runFeaturesGroup('NodeContext');
     }
 }
