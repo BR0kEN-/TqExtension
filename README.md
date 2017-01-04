@@ -37,6 +37,8 @@ Selenium 2.53 - is the [final `2.x` release](https://github.com/SeleniumHQ/selen
 - Selenium 2.53 (not above)
 - Firefox 47 (not above)
 
+Or forget about all above and use [PhantomJS](https://github.com/ariya/phantomjs). See [how](.travis.yml#L18).
+
 **Note**: For Drupal 7 the [Entity](https://www.drupal.org/project/entity) module is required!
 
 ## Documentation
