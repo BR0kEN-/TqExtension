@@ -125,13 +125,6 @@ switch (DRUPAL_CORE) {
         break;
 
     case 8:
-        $servicesFile = DRUPAL_BASE . '/sites/default/default.services.yml';
-        $services = Yaml::parse(file_get_contents($servicesFile));
-        $services['parameters']['twig.config']['cache'] = false;
-
-        chmod(dirname($servicesFile), 0755);
-        file_put_contents(str_replace('default.', '', $servicesFile), Yaml::dump($services, PHP_INT_MAX, 2));
-
         // No need to define "DRUPAL_ROOT" for Drupal 8 since it defined in "bootstrap.inc"
         // which will be included by "DrupalKernel::bootEnvironment()".
         $autoloader = require_once DRUPAL_BASE . '/autoload.php';
