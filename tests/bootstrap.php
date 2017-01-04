@@ -17,8 +17,8 @@ define('DRUPAL_PASS', 'admin');
 define('DRUSH_BINARY', realpath('./bin/drush'));
 // Database configuration.
 define('DRUPAL_DB_HOST', '127.0.0.1');
-define('DRUPAL_DB_USER', 'root');
-define('DRUPAL_DB_PASS', '');
+define('DRUPAL_DB_USER', (string) getenv('DRUPAL_DB_USER') ?: 'root');
+define('DRUPAL_DB_PASS', (string) getenv('DRUPAL_DB_PASS'));
 define('DRUPAL_DB_NAME', basename(DRUPAL_BASE));
 // Behat configuration.
 define('CONFIG_FILE', __DIR__ . '/behat/behat.yml');
