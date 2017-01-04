@@ -1,5 +1,5 @@
 filter:
-  excluded_paths: ["tests/*", "behat/features/bootstrap/*"]
+  excluded_paths: ["tests/*", "behat/features/bootstrap/*", "behat/modules/*"]
 
 checks:
   php:

@@ -5,7 +5,6 @@
 
 use Drupal\Core\DrupalKernel;
 use Drupal\TqExtension\Utils\Database\Operator;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 
 // Drupal configuration.
@@ -14,6 +13,9 @@ define('DRUPAL_BASE', __DIR__ . '/drupal_tqextension_phpunit_' . DRUPAL_CORE);
 define('DRUPAL_HOST', '127.0.0.1:1349');
 define('DRUPAL_USER', 'admin');
 define('DRUPAL_PASS', 'admin');
+// Drupal modules.
+define('DRUPAL_MODULES_SOURCE', sprintf('%s/modules/%s', __DIR__, DRUPAL_CORE));
+define('DRUPAL_MODULES_DESTINATION', sprintf('%s/sites/default/modules', DRUPAL_BASE));
 // Drush configuration.
 define('DRUSH_BINARY', realpath('./bin/drush'));
 // Database configuration.
@@ -30,6 +32,22 @@ define('ROUTER_FILE', DRUPAL_BASE . '/' . basename(ROUTER_URL));
 if (!in_array(DRUPAL_CORE, [7, 8])) {
     printf("Drupal %s is not supported.\n", DRUPAL_CORE);
     exit(1);
+}
+
+/**
+ * Execute Shell command.
+ *
+ * @param string $command
+ *   String with placeholders for "sprintf()".
+ * @param string[] $placeholders
+ *   Placeholder values.
+ *
+ * @return string
+ *   Resulting output.
+ */
+function shellExec($command, array $placeholders = [])
+{
+    return trim(shell_exec(vsprintf($command, $placeholders)));
 }
 
 /**
@@ -55,7 +73,7 @@ function drush($command, array $arguments = [])
  *
  * @return bool
  */
-function behat_config($restore = false)
+function behatConfig($restore = false)
 {
     $arguments = [
         '<DRUPAL_HOST>' => DRUPAL_HOST,
@@ -94,17 +112,19 @@ drush('si standard --db-url=mysql://%s:%s@%s/%s --account-name=%s --account-pass
 if (!file_exists(ROUTER_FILE)) {
     $index = sprintf('%s/index.php', DRUPAL_BASE);
 
-    shell_exec(sprintf('wget -O %s %s', ROUTER_FILE, ROUTER_URL));
+    shellExec('wget -O %s %s', [ROUTER_FILE, ROUTER_URL]);
     file_put_contents($index, str_replace('getcwd()', "'" . DRUPAL_BASE . "'", file_get_contents($index)));
 }
 
 $phpServer = sprintf('php -S %s -t %s %s', DRUPAL_HOST, DRUPAL_BASE, ROUTER_FILE);
 // Check for previously launched server. It may stay alive after tests fail.
-$processId = (int) shell_exec("ps | grep -v grep | grep '$phpServer' | head -n1 | awk '{print $1}'");
+$processId = (int) shellExec("ps | grep -v grep | grep '$phpServer' | head -n1 | awk '{print $1}'");
+// Get the list of modules for enabling.
+$modulesList = explode("\n", shellExec('ls -D %s', [DRUPAL_MODULES_SOURCE]));
 
 if (0 === $processId) {
     // Run built-in PHP web-server.
-    $processId = shell_exec("$phpServer >/dev/null 2>&1 & echo $!");
+    $processId = shellExec("$phpServer >/dev/null 2>&1 & echo $!");
 }
 
 // Bootstrap Drupal to make an API available.
@@ -112,33 +132,61 @@ $_SERVER['REMOTE_ADDR'] = 'localhost';
 // Change working directory to the Drupal root to programmatically bootstrap the API.
 chdir(DRUPAL_BASE);
 
-switch (DRUPAL_CORE) {
-    case 7:
-        // Needs to be defined here since everywhere used in "bootstrap.inc".
-        // Drupal 7 defines this constant in "index.php".
-        define('DRUPAL_ROOT', DRUPAL_BASE);
+/**
+ * Run necessary processing for kernel bootstrapping and get the callback.
+ *
+ * @return \Closure
+ *   Anonymous function for bootstrapping Drupal.
+ */
+$bootstrap = function () use (&$modulesList) {
+    switch (DRUPAL_CORE) {
+        case 7:
+            // Required for using metadata wrappers.
+            array_unshift($modulesList, 'entity');
 
-        // Required for using metadata wrappers.
-        drush('en entity -y');
-        require_once DRUPAL_BASE . '/includes/bootstrap.inc';
-        drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-        break;
+            return function () {
+                // Needs to be defined here since everywhere used in "bootstrap.inc".
+                // Drupal 7 defines this constant in "index.php".
+                define('DRUPAL_ROOT', DRUPAL_BASE);
 
-    case 8:
-        // No need to define "DRUPAL_ROOT" for Drupal 8 since it defined in "bootstrap.inc"
-        // which will be included by "DrupalKernel::bootEnvironment()".
-        $autoloader = require_once DRUPAL_BASE . '/autoload.php';
-        $request = Request::createFromGlobals();
+                require_once DRUPAL_BASE . '/includes/bootstrap.inc';
+                drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+            };
 
-        /** @see \Drupal\Driver\Cores\Drupal8::bootstrap() */
-        DrupalKernel::createFromRequest($request, $autoloader, 'prod')->prepareLegacyRequest($request);
-        break;
+        case 8:
+            return function () {
+                // No need to define "DRUPAL_ROOT" for Drupal 8 since it defined in "bootstrap.inc"
+                // which will be included by "DrupalKernel::bootEnvironment()".
+                $autoloader = require_once DRUPAL_BASE . '/autoload.php';
+                $request = Request::createFromGlobals();
+
+                /** @see \Drupal\Driver\Cores\Drupal8::bootstrap() */
+                DrupalKernel::createFromRequest($request, $autoloader, 'prod')->prepareLegacyRequest($request);
+            };
+    }
+};
+
+foreach ([
+    // Ensure writable permissions for "sites/default".
+    'chmod 0755 %s/sites/default' => [DRUPAL_BASE],
+    // Remove custom modules to overwrite them fully.
+    'rm -rf %s' => [DRUPAL_MODULES_DESTINATION],
+    // Copy modules for testing.
+    'cp -r %s %s' => [DRUPAL_MODULES_SOURCE, DRUPAL_MODULES_DESTINATION],
+] as $command => $arguments) {
+    shellExec($command, $arguments);
 }
 
+// Get the bootstrapping function and execute the preprocess for core if needed.
+$bootstrap = $bootstrap();
+// Enable modules.
+drush(sprintf('en %s', implode(' ', $modulesList)));
+// Bootstrap kernel.
+$bootstrap();
 // Initialize Behat configuration.
-behat_config();
+behatConfig();
 
 register_shutdown_function(function () use ($processId) {
-    shell_exec("kill $processId > /dev/null 2>&1");
-    behat_config(true);
+    shellExec("kill $processId > /dev/null 2>&1");
+    behatConfig(true);
 });
