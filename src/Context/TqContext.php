@@ -214,6 +214,8 @@ class TqContext extends RawTqContext
         } else {
             $base_url = $this->locatePath();
 
+            // The "$error" object contains two properties: "message" and "location".
+            // @see CatchErrors.js
             foreach (json_decode($errors) as $error) {
                 $error->location = str_replace($base_url, '', $error->location);
 
@@ -301,14 +303,12 @@ class TqContext extends RawTqContext
 
         // No need to keep working element between scenarios.
         $this->unsetWorkingElement();
-        // Any page should be visited due to using jQuery and checking the cookies.
+        // Any page should be visited to be able check cookies.
         $this->getRedirectContext()->visitPage('/');
     }
 
     /**
-     * Set the jQuery handlers for "start" and "finish" events of AJAX queries.
-     * In each method can be used the "waitAjaxAndAnimations" method for check
-     * that AJAX was finished.
+     * Track XMLHttpRequest starts and finishes using pure JavaScript.
      *
      * @see RawTqContext::waitAjaxAndAnimations()
      *
@@ -316,13 +316,7 @@ class TqContext extends RawTqContext
      */
     public function beforeScenarioJS()
     {
-        $javascript = '';
-
-        foreach (['Start' => 'true', 'Complete' => 'false'] as $event => $state) {
-            $javascript .= "$(document).bind('ajax$event', function() {window.__behatAjax = $state;});";
-        }
-
-        $this->executeJs($javascript);
+        $this->executeJs(static::getJavaScriptFileContents('TrackXHREvents'));
     }
 
     /**

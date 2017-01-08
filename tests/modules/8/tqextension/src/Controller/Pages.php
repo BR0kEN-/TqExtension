@@ -10,6 +10,9 @@ class Pages extends ControllerBase {
   public function jsErrors() {
     $page = [];
 
+    // Ensure that jQuery and our injected script will be on the page.
+    $page['#attached']['library'][] = 'system/drupal.system';
+
     $page['#attached']['html_head'][] = [
       [
         '#tag' => 'script',
