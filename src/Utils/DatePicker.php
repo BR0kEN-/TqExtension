@@ -39,7 +39,7 @@ class DatePicker
     {
         $this->context = $context;
 
-        if (null === $this->execute('$.fn.datepicker')) {
+        if (null === $this->execute('jQuery.fn.datepicker')) {
             throw new \RuntimeException('jQuery DatePicker is not available on the page.');
         }
 

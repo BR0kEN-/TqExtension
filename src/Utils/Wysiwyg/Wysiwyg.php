@@ -145,13 +145,13 @@ abstract class Wysiwyg
         $classes = [$wysiwyg, sprintf('%s\%s', __NAMESPACE__, $wysiwyg)];
 
         foreach ($classes as $class) {
-            if (class_exists($class) && get_parent_class($class) == self::class) {
+            if (class_exists($class) && get_parent_class($class) === self::class) {
                 return (new \ReflectionClass($class))->newInstanceArgs($arguments);
             }
         }
 
         throw new \Exception(sprintf(
-            'Editor\'s object was not defined in any of these places: "%s".',
+            'Editor not defined in any of these namespaces: "%s".',
             implode('", "', $classes)
         ));
     }

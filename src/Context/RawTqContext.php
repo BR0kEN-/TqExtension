@@ -25,6 +25,7 @@ use Behat\Testwork\Environment\Environment;
 // Utils.
 use Drupal\TqExtension\Utils\Url;
 use Drupal\TqExtension\Utils\Tags;
+use Drupal\TqExtension\Utils\JavaScript;
 use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 /**
@@ -45,6 +46,7 @@ use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
  */
 class RawTqContext extends RawPageContext implements TqContextInterface
 {
+    use JavaScript;
     use Debugger;
     use Tags;
 
@@ -137,19 +139,6 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @param string $text
-     *   JS code for processing.
-     *
-     * @return self
-     */
-    protected function processJavaScript(&$text)
-    {
-        $text = str_replace(['$'], ['jQuery'], $text);
-
-        return $this;
-    }
-
-    /**
      * @return Environment|InitializedContextEnvironment
      */
     public function getEnvironment()
@@ -201,8 +190,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         // We need to trigger something with "withSyn" method, because, otherwise an element won't be found.
         $element->focus();
 
-        $this->processJavaScript($script);
-        self::debug([$script]);
+        self::debug(['%s'], [$script]);
 
         return $session->execute([
             'script' => str_replace('{{ELEMENT}}', 'arguments[0]', $script),
@@ -222,7 +210,6 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     {
         $javascript = DrupalKernelPlaceholder::formatString($javascript, $args);
 
-        $this->processJavaScript($javascript);
         self::debug([$javascript]);
 
         return $this->getSession()->evaluateScript($javascript);
@@ -253,11 +240,11 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function waitAjaxAndAnimations()
     {
-        $script = "!window.__behatAjax && !$(':animated').length && !$.active";
+        $script = [];
+        $script[] = '!window.__ajaxRequestsInProcess';
+        $script[] = "(window.jQuery ? !jQuery(':animated').length && !jQuery.active : true)";
 
-        static::processJavaScript($script);
-
-        $this->getSession()->wait(1000, $script);
+        $this->getSession()->wait(1000, implode(' && ', $script));
     }
 
     /**
