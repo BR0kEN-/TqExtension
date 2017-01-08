@@ -7,6 +7,7 @@ use Drupal\Core\DrupalKernel;
 use Drupal\TqExtension\Utils\Database\Operator;
 use Symfony\Component\HttpFoundation\Request;
 
+define('TQEXTENSION_ROOT', dirname(__DIR__));
 // Drupal configuration.
 define('DRUPAL_CORE', (int) getenv('DRUPAL_CORE') ?: 7);
 define('DRUPAL_BASE', __DIR__ . '/drupal_tqextension_phpunit_' . DRUPAL_CORE);
