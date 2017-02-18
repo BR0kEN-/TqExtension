@@ -219,6 +219,8 @@ class TqContext extends RawTqContext
             foreach (json_decode($errors) as $error) {
                 $error->location = str_replace($base_url, '', $error->location);
 
+                self::debug(['JS error "%s" in "%s" file'], [$error->message, $error->location]);
+
                 switch (static::assertion(
                     strpos($error->message, $message) === 0 && ('' === $file ?: strpos($error->location, $file) === 0),
                     $negate
