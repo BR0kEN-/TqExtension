@@ -14,6 +14,8 @@ class DatePicker
 {
     use Debugger;
 
+    const DATE_ADJUSTER = 'window.__behatDatePickerDateAdjuster';
+
     /**
      * @var NodeElement
      */
@@ -73,6 +75,8 @@ class DatePicker
         // after saving the form and/or reloading the page.
         if (empty($value)) {
             $value = $this->execute(self::jsDate($this->element->getValue()));
+        } else {
+            $value = $this->adjustTimezone($value);
         }
 
         self::debug(['Comparing "%s" with "%s".'], [$value, $initial]);
@@ -129,6 +133,30 @@ class DatePicker
                 return in_array($value, ['<date>']) ? $this->date : "'$value'";
             }, $arguments))
         ));
+    }
+
+    /**
+     * Adjust timezone of date returned by DatePicker.
+     *
+     * @param string $date
+     *   Date returned by "jQuery('#selector').datepicker('getDate')".
+     *
+     * @return string
+     *   Date with correct timezone.
+     *
+     * @link http://stackoverflow.com/a/31560608
+     */
+    private function adjustTimezone($date)
+    {
+        $session = $this->context->getSession();
+
+        $session->executeScript(sprintf(
+            '%s=%s;%1$s.setMinutes(%1$s.getMinutes()-%1$s.getTimezoneOffset());delete %1$s;',
+            self::DATE_ADJUSTER,
+            self::jsDate($date)
+        ));
+
+        return $session->evaluateScript(self::DATE_ADJUSTER);
     }
 
     /**
