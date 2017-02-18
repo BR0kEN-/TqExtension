@@ -2,55 +2,14 @@
 /**
  * @author Sergii Bondarenko, <sb@firstvector.org>
  */
-namespace Drupal\TqExtension\Utils;
+namespace Drupal\TqExtension\Utils\DatePicker;
 
-// Contexts.
-use Drupal\TqExtension\Context\RawTqContext;
-// Helpers.
-use Behat\DebugExtension\Debugger;
-use Behat\Mink\Element\NodeElement;
-
-class DatePicker
+class JQuery extends DatePickerBase
 {
-    use Debugger;
-
     const DATE_ADJUSTER = 'window.__behatDatePickerDateAdjuster';
 
     /**
-     * @var NodeElement
-     */
-    private $element;
-    /**
-     * @var string
-     */
-    private $date = '';
-    /**
-     * @var RawTqContext
-     */
-    private $context;
-
-    /**
-     * @param RawTqContext $context
-     *   Behat context.
-     * @param string $selector
-     *   Element selector.
-     * @param string $date
-     *   Human-readable date.
-     */
-    public function __construct(RawTqContext $context, $selector, $date)
-    {
-        $this->context = $context;
-
-        if (null === $this->execute('jQuery.fn.datepicker')) {
-            throw new \RuntimeException('jQuery DatePicker is not available on the page.');
-        }
-
-        $this->element = $this->context->element('*', $selector);
-        $this->date = self::jsDate($date);
-    }
-
-    /**
-     * @return self
+     * {@inheritdoc}
      */
     public function setDate()
     {
@@ -61,9 +20,7 @@ class DatePicker
     }
 
     /**
-     * @throws \Exception
-     *
-     * @return self
+     * {@inheritdoc}
      */
     public function isDateSelected()
     {
@@ -89,9 +46,7 @@ class DatePicker
     }
 
     /**
-     * @throws \Exception
-     *
-     * @return self
+     * {@inheritdoc}
      */
     public function isDateAvailable()
     {
@@ -104,18 +59,6 @@ class DatePicker
         }
 
         return $this;
-    }
-
-    /**
-     * @param string $javascript
-     *   JS code for execution.
-     *
-     * @return mixed
-     *   Result of JS execution.
-     */
-    private function execute($javascript)
-    {
-        return $this->context->executeJs("return $javascript;");
     }
 
     /**
@@ -151,22 +94,11 @@ class DatePicker
         $session = $this->context->getSession();
 
         $session->executeScript(sprintf(
-            '%s=%s;%1$s.setMinutes(%1$s.getMinutes()-%1$s.getTimezoneOffset());delete %1$s;',
+            '%s=%s;%1$s.setMinutes(%1$s.getMinutes()-%1$s.getTimezoneOffset());',
             self::DATE_ADJUSTER,
             self::jsDate($date)
         ));
 
         return $session->evaluateScript(self::DATE_ADJUSTER);
-    }
-
-    /**
-     * @param string $date
-     *   The string to parse.
-     *
-     * @return string
-     */
-    private static function jsDate($date)
-    {
-        return sprintf("new Date('%s')", date('c', strtotime($date)));
     }
 }

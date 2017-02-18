@@ -13,7 +13,7 @@ use Behat\Gherkin\Node\TableNode;
 use WebDriver\Service\CurlService;
 use Behat\Mink\Element\NodeElement;
 // Utils.
-use Drupal\TqExtension\Utils\DatePicker;
+use Drupal\TqExtension\Utils\DatePicker\DatePicker;
 use Drupal\TqExtension\Utils\FormValueAssertion;
 use Drupal\TqExtension\Utils\EntityDrupalWrapper;
 use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
