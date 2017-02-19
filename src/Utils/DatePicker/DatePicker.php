@@ -6,11 +6,15 @@ namespace Drupal\TqExtension\Utils\DatePicker;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
+// Helpers.
+use Behat\DebugExtension\Debugger;
 
-final class DatePicker extends DatePickerBase
+final class DatePicker implements DatePickerInterface
 {
+    use Debugger;
+
     /**
-     * @var DatePickerBase
+     * @var DatePickerInterface
      */
     private $datePicker;
 
@@ -19,15 +23,18 @@ final class DatePicker extends DatePickerBase
      */
     public function __construct(RawTqContext $context, $selector, $date)
     {
-        parent::__construct($context, $selector, $date);
+        $session = $context->getSession();
 
-        if (null === $this->execute('jQuery.fn.datepicker')) {
+        if (null === $session->evaluateScript('jQuery.fn.datepicker')) {
             throw new \RuntimeException('jQuery DatePicker is not available on the page.');
         }
 
         // Drupal 8 will use native "date" field if available.
-        $class = $this->execute('Modernizr && Modernizr.inputtypes.date') ? Native::class : JQuery::class;
-        $this->datePicker = new $class($context, $selector, $date);
+        $class = $session->evaluateScript('Modernizr && Modernizr.inputtypes.date') ? Native::class : JQuery::class;
+
+        self::debug(['The "%s" date picker will be used.'], [$class]);
+
+        $this->datePicker = new $class($context, $session, $context->element('*', $selector), $date);
     }
 
     /**

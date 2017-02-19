@@ -9,6 +9,19 @@ class JQuery extends DatePickerBase
     const DATE_ADJUSTER = 'window.__behatDatePickerDateAdjuster';
 
     /**
+     * @var string
+     */
+    private $jsDate = '';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function initialize()
+    {
+        $this->jsDate = self::jsDate($this->date);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function setDate()
@@ -25,13 +38,13 @@ class JQuery extends DatePickerBase
     public function isDateSelected()
     {
         $value = $this->datePicker(['getDate']);
-        $initial = $this->execute($this->date);
+        $initial = $this->session->evaluateScript($this->jsDate);
 
         // By some reasons DatePicker could not return a date using "getDate" method
         // and we'll try to use it from input value directly. An issue could occur
         // after saving the form and/or reloading the page.
         if (empty($value)) {
-            $value = $this->execute(self::jsDate($this->element->getValue()));
+            $value = $this->session->evaluateScript(self::jsDate($this->element->getValue()));
         } else {
             $value = $this->adjustTimezone($value);
         }
@@ -54,7 +67,7 @@ class JQuery extends DatePickerBase
         // @link https://github.com/refactoror/SelBlocks/issues/5#issuecomment-68511965
         $beforeShowDay = $this->datePicker(['option', 'beforeShowDay']);
 
-        if (!empty($beforeShowDay) && !empty($this->execute("$beforeShowDay($this->date)")[0])) {
+        if (!empty($beforeShowDay) && !empty($this->session->evaluateScript("$beforeShowDay($this->jsDate)")[0])) {
             throw new \Exception(sprintf('The "%s" is not available for choosing.', $this->date));
         }
 
@@ -73,7 +86,7 @@ class JQuery extends DatePickerBase
         return $this->context->executeJsOnElement($this->element, sprintf(
             "return jQuery({{ELEMENT}}).datepicker(%s);",
             implode(', ', array_map(function ($value) {
-                return in_array($value, ['<date>']) ? $this->date : "'$value'";
+                return in_array($value, ['<date>']) ? $this->jsDate : "'$value'";
             }, $arguments))
         ));
     }
@@ -91,14 +104,23 @@ class JQuery extends DatePickerBase
      */
     private function adjustTimezone($date)
     {
-        $session = $this->context->getSession();
-
-        $session->executeScript(sprintf(
+        $this->session->executeScript(sprintf(
             '%s=%s;%1$s.setMinutes(%1$s.getMinutes()-%1$s.getTimezoneOffset());',
             self::DATE_ADJUSTER,
             self::jsDate($date)
         ));
 
-        return $session->evaluateScript(self::DATE_ADJUSTER);
+        return $this->session->evaluateScript(self::DATE_ADJUSTER);
+    }
+
+    /**
+     * @param string $date
+     *   The string to parse.
+     *
+     * @return string
+     */
+    protected static function jsDate($date)
+    {
+        return sprintf("new Date('%s')", date('c', strtotime($date)));
     }
 }
