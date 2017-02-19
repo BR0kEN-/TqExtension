@@ -83,12 +83,9 @@ class JQuery extends DatePickerBase
      */
     private function datePicker(array $arguments)
     {
-        return $this->context->executeJsOnElement($this->element, sprintf(
-            "return jQuery({{ELEMENT}}).datepicker(%s);",
-            implode(', ', array_map(function ($value) {
-                return in_array($value, ['<date>']) ? $this->jsDate : "'$value'";
-            }, $arguments))
-        ));
+        return $this->jQuery(sprintf("datepicker(%s);", implode(', ', array_map(function ($value) {
+            return in_array($value, ['<date>']) ? $this->jsDate : "'$value'";
+        }, $arguments))));
     }
 
     /**

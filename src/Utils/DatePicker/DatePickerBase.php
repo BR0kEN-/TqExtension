@@ -52,5 +52,10 @@ abstract class DatePickerBase implements DatePickerInterface
         $this->initialize();
     }
 
+    protected function jQuery($script)
+    {
+        return $this->context->executeJsOnElement($this->element, "return jQuery({{ELEMENT}}).$script");
+    }
+
     abstract public function initialize();
 }
