@@ -125,11 +125,12 @@ abstract class Wysiwyg
      */
     protected function execute($method, $selector = '', array $arguments = [])
     {
-        return $this->context->executeJs("return !object.$method(!args);", [
-            '!object' => $this->getInstance($selector),
+        return $this->context->executeJs(sprintf(
+            "return %s.$method(%s);",
+            $this->getInstance($selector),
             // Remove "[" character from start and "]" from the end of string.
-            '!args' => substr(DrupalKernelPlaceholder::jsonEncode($arguments), 1, -1),
-        ]);
+            substr(DrupalKernelPlaceholder::jsonEncode($arguments), 1, -1)
+        ));
     }
 
     /**
