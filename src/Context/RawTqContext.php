@@ -79,10 +79,15 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         // letters, creating an array with three items: "get", "Form" and "Context".
         list(, $base, $context) = preg_split('/(?=[A-Z])/', $method);
 
-        foreach ([
-            [$this->getTqParameter('namespace'), 'Context', $base],
-            ['Drupal', 'DrupalExtension', 'Context'],
-        ] as $class) {
+        $namespace = [$this->getTqParameter('namespace'), 'Context'];
+
+        // Provide a possibility to use "getTqContext()" method. Otherwise class will be looked
+        // up into "\Drupal\TqExtension\Context\Tq\TqContext" namespace which does not exists.
+        if ('Tq' !== $base) {
+            $namespace[] = $base;
+        }
+
+        foreach ([$namespace, ['Drupal', 'DrupalExtension', 'Context']] as $class) {
             $class[] = "$base$context";
             $class = implode('\\', $class);
 
