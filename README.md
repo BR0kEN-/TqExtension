@@ -48,6 +48,7 @@ Selenium 2.53 - is the [final `2.x` release](https://github.com/SeleniumHQ/selen
 ## Contributors
 
 - [Alexander Petrov](https://github.com/aapetrov)
+- [Artem Philipenko](https://github.com/arrrtem)
 - [Anastasia Guba](https://github.com/Naastya)
 - [Artyom Miroshnik](https://github.com/M1r1k)
 - [Andrei Perciun](https://github.com/andreiperciun)
