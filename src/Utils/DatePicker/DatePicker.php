@@ -9,7 +9,7 @@ use Drupal\TqExtension\Context\RawTqContext;
 // Helpers.
 use Behat\DebugExtension\Debugger;
 
-final class DatePicker implements DatePickerInterface
+class DatePicker implements DatePickerInterface
 {
     use Debugger;
 
@@ -20,12 +20,14 @@ final class DatePicker implements DatePickerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @see DatePickerBase::__construct()
      */
     public function __construct(RawTqContext $context, $selector, $date)
     {
         $session = $context->getSession();
 
-        if (null === $session->evaluateScript('jQuery.fn.datepicker')) {
+        if (empty($session->evaluateScript('jQuery.fn.datepicker'))) {
             throw new \RuntimeException('jQuery DatePicker is not available on the page.');
         }
 
