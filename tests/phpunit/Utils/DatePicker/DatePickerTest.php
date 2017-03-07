@@ -107,8 +107,8 @@ class DatePickerTest extends \PHPUnit_Framework_TestCase
     public function testDatePickerConstructor($format, $class, $isAvailable = true, \Exception $exception = null)
     {
         if (null !== $exception) {
-            $this->expectException(get_class($exception));
-            $this->expectExceptionMessage($exception->getMessage());
+            // Use deprecated method to be compatible with PHPUnit 4 running on PHP 5.5.
+            $this->setExpectedException(get_class($exception), $exception->getMessage());
         }
 
         $this->assertAttributeInstanceOf($class, 'datePicker', $this->getDatePickerMock(
