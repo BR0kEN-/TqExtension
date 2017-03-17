@@ -53,4 +53,9 @@ trait Tags
             self::$tags[strtolower($tag)] = $value;
         }
     }
+
+    public static function clearTags()
+    {
+        self::$tags = [];
+    }
 }
