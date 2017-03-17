@@ -22,6 +22,10 @@ class TqContext extends RawTqContext
      */
     private $mainWindow = [];
     /**
+     * @var string[]
+     */
+    private static $featureTags = [];
+    /**
      * @var Database
      */
     private static $database;
@@ -270,7 +274,7 @@ class TqContext extends RawTqContext
      */
     public static function beforeFeature(Scope\BeforeFeatureScope $scope)
     {
-        self::collectTags($scope->getFeature()->getTags());
+        self::$featureTags = $scope->getFeature()->getTags();
 
         // Database will be cloned for every feature with @cloneDB tag.
         if (self::hasTag('clonedb')) {
@@ -301,7 +305,8 @@ class TqContext extends RawTqContext
      */
     public function beforeScenario(Scope\BeforeScenarioScope $scope)
     {
-        self::collectTags($scope->getScenario()->getTags());
+        self::clearTags();
+        self::collectTags(self::$featureTags + $scope->getScenario()->getTags());
 
         // No need to keep working element between scenarios.
         $this->unsetWorkingElement();
