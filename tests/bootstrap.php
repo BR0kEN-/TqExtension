@@ -128,7 +128,7 @@ if ($processId > 0) {
 // Run built-in PHP web-server.
 $processId = shellExec('php -S %s -t %s %s >/dev/null 2>&1 & echo $!', [DRUPAL_HOST, DRUPAL_BASE, ROUTER_FILE]);
 // Get the list of modules for enabling.
-$modulesList = explode("\n", shellExec('ls -D %s', [DRUPAL_MODULES_SOURCE]));
+$modulesList = explode("\n", shellExec('ls -d %s', [DRUPAL_MODULES_SOURCE]));
 
 // Bootstrap Drupal to make an API available.
 $_SERVER['REMOTE_ADDR'] = 'localhost';
