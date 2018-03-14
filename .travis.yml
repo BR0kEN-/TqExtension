@@ -1,5 +1,6 @@
 language: php
-sudo: false
+sudo: required
+dist: trusty
 
 php:
   - 7
@@ -15,6 +16,7 @@ services:
 before_script:
   - travis_retry composer self-update
   - travis_retry composer update $COMPOSER_OPTS
+  - sudo apt-get install libfontconfig
   - mkdir phantomjs
   - curl -LS https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz | tar --strip-components=1 -xzC ./phantomjs/
   - chmod a+x ./phantomjs/bin/phantomjs
