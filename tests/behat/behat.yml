@@ -16,6 +16,8 @@ default:
             curl:
               CURLOPT_TIMEOUT: 300
               CURLOPT_CONNECTTIMEOUT: 0
+              CURLOPT_SSL_VERIFYPEER: 0
+              CURLOPT_SSL_VERIFYHOST: 0
       selenium2: ~
       base_url: <DRUPAL_HOST>
       files_path: resources

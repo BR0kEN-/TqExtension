@@ -16,7 +16,8 @@ before_script:
   - travis_retry composer self-update
   - travis_retry composer update $COMPOSER_OPTS
   - mkdir phantomjs
-  - wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz -O - | tar --strip-components=1 -xjC ./phantomjs/
+  - curl -LS https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz | tar --strip-components=1 -xjC ./phantomjs/
+  - chmod a+x ./phantomjs/bin/phantomjs
   - ./phantomjs/bin/phantomjs --version
   - ./phantomjs/bin/phantomjs --webdriver=4444 --ignore-ssl-errors=true &
 
