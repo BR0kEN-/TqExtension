@@ -82,7 +82,7 @@ class EmailContext extends RawEmailContext
     public function clickLink($link, $to = '')
     {
         foreach ($this->getEmailMessages($to) as $message) {
-            if (!isset($message['links'][$link])) {
+            if (!isset($message['links'][$link]) && isset($message['links'])) {
                 $link = array_search($link, $message['links']);
             }
 
