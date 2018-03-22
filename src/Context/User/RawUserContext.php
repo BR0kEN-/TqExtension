@@ -147,7 +147,6 @@ class RawUserContext extends RawTqContext
     {
         if ($this->isLoggedIn()) {
             $this->logout();
-            $this->user = false;
         }
     }
 
