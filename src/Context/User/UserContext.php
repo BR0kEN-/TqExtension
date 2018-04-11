@@ -87,8 +87,8 @@ class UserContext extends RawUserContext
      * This step must be used instead of "I am an anonymous user" because it
      * has more strict checking for authenticated user.
      *
-     * @Given /^I am unauthorized user$/
-     * @Given /^I am log out$/
+     * @Given /^I am (an )unauthorized user$/
+     * @Given /^I am log(ged) out$/
      */
     public function logoutDrupalUser()
     {
