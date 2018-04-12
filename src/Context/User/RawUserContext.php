@@ -29,7 +29,11 @@ class RawUserContext extends RawTqContext
      */
     public function getCurrentId()
     {
-        return empty($this->user->uid) ? 0 : $this->user->uid;
+        $currentUser = $this
+          ->getUserManager()
+          ->getCurrentUser();
+
+        return empty($currentUser->uid) ? 0 : $currentUser->uid;
     }
 
     /**
@@ -69,17 +73,13 @@ class RawUserContext extends RawTqContext
     /**
      * @throws \Exception
      */
-    public function loginUser()
+    public function loginUser(\stdClass $user)
     {
         $this->logoutUser();
 
-        if (empty($this->user)) {
-            throw new \Exception('Tried to login without a user.');
-        }
-
         $this->fillLoginForm([
-            'username' => $this->user->name,
-            'password' => $this->user->pass,
+            'username' => $user->name,
+            'password' => $user->pass,
         ]);
     }
 
@@ -115,9 +115,12 @@ class RawUserContext extends RawTqContext
             ));
         }
 
-        $this->user = user_load_by_name($props['username']);
+        $account = user_load_by_name($props['username']);
+        $this
+          ->getUserManager()
+          ->setCurrentUser($account);
 
-        DrupalKernelPlaceholder::setCurrentUser($this->user);
+        DrupalKernelPlaceholder::setCurrentUser($account);
     }
 
     /**
@@ -158,7 +161,6 @@ class RawUserContext extends RawTqContext
     {
         if ($this->isLoggedIn()) {
             $this->logout();
-            $this->user = false;
         }
     }
 
@@ -208,23 +210,25 @@ class RawUserContext extends RawTqContext
 
         $user = (object) $user;
         $userId = DrupalKernelPlaceholder::getUidByName($user->name);
+        $userManager = $this->getUserManager();
+        $currentUser = $userManager->getCurrentUser();
 
         // User is already exists, remove it to create again.
         if ($userId > 0) {
             DrupalKernelPlaceholder::deleteUser($userId);
         }
 
-        // $this->user always exist but when no user created it has "false" as a value.
+        // $currentUser always exist but when no user created it has "false" as a value.
         // Variable stored to another because RawDrupalContext::userCreate() will modify
         // it and this will affect for future actions.
-        if (!empty($this->user)) {
-            $tmp = $this->user;
+        if (!empty($currentUser)) {
+            $tmp = $currentUser;
         }
 
         $this->userCreate($user);
 
         if (isset($tmp)) {
-            $this->user = $tmp;
+            $userManager->setCurrentUser($tmp);
         }
 
         return $user;

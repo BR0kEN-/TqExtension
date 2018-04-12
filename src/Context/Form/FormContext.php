@@ -113,12 +113,16 @@ class FormContext extends RawFormContext
      */
     public function fillInWithValueOfFieldOfCurrentUser($field, $userField)
     {
-        if (!empty($this->user) && empty($this->user->uid)) {
+        $currentUser = $this
+          ->getUserManager()
+          ->getCurrentUser();
+
+        if (!empty($currentUser) && empty($currentUser->uid)) {
             throw new \Exception('Anonymous user have no fields');
         }
 
         $entity = new EntityDrupalWrapper('user');
-        $entity->load($this->user->uid);
+        $entity->load($currentUser->uid);
 
         if (!$entity->hasField($userField)) {
             throw new \InvalidArgumentException(sprintf('User entity has no "%s" field.', $userField));
