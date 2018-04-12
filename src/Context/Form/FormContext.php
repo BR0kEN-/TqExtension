@@ -153,7 +153,7 @@ class FormContext extends RawFormContext
      *   | Consumer Products  |
      *   | Financial Services |
      *
-     * @Given /^(?:|I )(?:|un)check the boxes:/
+     * @Given /^(?:|I )((?:|un)check) the boxes:/
      */
     public function checkboxAction($action, TableNode $checkboxes)
     {
