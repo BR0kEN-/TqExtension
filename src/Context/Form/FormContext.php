@@ -58,9 +58,19 @@ class FormContext extends RawFormContext
         );
 
         $this->waitAjaxAndAnimations();
+        // DOM modifications.
+        sleep(1);
 
-        $autocomplete = $field->getParent()->findById('autocomplete');
-        $this->throwNoSuchElementException('#autocomplete', $autocomplete);
+        if (DRUPAL_CORE < 8) {
+            $autocomplete_selector = 'autocomplete';
+            $autocomplete = $field->getParent()->findById($autocomplete_selector);
+            $autocomplete_selector = '#' . $autocomplete_selector;
+        } else {
+            $autocomplete_selector = 'body > .ui-widget-content.ui-autocomplete';
+            $autocomplete = $this->element('css', $autocomplete_selector);
+        }
+
+        $this->throwNoSuchElementException($autocomplete_selector, $autocomplete);
 
         $options = count($autocomplete->findAll('css', 'li'));
 

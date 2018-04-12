@@ -249,7 +249,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         $script[] = '!window.__ajaxRequestsInProcess';
         $script[] = "(window.jQuery ? !jQuery(':animated').length && !jQuery.active : true)";
 
-        $this->getSession()->wait(1000, implode(' && ', $script));
+        $this->getSession()->wait(2000, implode(' && ', $script));
     }
 
     /**

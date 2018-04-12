@@ -40,7 +40,7 @@ class RedirectContext extends RawRedirectContext
 
             self::debug(['Expected URLs: %s', 'Current URL: %s'], [implode(', ', $pages), $raw]);
 
-            if ((!empty($pages) && in_array($raw, $pages)) || $url === self::$pageUrl) {
+            if (in_array($raw, $pages, TRUE) || in_array($url, $pages, TRUE)) {
                 return;
             }
 
