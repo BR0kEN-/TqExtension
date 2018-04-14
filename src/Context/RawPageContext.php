@@ -126,7 +126,15 @@ class RawPageContext extends RawDrupalContext
      */
     public function findByText($text)
     {
-        return $this->inaccurateText('*', $text)->find();
+        $element = null;
+
+        foreach ($this->inaccurateText('*', $text)->findAll() as $element) {
+            if ($element->isVisible()) {
+                break;
+            }
+        }
+
+        return $element;
     }
 
     /**
