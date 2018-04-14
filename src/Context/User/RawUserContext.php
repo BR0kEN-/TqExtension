@@ -8,8 +8,9 @@ namespace Drupal\TqExtension\Context\User;
 use Drupal\TqExtension\Context\RawTqContext;
 // Utils.
 use Drupal\TqExtension\Utils\BaseEntity;
-use Drupal\TqExtension\Utils\Database\FetchField;
 use Drupal\TqExtension\Utils\EntityDrupalWrapper;
+use Drupal\TqExtension\Utils\Database\FetchField;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class RawUserContext extends RawTqContext
 {
@@ -28,7 +29,11 @@ class RawUserContext extends RawTqContext
      */
     public function getCurrentId()
     {
-        return empty($this->user->uid) ? 0 : $this->user->uid;
+        $currentUser = $this
+          ->getUserManager()
+          ->getCurrentUser();
+
+        return empty($currentUser->uid) ? 0 : $currentUser->uid;
     }
 
     /**
@@ -68,17 +73,13 @@ class RawUserContext extends RawTqContext
     /**
      * @throws \Exception
      */
-    public function loginUser()
+    public function loginUser(\stdClass $user)
     {
         $this->logoutUser();
 
-        if (empty($this->user)) {
-            throw new \Exception('Tried to login without a user.');
-        }
-
         $this->fillLoginForm([
-            'username' => $this->user->name,
-            'password' => $this->user->pass,
+            'username' => $user->name,
+            'password' => $user->pass,
         ]);
     }
 
@@ -97,7 +98,7 @@ class RawUserContext extends RawTqContext
      */
     public function fillLoginForm(array $props, $message = '')
     {
-        $this->visitPath('/user/login');
+        $this->getRedirectContext()->visitPage('user/login');
         $formContext = $this->getFormContext();
 
         foreach (['username', 'password'] as $prop) {
@@ -107,18 +108,19 @@ class RawUserContext extends RawTqContext
         $this->getWorkingElement()->pressButton($this->getDrupalText('log_in'));
 
         if (!$this->isLoggedIn()) {
-            if (empty($message)) {
-                $message = sprintf(
-                    'Failed to login as a user "%s" with password "%s".',
-                    $props['username'],
-                    $props['password']
-                );
-            }
-
-            throw new \Exception($message);
+            throw new \Exception($message ?: sprintf(
+                'Failed to login as a user "%s" with password "%s".',
+                $props['username'],
+                $props['password']
+            ));
         }
 
-        $GLOBALS['user'] = $this->user = user_load_by_name($props['username']);
+        $account = user_load_by_name($props['username']);
+        $this
+          ->getUserManager()
+          ->setCurrentUser($account);
+
+        DrupalKernelPlaceholder::setCurrentUser($account);
     }
 
     /**
@@ -132,9 +134,21 @@ class RawUserContext extends RawTqContext
     public function isLoggedIn()
     {
         $cookieName = session_name();
+        $baseUrl = parse_url($this->locatePath());
+
+        // When "base_url" has "https" scheme, then secure cookie (SSESS) will be set to
+        // mark authentication. "session_name()" will return unsecure name (SESS) since it
+        // run programmatically. Correct a cookie name if Behat configured for using secure
+        // URL and name is not "secure".
+        // "scheme" may not exist in case if, for instance, "127.0.0.1:1234" used as base URL.
+        if (strpos($cookieName, 'SS') !== 0 && isset($baseUrl['scheme']) && 'https' === $baseUrl['scheme']) {
+            $cookieName = "S$cookieName";
+        }
+
         $cookie = $this->getSession()->getCookie($cookieName);
 
         if (null !== $cookie) {
+            // "goutte" session using for checking HTTP status codes.
             $this->getSession('goutte')->setCookie($cookieName, $cookie);
 
             return true;
@@ -163,7 +177,6 @@ class RawUserContext extends RawTqContext
         $random = $this->getRandom();
         $username = $random->name(8);
         $user = [
-            'uid' => 0,
             'name' => $username,
             'pass' => $random->name(16),
             'mail' => "$username@example.com",
@@ -172,24 +185,18 @@ class RawUserContext extends RawTqContext
             ],
         ];
 
-        $user = (object) $user;
-
         if (!empty($fields)) {
             $entity = new EntityDrupalWrapper('user');
-            $required = $entity->getRequiredFields();
+            // Remove fields such as "name", "pass", "mail" if they are required.
+            $required = array_diff_key($entity->getRequiredFields(), $user);
 
             // Fill fields. Field can be found by name or label.
-            foreach ($fields as $field_name => $value) {
-                $field_info = $entity->getFieldInfo($field_name);
+            foreach ($fields as $fieldName => $value) {
+                $fieldName = $entity->getFieldNameByLocator($fieldName);
 
-                if (!empty($field_info)) {
-                    $field_name = $field_info['field_name'];
-                }
-
-                $user->$field_name = $value;
-
+                $user[$fieldName] = $value;
                 // Remove field from $required if it was there and filled.
-                unset($required[$field_name]);
+                unset($required[$fieldName]);
             }
 
             // Throw an exception when one of required fields was not filled.
@@ -201,25 +208,27 @@ class RawUserContext extends RawTqContext
             }
         }
 
-        if (isset($user->name)) {
-            $existing_user = user_load_by_name($user->name);
+        $user = (object) $user;
+        $userId = DrupalKernelPlaceholder::getUidByName($user->name);
+        $userManager = $this->getUserManager();
+        $currentUser = $userManager->getCurrentUser();
 
-            if (!empty($existing_user)) {
-                user_delete($existing_user->uid);
-            }
+        // User is already exists, remove it to create again.
+        if ($userId > 0) {
+            DrupalKernelPlaceholder::deleteUser($userId);
         }
 
-        // $this->user always exist but when no user created it has "false" as a value.
+        // $currentUser always exist but when no user created it has "false" as a value.
         // Variable stored to another because RawDrupalContext::userCreate() will modify
         // it and this will affect for future actions.
-        if (!empty($this->user)) {
-            $tmp = $this->user;
+        if (!empty($currentUser)) {
+            $tmp = $currentUser;
         }
 
         $this->userCreate($user);
 
         if (isset($tmp)) {
-            $this->user = $tmp;
+            $userManager->setCurrentUser($tmp);
         }
 
         return $user;

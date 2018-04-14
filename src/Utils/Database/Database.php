@@ -4,6 +4,8 @@
  */
 namespace Drupal\TqExtension\Utils\Database;
 
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
+
 /**
  * Class Database.
  *
@@ -40,19 +42,17 @@ class Database
      */
     public function __construct($connection)
     {
-        if (!defined('DRUPAL_ROOT') || !function_exists('conf_path')) {
+        if (!defined('DRUPAL_ROOT')) {
             throw new \RuntimeException('Drupal is not bootstrapped.');
         }
 
-        $databases = [];
+        $database = DrupalKernelPlaceholder::getDatabaseConnectionInfo($connection);
 
-        require sprintf('%s/%s/settings.php', DRUPAL_ROOT, conf_path());
-
-        if (empty($databases[$connection])) {
+        if (empty($database)) {
             throw new \InvalidArgumentException(sprintf('The "%s" database connection does not exist.', $connection));
         }
 
-        $db = $databases[$connection]['default'];
+        $db = $database['default'];
 
         $this->db = new Operator($db['username'], $db['password'], $db['host'], $db['port']);
         $this->source = $db['database'];

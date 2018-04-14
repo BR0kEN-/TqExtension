@@ -96,8 +96,7 @@ class Operator
      */
     public function copy($source, $destination)
     {
-        $this->drop($destination);
-        $this->create($destination);
+        $this->clear($destination);
         $this->exec("mysqldump $source | mysql $destination");
     }
 

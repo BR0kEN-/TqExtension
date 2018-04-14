@@ -6,6 +6,8 @@ namespace Drupal\TqExtension\Utils\Wysiwyg;
 
 // Contexts.
 use Drupal\TqExtension\Context\RawTqContext;
+// Utils.
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 abstract class Wysiwyg
 {
@@ -123,11 +125,12 @@ abstract class Wysiwyg
      */
     protected function execute($method, $selector = '', array $arguments = [])
     {
-        return $this->context->executeJs("return !object.$method(!args);", [
-            '!object' => $this->getInstance($selector),
-            // Remove "[" character from start of the string and "]" from the end.
-            '!args' => substr(drupal_json_encode($arguments), 1, -1),
-        ]);
+        return $this->context->executeJs(sprintf(
+            "return %s.$method(%s);",
+            $this->getInstance($selector),
+            // Remove "[" character from start and "]" from the end of string.
+            substr(DrupalKernelPlaceholder::jsonEncode($arguments), 1, -1)
+        ));
     }
 
     /**
@@ -143,13 +146,13 @@ abstract class Wysiwyg
         $classes = [$wysiwyg, sprintf('%s\%s', __NAMESPACE__, $wysiwyg)];
 
         foreach ($classes as $class) {
-            if (class_exists($class) && get_parent_class($class) == self::class) {
+            if (class_exists($class) && get_parent_class($class) === self::class) {
                 return (new \ReflectionClass($class))->newInstanceArgs($arguments);
             }
         }
 
         throw new \Exception(sprintf(
-            'Editor\'s object was not defined in any of these places: "%s".',
+            'Editor not defined in any of these namespaces: "%s".',
             implode('", "', $classes)
         ));
     }

@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope;
 // Utils.
 use Drupal\TqExtension\Utils\Database\Database;
 use Drupal\TqExtension\Utils\LogicalAssertion;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class TqContext extends RawTqContext
 {
@@ -20,6 +21,10 @@ class TqContext extends RawTqContext
      * @var array
      */
     private $mainWindow = [];
+    /**
+     * @var string[]
+     */
+    private static $featureTags = [];
     /**
      * @var Database
      */
@@ -176,7 +181,7 @@ class TqContext extends RawTqContext
     public function scrollToElement($selector)
     {
         if (!self::hasTag('javascript')) {
-            throw new \Exception('Scrolling to an element is impossible without a JavaScript.');
+            throw new \Exception('Scrolling to an element is impossible without JavaScript.');
         }
 
         $this->executeJsOnElement($this->findElement($selector), '{{ELEMENT}}.scrollIntoView(true);');
@@ -195,12 +200,13 @@ class TqContext extends RawTqContext
      *
      * @example
      * Then check that "TypeError: cell[0] is undefined" JS error appears in "misc/tabledrag.js" file
+     * Then check that "TypeError: cell[0] is undefined" JS error appears on the page
      *
-     * @Then /^check that "([^"]*)" JS error(| not) appears in "([^"]*)" file$/
+     * @Then /^check that "([^"]*)" JS error(| not) appears (?:in "([^"]*)" file|on the page)$/
      *
      * @javascript
      */
-    public function checkJavaScriptError($message, $negate, $file)
+    public function checkJavaScriptError($message, $negate, $file = '')
     {
         $errors = $this->getSession()->evaluateScript('return JSON.stringify(window.errors);');
         $negate = (bool) $negate;
@@ -212,26 +218,22 @@ class TqContext extends RawTqContext
         } else {
             $base_url = $this->locatePath();
 
+            // The "$error" object contains two properties: "message" and "location".
+            // @see CatchErrors.js
             foreach (json_decode($errors) as $error) {
                 $error->location = str_replace($base_url, '', $error->location);
 
+                self::debug(['JS error "%s" in "%s" file'], [$error->message, $error->location]);
+
                 switch (static::assertion(
-                    strpos($error->message, $message) === 0 && strpos($error->location, $file) === 0,
+                    strpos($error->message, $message) === 0 && ('' === $file ?: strpos($error->location, $file) === 0),
                     $negate
                 )) {
                     case 1:
-                        throw new \Exception(sprintf(
-                            'The "%s" error found in "%s" file, but should not be.',
-                            $message,
-                            $file
-                        ));
+                        throw new \Exception(sprintf('The "%s" error found, but should not be.', $message));
 
                     case 2:
-                        throw new \Exception(sprintf(
-                            'The "%s" error not found in "%s" file, but should be.',
-                            $message,
-                            $file
-                        ));
+                        throw new \Exception(sprintf('The "%s" error not found, but should be.', $message));
                 }
             }
         }
@@ -251,21 +253,17 @@ class TqContext extends RawTqContext
      */
     public function assertElementAttribute($selector, $attribute, $expectedValue)
     {
-        $actualValue = $this->element('*', $selector)->getAttribute($attribute);
-
-        if (null === $actualValue) {
-            throw new \InvalidArgumentException(sprintf(
-                'Element does not contain the "%s" attribute.',
-                $attribute
-            ));
-        } elseif ($actualValue !== $expectedValue) {
-            throw new \Exception(sprintf(
-                'Attribute "%s" have the "%s" value which is not equal to "%s".',
-                $attribute,
-                $actualValue,
-                $expectedValue
-            ));
+        foreach ($this->findAll($selector) as $element) {
+            if ($element->getAttribute($attribute) === $expectedValue) {
+                return;
+            }
         }
+
+        throw new \InvalidArgumentException(sprintf(
+            'No elements with "%s" attribute have been found by "%s" selector.',
+            $attribute,
+            $selector
+        ));
     }
 
     /**
@@ -276,20 +274,15 @@ class TqContext extends RawTqContext
      */
     public static function beforeFeature(Scope\BeforeFeatureScope $scope)
     {
-        self::collectTags($scope->getFeature()->getTags());
+        self::$featureTags = $scope->getFeature()->getTags();
 
         // Database will be cloned for every feature with @cloneDB tag.
         if (self::hasTag('clonedb')) {
             self::$database = clone new Database(self::getTag('clonedb', 'default'));
         }
 
-        static::setDrupalVariables([
-            // Set to "false", because the administration menu will not be rendered.
-            // @see https://www.drupal.org/node/2023625#comment-8607207
-            'admin_menu_cache_client' => false,
-        ]);
-
-        static::injectCustomJavascript('CatchErrors');
+        DrupalKernelPlaceholder::beforeFeature($scope);
+        DrupalKernelPlaceholder::injectCustomJavascript('CatchErrors');
     }
 
     /**
@@ -301,7 +294,7 @@ class TqContext extends RawTqContext
         self::$database = null;
 
         // Remove injected script.
-        static::injectCustomJavascript('CatchErrors', true);
+        DrupalKernelPlaceholder::injectCustomJavascript('CatchErrors', true);
     }
 
     /**
@@ -312,21 +305,17 @@ class TqContext extends RawTqContext
      */
     public function beforeScenario(Scope\BeforeScenarioScope $scope)
     {
-        self::collectTags($scope->getScenario()->getTags());
+        self::clearTags();
+        self::collectTags(self::$featureTags + $scope->getScenario()->getTags());
 
         // No need to keep working element between scenarios.
         $this->unsetWorkingElement();
-        // Any page should be visited due to using jQuery and checking the cookies.
-        $this->visitPath('/');
-        // By "Goutte" session we need to visit any page to be able to set a cookie
-        // for this session and use it for checking request status codes.
-        $this->visitPath('/', 'goutte');
+        // Any page should be visited to be able check cookies.
+        $this->getRedirectContext()->visitPage('/');
     }
 
     /**
-     * Set the jQuery handlers for "start" and "finish" events of AJAX queries.
-     * In each method can be used the "waitAjaxAndAnimations" method for check
-     * that AJAX was finished.
+     * Track XMLHttpRequest starts and finishes using pure JavaScript.
      *
      * @see RawTqContext::waitAjaxAndAnimations()
      *
@@ -334,13 +323,7 @@ class TqContext extends RawTqContext
      */
     public function beforeScenarioJS()
     {
-        $javascript = '';
-
-        foreach (['Start' => 'true', 'Complete' => 'false'] as $event => $state) {
-            $javascript .= "$(document).bind('ajax$event', function() {window.__behatAjax = $state;});";
-        }
-
-        $this->executeJs($javascript);
+        $this->executeJs(static::getJavaScriptFileContents('TrackXHREvents'));
     }
 
     /**
@@ -355,8 +338,7 @@ class TqContext extends RawTqContext
     {
         self::$pageUrl = $this->getCurrentUrl();
         // To allow Drupal use its internal, web-based functionality, such as "arg()" or "current_path()" etc.
-        $_GET['q'] = ltrim(parse_url(static::$pageUrl)['path'], '/');
-        drupal_path_initialize();
+        DrupalKernelPlaceholder::setCurrentPath(ltrim(parse_url(self::$pageUrl)['path'], '/'));
     }
 
     /**
@@ -377,7 +359,7 @@ class TqContext extends RawTqContext
             $this->iSwitchToWindow();
         }
 
-        if (self::hasTag('javascript') && self::isStepImpliesJsEvent($scope)) {
+        if (self::isStepImpliesJsEvent($scope)) {
             $this->waitAjaxAndAnimations();
         }
     }

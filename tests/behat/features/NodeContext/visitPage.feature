@@ -1,4 +1,4 @@
-@api
+@api @debug
 Feature: Node Context
   Scenario: Test "visitPage" method
     Given "article" content:

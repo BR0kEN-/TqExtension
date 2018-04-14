@@ -1,6 +1,6 @@
-@api
+@api @debug
 Feature: Tq Context
   Scenario: Test "assertElementAttribute" method
-    Given I am on the "/" page
-    Then I work with elements in "html"
-    And should see the "head" element with "profile" attribute having "http://www.w3.org/1999/xhtml/vocab" value
+    Given I am on the "/" page and HTTP code is "200"
+    When I work with elements in "body" region
+    Then I should see the "div" element with "id" attribute having "page-wrapper" value

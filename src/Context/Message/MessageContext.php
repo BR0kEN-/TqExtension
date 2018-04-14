@@ -7,6 +7,8 @@ namespace Drupal\TqExtension\Context\Message;
 // Helpers.
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
+// Utils.
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class MessageContext extends RawMessageContext
 {
@@ -78,15 +80,9 @@ class MessageContext extends RawMessageContext
             $args = $args->getRowsHash();
         }
 
-        $translated = t($message, $args);
+        $translated = DrupalKernelPlaceholder::t($message, $args);
 
-        self::debug([
-            'Input: %s',
-            'Translated: %s',
-        ], [
-            $message,
-            $translated,
-        ]);
+        self::debug(['Input: %s', 'Translated: %s'], [$message, $translated]);
 
         /** @var NodeElement $element */
         foreach ($elements as $element) {
@@ -95,8 +91,8 @@ class MessageContext extends RawMessageContext
 
             if ($negate ? $result : !$result) {
                 throw new \RuntimeException(sprintf(
-                    "The $type message %s found on the page (%s).",
-                    $negate ? 'not' : '',
+                    "The $type message%s found on the page (%s).",
+                    $negate ? ' not' : '',
                     self::$pageUrl
                 ));
             }

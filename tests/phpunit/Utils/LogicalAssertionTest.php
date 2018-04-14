@@ -33,9 +33,6 @@ class LogicalAssertionTest extends TraitTest
         $this->assertSame($expected, $this->target->assertion($value, $negate));
     }
 
-    /**
-     * @dataProvider
-     */
     public function dataset()
     {
         return [

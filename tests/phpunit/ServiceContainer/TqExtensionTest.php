@@ -4,10 +4,12 @@
  */
 namespace Drupal\Tests\TqExtension\ServiceContainer;
 
-use Drupal\TqExtension\ServiceContainer\TqExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Drupal\Driver\DrupalDriver;
+use Drupal\TqExtension\ServiceContainer\TqExtension;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Class TqExtensionTest.
@@ -34,11 +36,17 @@ class TqExtensionTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
         $this->extension = new TqExtension();
         $this->container = new ContainerBuilder();
         $this->extensionManager = new ExtensionManager([$this->extension]);
+
+        // @see TqExtension::load()
+        $this->container->setDefinition('drupal.driver.drupal', new Definition(
+            DrupalDriver::class,
+            [DRUPAL_BASE, DRUPAL_HOST]
+        ));
     }
 
     /**

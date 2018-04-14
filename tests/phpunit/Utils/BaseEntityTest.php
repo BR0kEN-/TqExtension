@@ -21,6 +21,8 @@ class BaseEntityTest extends TraitTest
     const FQN = BaseEntity::class;
 
     /**
+     * @covers ::entityType
+     * @covers ::getIdByArguments
      * @covers ::entityUrl
      */
     public function testGetCurrentId()
@@ -36,6 +38,6 @@ class BaseEntityTest extends TraitTest
           ->withAnyParameters()
           ->willReturn(12);
 
-        $this->assertSame('test_entity_type/12/view', $this->target->entityUrl('visit', 'dummy'));
+        $this->assertSame('test_entity_type/12', $this->target->entityUrl('visit', 'dummy'));
     }
 }

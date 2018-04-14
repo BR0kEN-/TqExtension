@@ -13,12 +13,20 @@ use Behat\DebugExtension\Debugger;
 // Helpers.
 use WebDriver\Session;
 use Drupal\Driver\DrushDriver;
+use Drupal\Driver\DriverInterface as DrupalDriverInterface;
+use Drupal\Component\Utility\Random;
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Driver\GoutteDriver;
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Driver\DriverInterface as SessionDriverInterface;
 use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
+use Behat\Testwork\Environment\Environment;
 // Utils.
+use Drupal\TqExtension\Utils\Url;
 use Drupal\TqExtension\Utils\Tags;
+use Drupal\TqExtension\Utils\JavaScript;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 /**
  * @see RawTqContext::__call()
@@ -29,15 +37,16 @@ use Drupal\TqExtension\Utils\Tags;
  * @method Email\EmailContext getEmailContext()
  * @method Drush\DrushContext getDrushContext()
  * @method Wysiwyg\WysiwygContext getWysiwygContext()
+ * @method Message\MessageContext getMessageContext()
  * @method Redirect\RedirectContext getRedirectContext()
  * @method TqContext getTqContext()
  * @method DrupalContexts\MinkContext getMinkContext()
  * @method DrupalContexts\DrupalContext getDrupalContext()
- * @method DrupalContexts\MessageContext getMessageContext()
- * @method \Drupal\Component\Utility\Random getRandom()
+ * @method Random getRandom()
  */
 class RawTqContext extends RawPageContext implements TqContextInterface
 {
+    use JavaScript;
     use Debugger;
     use Tags;
 
@@ -70,10 +79,15 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         // letters, creating an array with three items: "get", "Form" and "Context".
         list(, $base, $context) = preg_split('/(?=[A-Z])/', $method);
 
-        foreach ([
-            [$this->getTqParameter('namespace'), 'Context', $base],
-            ['Drupal', 'DrupalExtension', 'Context'],
-        ] as $class) {
+        $namespace = [$this->getTqParameter('namespace'), 'Context'];
+
+        // Provide a possibility to use "getTqContext()" method. Otherwise class will be looked
+        // up into "\Drupal\TqExtension\Context\Tq\TqContext" namespace which does not exists.
+        if ('Tq' !== $base) {
+            $namespace[] = $base;
+        }
+
+        foreach ([$namespace, ['Drupal', 'DrupalExtension', 'Context']] as $class) {
             $class[] = "$base$context";
             $class = implode('\\', $class);
 
@@ -82,18 +96,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
             }
         }
 
-        throw new \Exception(sprintf('Method %s does not exist', $method));
-    }
-
-    /**
-     * @param array $variables
-     *   An associative array where key is a variable name and a value - value.
-     */
-    public static function setDrupalVariables(array $variables)
-    {
-        foreach ($variables as $name => $value) {
-            variable_set($name, $value);
-        }
+        throw new \Exception(sprintf('Method "%s" does not exist', $method));
     }
 
     /**
@@ -125,7 +128,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     public function getDrupalText($name)
     {
         // Make text selectors translatable.
-        return t(parent::getDrupalText($name));
+        return DrupalKernelPlaceholder::t(parent::getDrupalText($name));
     }
 
     /**
@@ -141,20 +144,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @param string $text
-     *   JS code for processing.
-     *
-     * @return self
-     */
-    protected function processJavaScript(&$text)
-    {
-        $text = str_replace(['$'], ['jQuery'], $text);
-
-        return $this;
-    }
-
-    /**
-     * @return InitializedContextEnvironment
+     * @return Environment|InitializedContextEnvironment
      */
     public function getEnvironment()
     {
@@ -162,7 +152,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @return Selenium2Driver
+     * @return SessionDriverInterface|Selenium2Driver|GoutteDriver
      */
     public function getSessionDriver()
     {
@@ -205,8 +195,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
         // We need to trigger something with "withSyn" method, because, otherwise an element won't be found.
         $element->focus();
 
-        $this->processJavaScript($script);
-        self::debug([$script]);
+        self::debug(['%s'], [$script]);
 
         return $session->execute([
             'script' => str_replace('{{ELEMENT}}', 'arguments[0]', $script),
@@ -224,44 +213,11 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function executeJs($javascript, array $args = [])
     {
-        $javascript = format_string($javascript, $args);
+        $javascript = DrupalKernelPlaceholder::formatString($javascript, $args);
 
-        $this->processJavaScript($javascript);
         self::debug([$javascript]);
 
         return $this->getSession()->evaluateScript($javascript);
-    }
-
-    /**
-     * @param string $file
-     *   Existing file from "src/JavaScript" without ".js" extension.
-     * @param bool $delete
-     *   Whether injection should be deleted.
-     */
-    protected static function injectCustomJavascript($file, $delete = false)
-    {
-        $file .= '.js';
-        $modulePath = drupal_get_filename('module', 'system');
-        $destination = dirname($modulePath) . '/' . $file;
-        $injection = "\ndrupal_add_js('$destination', array('every_page' => TRUE));";
-
-        if ($delete) {
-            file_unmanaged_delete("$destination");
-
-            $search = $injection;
-            $replace = '';
-        } else {
-            file_unmanaged_copy(
-                str_replace('Context', 'JavaScript', __DIR__) . '/' . $file,
-                $destination,
-                FILE_EXISTS_REPLACE
-            );
-
-            $search = 'system_add_module_assets();';
-            $replace = $search . $injection;
-        }
-
-        file_put_contents($modulePath, str_replace($search, $replace, file_get_contents($modulePath)));
     }
 
     /**
@@ -273,11 +229,11 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public static function isStepImpliesJsEvent(StepScope $event)
     {
-        return preg_match('/(follow|press|click|submit)/i', $event->getStep()->getText());
+        return self::hasTag('javascript') && preg_match('/(follow|press|click|submit)/i', $event->getStep()->getText());
     }
 
     /**
-     * @return DrushDriver
+     * @return DrupalDriverInterface|DrushDriver
      */
     public function getDrushDriver()
     {
@@ -289,8 +245,11 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function waitAjaxAndAnimations()
     {
-        $this->getSession()
-             ->wait(1000, "window.__behatAjax === false && !jQuery(':animated').length && !jQuery.active");
+        $script = [];
+        $script[] = '!window.__ajaxRequestsInProcess';
+        $script[] = "(window.jQuery ? !jQuery(':animated').length && !jQuery.active : true)";
+
+        $this->getSession()->wait(2000, implode(' && ', $script));
     }
 
     /**
@@ -304,10 +263,7 @@ class RawTqContext extends RawPageContext implements TqContextInterface
     }
 
     /**
-     * @param string $name
-     *   The name of parameter from behat.yml.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getTqParameter($name)
     {
@@ -319,54 +275,12 @@ class RawTqContext extends RawPageContext implements TqContextInterface
      */
     public function locatePath($path = '')
     {
-        // Obtain base URL when path is empty, or not starts from "//" or "http".
-        if (empty($path) || strpos($path, '//') !== 0 && strpos($path, 'http') !== 0) {
-            $path = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($path, '/');
-        }
-
-        $url = parse_url($path);
-
-        if (!isset($url['host'])) {
-            throw new \InvalidArgumentException(sprintf('Incorrect URL: %s', func_get_arg(0)));
-        }
-
-        // When URL starts from "//" the "scheme" key will not exists.
-        if (isset($url['scheme'])) {
-            // Check scheme.
-            if (!in_array($url['scheme'], ['http', 'https'])) {
-                throw new \InvalidArgumentException(sprintf('%s is not valid scheme.', $url['scheme']));
-            }
-
-            $path = $url['scheme'] . ':';
-        } else {
-            // Process "//" at the start.
-            $path = '';
-        }
-
-        $path .= '//';
-
-        if (isset($url['user'], $url['pass'])) {
-            // Encode special characters in username and password. Useful
-            // when some item contain something like "@" symbol.
-            foreach (['user' => ':', 'pass' => '@'] as $part => $suffix) {
-                $path .= rawurlencode($url[$part]) . $suffix;
-            }
-        }
-
-        $path .= $url['host'];
-
-        // Append additional URL components.
-        foreach (['port' => ':', 'path' => '', 'query' => '?', 'fragment' => '#'] as $part => $prefix) {
-            if (isset($url[$part])) {
-                $path .= $prefix . $url[$part];
-            }
-        }
-
-        return $path;
+        return (string) new Url($this->getMinkParameter('base_url'), $path);
     }
 
     /**
      * @return string
+     *   Absolute URL.
      */
     public function getCurrentUrl()
     {

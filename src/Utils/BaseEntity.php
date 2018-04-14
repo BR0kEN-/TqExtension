@@ -4,6 +4,8 @@
  */
 namespace Drupal\TqExtension\Utils;
 
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
+
 /**
  * Trait BaseEntity.
  *
@@ -36,7 +38,7 @@ trait BaseEntity
     public function getCurrentId()
     {
         // We have programmatically bootstrapped Drupal core, so able to use such functionality.
-        $args = arg();
+        $args = DrupalKernelPlaceholder::arg();
 
         return count($args) > 1 && $this->entityType() === $args[0] && $args[1] > 0 ? (int) $args[1] : 0;
     }
@@ -54,8 +56,14 @@ trait BaseEntity
      */
     public function entityUrl($operation, $argument1 = '', $argument2 = '')
     {
-        if ('visit' === $operation) {
-            $operation = 'view';
+        // Drupal 8 don't have the "entity/{id}/view" local action instead of Drupal 7. So,
+        // to support both of versions, assume that "entity/{id}" is correct for "view" operation
+        // in each case.
+        // @todo Maybe we should use "DRUPAL_CORE > 7 ? '' : 'view'"?
+        if (in_array($operation, ['visit', 'view'])) {
+            $operation = '';
+        } else {
+            $operation = "/$operation";
         }
 
         // An empty string could be passed when currently viewing entity expected.
@@ -65,6 +73,6 @@ trait BaseEntity
             throw new \RuntimeException('An ID cannot be zero.');
         }
 
-        return $this->entityType() . "/$id/$operation";
+        return $this->entityType() . "/$id$operation";
     }
 }

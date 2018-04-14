@@ -7,6 +7,8 @@ namespace Drupal\TqExtension\ServiceContainer;
 use Behat\EnvironmentLoader;
 use Behat\Testwork\ServiceContainer\Extension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use Behat\DebugExtension\ServiceContainer\DebugExtension;
+use Drupal\Driver\DrupalDriver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
@@ -30,7 +32,7 @@ class TqExtension implements Extension
      */
     public function initialize(ExtensionManager $extensionManager)
     {
-        if (null === $extensionManager->getExtension('debug')) {
+        if (null === $extensionManager->getExtension(DebugExtension::TAG)) {
             $extensionManager->activateExtension('Behat\DebugExtension');
         }
     }
@@ -40,6 +42,20 @@ class TqExtension implements Extension
      */
     public function load(ContainerBuilder $container, array $config)
     {
+        if (!$container->has('drupal.driver.drupal')) {
+            throw new \LogicException(
+                'TqExtension is completely depends on DrupalExtension and must be configured after it.'
+            );
+        }
+
+        /** @var DrupalDriver $drupalDriver */
+        $drupalDriver = $container->get('drupal.driver.drupal');
+        $drupalDriver->setCoreFromVersion();
+
+        if (!defined('DRUPAL_CORE')) {
+            define('DRUPAL_CORE', (int) $drupalDriver->version);
+        }
+
         $loader = new EnvironmentLoader($this, $container, $config);
         $loader->load();
     }

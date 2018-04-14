@@ -20,9 +20,12 @@ checks:
 
 tools:
   php_code_coverage: false
+  php_pdepend: true
+  php_mess_detector: true
+  sensiolabs_security_checker: true
   external_code_coverage:
     timeout: 2800
-    runs: 4
+    runs: 2
   php_code_sniffer:
     config:
       standard: PSR2

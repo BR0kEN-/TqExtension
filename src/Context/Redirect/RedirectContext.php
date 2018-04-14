@@ -7,6 +7,8 @@ namespace Drupal\TqExtension\Context\Redirect;
 // Helpers.
 use Behat\DebugExtension\Message;
 use Behat\Gherkin\Node\TableNode;
+// Utils.
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 class RedirectContext extends RawRedirectContext
 {
@@ -36,22 +38,16 @@ class RedirectContext extends RawRedirectContext
             $url = $this->getCurrentUrl();
             $raw = explode('?', $url)[0];
 
-            self::debug([
-                'Expected URLs: %s',
-                'Current URL: %s',
-            ], [
-                implode(', ', $pages),
-                $raw,
-            ]);
+            self::debug(['Expected URLs: %s', 'Current URL: %s'], [implode(', ', $pages), $raw]);
 
-            if ((!empty($pages) && in_array($raw, $pages)) || $url === self::$pageUrl) {
+            if (in_array($raw, $pages, true) || in_array($url, $pages, true)) {
                 return;
             }
 
             sleep(1);
         }
 
-        throw new \OverflowException('The waiting time is over.');
+        throw new \OverflowException('Waiting time is over.');
     }
 
     /**
@@ -72,7 +68,7 @@ class RedirectContext extends RawRedirectContext
         $fails = [];
 
         foreach (array_keys($paths->getRowsHash()) as $path) {
-            if (!$this->assertStatusCode($path, $code)) {
+            if ($this->getStatusCode($path) !== $code) {
                 $fails[] = $path;
             }
         }
@@ -95,22 +91,30 @@ class RedirectContext extends RawRedirectContext
      *
      * @param string $path
      *   Path to visit.
-     * @param string|int $code
+     * @param string|int $expectedCode
      *   Expected HTTP status code.
      *
      * @throws \Exception
      *
-     * @Given /^I am on the "([^"]*)" page(?:| and HTTP code is "([^"]*)")$/
-     * @Given /^(?:|I )visit the "([^"]*)" page(?:| and HTTP code is "([^"]*)")$/
+     * @Given /^I am on the "([^"]*)" page(?:| and HTTP code is "(\d+)")$/
+     * @Given /^(?:|I )visit the "([^"]*)" page(?:| and HTTP code is "(\d+)")$/
      */
-    public function visitPage($path, $code = 200)
+    public function visitPage($path, $expectedCode = 200)
     {
-        if (!$this->assertStatusCode($path, $code)) {
-            throw new \Exception(sprintf('The page "%s" is not accessible!', $path));
-        }
+        $this->visitPath($path);
 
         self::debug(['Visited page: %s'], [$path]);
 
-        $this->visitPath($path);
+        $actualCode = $this->getStatusCode($path);
+
+        if ($actualCode >= 500) {
+            foreach (DrupalKernelPlaceholder::getWatchdogStackTrace() as $item) {
+                self::debug(['5xx stack trace: %s'], [var_export($item, true)]);
+            }
+        }
+
+        if ($actualCode !== (int) $expectedCode) {
+            throw new \Exception(sprintf('Expected status is "%s", but "%s" returned.', $expectedCode, $actualCode));
+        }
     }
 }

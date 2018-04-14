@@ -5,6 +5,7 @@
 namespace Drupal\Tests\TqExtension\Utils\Database;
 
 use Drupal\TqExtension\Utils\Database;
+use Drupal\TqExtension\Cores\DrupalKernelPlaceholder;
 
 /**
  * Class DatabaseTest.
@@ -21,7 +22,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         /** @var Database\Operator $operator */
         $operator = self::getObjectAttribute($database, 'db');
 
-        $dbName = $GLOBALS['databases'][self::CONNECTION]['default']['database'];
+        $dbName = DrupalKernelPlaceholder::getDatabaseConnectionInfo(self::CONNECTION)['default']['database'];
         $dbCopy = "tqextension_$dbName";
 
         self::assertSame($dbName, self::getObjectAttribute($database, 'source'));

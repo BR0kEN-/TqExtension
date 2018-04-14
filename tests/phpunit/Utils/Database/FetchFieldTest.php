@@ -21,16 +21,13 @@ class FetchFieldTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
-        $this->fetcher = new FetchField('variable', 'value');
+        $this->fetcher = new FetchField('users', DRUPAL_CORE > 7 ? 'langcode' : 'language');
     }
 
     public function test()
     {
-        self::assertSame(
-            variable_get('drupal_private_key'),
-            unserialize($this->fetcher->condition('name', 'drupal_private_key')->execute())
-        );
+        self::assertSame(DRUPAL_CORE > 7 ? 'en' : '', $this->fetcher->condition('uid', 1)->execute());
     }
 }

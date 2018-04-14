@@ -12,6 +12,7 @@ use Behat\Mink\Element\NodeElement;
 
 class FormValueAssertion
 {
+    use LogicalAssertion;
     use Debugger;
 
     /**
@@ -66,7 +67,7 @@ class FormValueAssertion
      */
     public function __construct(RawTqContext $context, $selector, $not, $expected = '')
     {
-        $this->not = (bool) $not;
+        $this->not = $not;
         $this->context = $context;
         $this->selector = $selector;
         $this->expected = $expected;
@@ -147,13 +148,11 @@ class FormValueAssertion
             throw new \RuntimeException("Tag is not allowed: $this->tag.");
         }
 
-        $types = $allowedElements[$this->tag];
-
         // Restrict by types only if they are specified.
-        if (!empty($types)) {
+        if (!empty($allowedElements[$this->tag])) {
             $type = $this->element->getAttribute('type');
 
-            if (!in_array($type, $types)) {
+            if (!in_array($type, $allowedElements[$this->tag])) {
                 throw new \RuntimeException(sprintf('Type "%s" is not allowed for "%s" tag', $type, $this->tag));
             }
         }
@@ -169,22 +168,20 @@ class FormValueAssertion
      */
     private function assert($value, $word = '')
     {
-        if ($value) {
-            if ($this->not) {
+        switch (static::assertion($value, $this->not)) {
+            case 1:
                 throw new \Exception(
                     empty($word)
-                    ? 'Field contain a value, but should not.'
-                    : "Element is $word, but should not be."
+                        ? 'Field contain a value, but should not.'
+                        : "Element is $word, but should not be."
                 );
-            }
-        } else {
-            if (!$this->not) {
+
+            case 2:
                 throw new \Exception(
                     empty($word)
-                    ? 'Field does not contain a value.'
-                    : "Element is not $word."
+                        ? 'Field does not contain a value.'
+                        : "Element is not $word."
                 );
-            }
         }
     }
 }

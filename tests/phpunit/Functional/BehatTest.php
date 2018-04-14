@@ -12,11 +12,30 @@ namespace Drupal\Tests\TqExtension\Functional;
 abstract class BehatTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * Current working directory.
+     *
+     * @var string
+     */
+    private $cwd = '';
+
+    /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
+        // Save CWD before changing for further restoring.
+        $this->cwd = getcwd();
+
         chdir(dirname(CONFIG_FILE));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function tearDown()
+    {
+        // Restore working directory.
+        chdir($this->cwd);
     }
 
     /**
@@ -30,7 +49,7 @@ abstract class BehatTest extends \PHPUnit_Framework_TestCase
 
         if (file_exists($file)) {
             system("../../bin/behat --no-colors $file", $code);
-            self::assertSame(0, $code);
+            self::assertSame(0, $code, 'Behat tests have failed!');
         } else {
             self::fail(sprintf('File "%s/%s" does not exists!', getcwd(), $file));
         }

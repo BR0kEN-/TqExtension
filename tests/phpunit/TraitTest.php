@@ -28,4 +28,28 @@ abstract class TraitTest extends \PHPUnit_Framework_TestCase
     {
         $this->target = $this->getMockForTrait(static::FQN);
     }
+
+    /**
+     * Invoke protected/private method.
+     *
+     * @param string $name
+     *   Name of method.
+     * @param array $arguments
+     *   List of arguments.
+     *
+     * @return mixed
+     *   Invocation result.
+     */
+    protected function invokeMethod($name, array $arguments = [])
+    {
+        $method = (new \ReflectionClass(static::FQN))->getMethod($name);
+
+        if ($method->isPublic()) {
+            throw new \BadMethodCallException(sprintf('Method "%s" is publicly visible, call it directly.', $name));
+        }
+
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($this->target, $arguments);
+    }
 }

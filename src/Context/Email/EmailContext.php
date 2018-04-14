@@ -13,10 +13,6 @@ class EmailContext extends RawEmailContext
 {
     const PARSE_STRING = '/^(.+?)$/i';
 
-    private $originalMailSystem = [
-        'default-system' => 'DefaultMailSystem',
-    ];
-
     /**
      * @example
      * I check that email for "test@example.com" was sent
@@ -117,10 +113,10 @@ class EmailContext extends RawEmailContext
          * @example
          * @code
          * function mail_account_strings($name, $pass) {
-         *     return array(
-         *       'username' => t('Username: !mail', array('!mail' => $name)),
-         *       'password' => t('Password: !pass', array('!pass' => $pass)),
-         *     );
+         *     return [
+         *       'username' => t('Username: !mail', ['!mail' => $name]),
+         *       'password' => t('Password: !pass', ['!pass' => $pass]),
+         *     ];
          * }
          *
          * // Drupal module.
@@ -130,7 +126,7 @@ class EmailContext extends RawEmailContext
          *             $message['subject'] = t('Website Account');
          *             $message['body'][] = t('You can login on the site using next credentials:');
          *             $message['body'] += mail_account_strings($params['mail'], $params['pass']);
-         *         break;
+         *             break;
          *     }
          * }
          *
@@ -198,13 +194,7 @@ class EmailContext extends RawEmailContext
             "This is the good choice, because you testing the application, not web-server.\n",
         ]);
 
-        // Store original mail system to restore it after scenario.
-        $this->originalMailSystem = variable_get('mail_system', $this->originalMailSystem);
-        $this->setDrupalVariables([
-            // Set the mail system for testing. It will store an emails in
-            // "drupal_test_email_collector" Drupal variable instead of sending.
-            'mail_system' => ['default-system' => 'TestingMailSystem'],
-        ]);
+        DrupalKernelPlaceholder::switchMailSystem(true);
     }
 
     /**
@@ -212,13 +202,7 @@ class EmailContext extends RawEmailContext
      */
     public function afterScenarioEmailApi()
     {
-        $this->setDrupalVariables([
-            // Bring back the original mail system.
-            'mail_system' => $this->originalMailSystem,
-            // Flush the email buffer, allowing us to reuse this step
-            // definition to clear existing mail.
-            'drupal_test_email_collector' => [],
-        ]);
+        DrupalKernelPlaceholder::switchMailSystem(false);
     }
 
     /**

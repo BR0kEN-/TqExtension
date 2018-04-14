@@ -54,8 +54,7 @@ class UserContext extends RawUserContext
      */
     public function loginCreatedUser($roles, TableNode $fields = null)
     {
-        $this->createDrupalUser($roles, $fields);
-        $this->loginUser();
+        $this->loginUser($this->createDrupalUser($roles, $fields));
     }
 
     /**
@@ -65,7 +64,7 @@ class UserContext extends RawUserContext
      */
     public function createDrupalUser($roles, TableNode $fields = null)
     {
-        $this->createUserWithRoles($roles, null !== $fields ? $fields->getRowsHash() : []);
+        return $this->createUserWithRoles($roles, null !== $fields ? $fields->getRowsHash() : []);
     }
 
     /**
